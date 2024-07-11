@@ -1,16 +1,19 @@
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { format } from "date-fns";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  padding: 20px;
+  height: 100vh; 
+  text-align: center;
 `;
 
 const RecordContainer = styled.div`
-  width: 100%;
+  width: 80%;
   max-width: 500px;
   background-color: white;
   padding: 20px;
@@ -44,19 +47,25 @@ const Input = styled.input`
 
 export default function DailyTraining() {
   const location = useLocation();
-  const { date } = location.state;
-  const formattedDate = date.toISOString().split("T")[0];
+  const navigate = useNavigate();
+  const { date, newExercise } = location.state;
+  const formattedDate = format(new Date(date), "yyyy-MM-dd");
 
-  const [exercises, setExercises] = useState({
+  const [exercises, setExercises] = React.useState({
     "2024-07-10": ["런닝 5km", "팔굽혀펴기 20회", "윗몸일으키기 30회"],
     "2024-07-11": ["사이클링 10km", "스쿼트 50회"]
   }[formattedDate] || []);
 
-  const [newExercise, setNewExercise] = useState("");
+  React.useEffect(() => {
+    if (newExercise) {
+      setExercises((prevExercises) => [...prevExercises, newExercise]);
+    }
+  }, [newExercise]);
+
+  const [newExerciseName, setNewExerciseName] = React.useState("");
 
   const addExercise = () => {
-    setExercises([...exercises, newExercise]);
-    setNewExercise("");
+    navigate("/selecttraining", { state: { date } });
   };
 
   const deleteExercise = (index) => {
@@ -64,7 +73,7 @@ export default function DailyTraining() {
   };
 
   const handleInputChange = (e) => {
-    setNewExercise(e.target.value);
+    setNewExerciseName(e.target.value);
   };
 
   return (
@@ -77,15 +86,7 @@ export default function DailyTraining() {
             <Button onClick={() => deleteExercise(index)}>삭제</Button>
           </ExerciseItem>
         ))}
-        <ExerciseItem>
-          <Input 
-            type="text" 
-            value={newExercise} 
-            onChange={handleInputChange} 
-            placeholder="새 운동 추가"
-          />
-          <Button onClick={addExercise}>추가</Button>
-        </ExerciseItem>
+        <Button onClick={addExercise}>운동 추가</Button>
       </RecordContainer>
     </Container>
   );

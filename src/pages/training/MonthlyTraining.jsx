@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
 
 const Container = styled.div`
   display: flex;
@@ -35,7 +36,7 @@ const StyledCalendar = styled(Calendar)`
   border: none;
 
   .react-calendar__tile {
-    height: 100px;
+    height: 110px;
     max-width: none; /* 타일 너비의 기본 최대값 제거 */
   }
 
@@ -72,27 +73,6 @@ const RecordContainer = styled.div`
   margin-bottom: 20px;
 `;
 
-const ExerciseRecord = ({ date }) => {
-  const records = {
-    "2024-07-10": ["런닝 5km", "팔굽혀펴기 20회", "윗몸일으키기 30회"],
-    "2024-07-11": ["사이클링 10km", "스쿼트 50회"]
-  };
-
-  const formattedDate = date.toISOString().split('T')[0];
-  const exercises = records[formattedDate] || ["운동 기록이 없습니다."];
-
-  return (
-    <RecordContainer>
-      <h3>{formattedDate} 운동 기록</h3>
-      <ul>
-        {exercises.map((exercise, index) => (
-          <li key={index}>{exercise}</li>
-        ))}
-      </ul>
-    </RecordContainer>
-  );
-};
-
 export default function MonthlyTraining() {
   const today = new Date();
   const [date, setDate] = useState(today);
@@ -100,19 +80,21 @@ export default function MonthlyTraining() {
 
   const handleDateChange = (selectedDate) => {
     setDate(selectedDate);
+    navigate(`/traindaily/${format(selectedDate, "yyyy-MM-dd")}`, { state: { date: selectedDate } });
   };
 
   const handleTileDoubleClick = (selectedDate) => {
-    navigate("/dailytrain", { state: { date: selectedDate } });
+    navigate(`/traindaily/${format(selectedDate, "yyyy-MM-dd")}`, { state: { date: selectedDate } });
   };
 
   const tileContent = ({ date, view }) => {
     const records = {
       "2024-07-10": ["런닝 5km", "팔굽혀펴기 20회", "윗몸일으키기 30회"],
-      "2024-07-11": ["사이클링 10km", "스쿼트 50회"]
+      "2024-07-11": ["사이클링 10km", "스쿼트 50회"],
+      "2024-07-08": ["사이클링 10km", "스쿼트 50회"],
     };
 
-    const formattedDate = date.toISOString().split('T')[0];
+    const formattedDate = format(date, "yyyy-MM-dd");
     if (records[formattedDate]) {
       return (
         <div style={{ marginTop: "5px", fontSize: "10px", color: "#1890ff" }}>

@@ -5,6 +5,8 @@ import MonthlyTraining from './pages/training/MonthlyTraining';
 import Footer from './components/Footer';
 import Header from './components/Header';
 import DailyTraining from './pages/training/DailyTraining';
+import RecordTraining from './pages/training/RecordTraining';
+import SelectTraining from './pages/training/SelectTraining';
 
 import {
   BrowserRouter as Router,
@@ -77,10 +79,14 @@ function App() {
             <Route path="/home" element={<HomePage />} />
 
             <Route path="/trainmonth" element={<MonthlyTraining />} />
-            <Route path="/traindaily" element={<DailyTraining />} />
+            <Route path="/traindaily/:date" element={<DailyTraining />} />
+            <Route path="/selecttraining" element={<SelectTraining />} />
+            <Route path="/recordtraining" element={<RecordTraining />} />
+
           </Routes>
           
           <Footer/>
+
         </UserContext.Provider>
       </Router>
   );
