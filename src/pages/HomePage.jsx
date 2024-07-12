@@ -14,7 +14,7 @@ export default function HomePage() {
 
   return (
     <Container>
-      Home
+      <h1>Home</h1>
     </Container>
   );
 }

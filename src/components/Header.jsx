@@ -34,6 +34,12 @@ export default function Header() {
       <NotificationIcon onClick={() => navigate("/notifications")}>
         알림
       </NotificationIcon>
+      <button 
+        onClick={() => {
+          localStorage.removeItem('token');
+          navigate("/");
+        }}
+      >로그아웃</button>
     </HeaderContainer>
   );
 }

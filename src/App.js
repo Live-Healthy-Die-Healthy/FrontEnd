@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/login/LoginPage';
 import MonthlyTraining from './pages/training/MonthlyTraining';
@@ -7,88 +9,65 @@ import Header from './components/Header';
 import DailyTraining from './pages/training/DailyTraining';
 import RecordTraining from './pages/training/RecordTraining';
 import SelectTraining from './pages/training/SelectTraining';
-
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  NavLink,
-} from "react-router-dom";
-import { useEffect, useState } from "react";
-import axios from "axios";
-// import Git from "./components/callback/Git";
-// import Google from "./components/callback/Google";
 import Kakao from "./components/callback/Kakao";
 import { UserContext } from "./context/LoginContext";
+import ProfileSetting from './pages/Profilesetting';
 
-
-function App() {
-
-  const [accessToken, setAccessToken] = useState(null);
-  const [refreshToken, setRefreshToken] = useState(null);
+function AppContent() {
+  const [accessToken, setAccessToken] = useState(localStorage.getItem('accessToken'));
+  const [refreshToken, setRefreshToken] = useState(localStorage.getItem('refreshToken'));
   const [loginType, setLoginType] = useState("");
+  const [userId, setUserId] = useState("");
+
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (accessToken) {
-      switch (loginType) {
-        case "GIT":
-          axios({
-            url: "https://api.github.com/user",
-            method: "GET",
-            headers: {
-              'Authorization': `token ${accessToken}`,
-            }
-          }).then((result) => {
-            console.log("user info from github", result);
-          }).catch(error=>{console.log(error)});
-    
-          break;
-        case "GOOGLE":
-          break;
-        case "KAKAO":
-          axios({
-            url: "https://kapi.kakao.com/v2/user/me",
-            method: "GET",
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-            }
-          }).then((result) => {
-            console.log("hi");
-            console.log("user info from kakao", result);
-          }).catch(error=>{console.log(error)});
-          
-          break;
-        default:
-          break;
+    const interceptor = axios.interceptors.response.use(
+      response => response,
+      error => {
+        if (error.response && error.response.status === 401) {
+          alert("로그인이 만료되었습니다. 다시 로그인 해주세요.");
+          setAccessToken(null);
+          localStorage.removeItem('accessToken');
+          navigate('/'); // 로그인 페이지로 리다이렉트
+        }
+        return Promise.reject(error);
       }
-    }
-  }, [accessToken]);
+    );
+
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, [navigate]);
+
+  const shouldShowHeaderFooter = !["/", "/auth/callback/kakao", "/profilesetting"].includes(location.pathname);
 
   return (
+    <UserContext.Provider
+      value={{ accessToken, setAccessToken, refreshToken, setRefreshToken, loginType, setLoginType, userId, setUserId }}
+    >
+      {shouldShowHeaderFooter && <Header />}
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/auth/callback/kakao" element={<Kakao />} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/trainmonth" element={<MonthlyTraining />} />
+        <Route path="/traindaily/:date" element={<DailyTraining />} />
+        <Route path="/selecttraining" element={<SelectTraining />} />
+        <Route path="/recordtraining" element={<RecordTraining />} />
+        <Route path="/profilesetting" element={<ProfileSetting />} />
+      </Routes>
+      {shouldShowHeaderFooter && <Footer />}
+    </UserContext.Provider>
+  );
+}
+
+function App() {
+  return (
     <Router>
-        <UserContext.Provider
-          value={{ accessToken, setAccessToken, refreshToken, setRefreshToken, loginType, setLoginType }}
-        >
-          <Header/>
-          <Routes>
-            <Route path="/" element={<LoginPage />} />
-            {/* <Route path="/auth/callback/git" element={<Git />} /> */}
-            {/* <Route path="/auth/callback/google" element={<Google />} /> */}
-            <Route path="/auth/callback/kakao" element={<Kakao />} />
-
-            <Route path="/home" element={<HomePage />} />
-
-            <Route path="/trainmonth" element={<MonthlyTraining />} />
-            <Route path="/traindaily/:date" element={<DailyTraining />} />
-            <Route path="/selecttraining" element={<SelectTraining />} />
-            <Route path="/recordtraining" element={<RecordTraining />} />
-
-          </Routes>
-          
-          <Footer/>
-
-        </UserContext.Provider>
-      </Router>
+      <AppContent />
+    </Router>
   );
 }
 

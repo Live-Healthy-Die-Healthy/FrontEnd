@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
+// import axios from "axios"; // 서버 통신 시 사용할 axios
 
 const Container = styled.div`
   display: flex;
@@ -22,18 +23,43 @@ const ExerciseButton = styled.button`
   width: 80%;
 `;
 
-const exercises = [
-  "데드리프트",
-  "스쿼트",
-  "벤치프레스",
-  "런닝",
-  "사이클링"
-];
+const ExerciseImage = styled.img`
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+`;
+
+const ExerciseContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
 
 export default function SelectTraining() {
   const navigate = useNavigate();
   const location = useLocation();
   const { date } = location.state;
+
+  // 더미 데이터
+  const exercises = [
+    {
+      exerciseName: "스쿼트",
+      exerciseImage: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA" // 더미 base64 이미지 데이터
+    }
+  ];
+
+  // 실제 서버 통신 코드
+  // useEffect(() => {
+  //   const fetchExercises = async () => {
+  //     try {
+  //       const response = await axios.get('http://localhost:4000/exerciseList');
+  //       setExercises(response.data);
+  //     } catch (error) {
+  //       console.error('Error fetching exercises:', error);
+  //     }
+  //   };
+
+  //   fetchExercises();
+  // }, []);
 
   const handleExerciseClick = (exercise) => {
     navigate("/recordtraining", { state: { date, exercise } });
@@ -43,8 +69,11 @@ export default function SelectTraining() {
     <Container>
       <h3>운동 선택</h3>
       {exercises.map((exercise) => (
-        <ExerciseButton key={exercise} onClick={() => handleExerciseClick(exercise)}>
-          {exercise}
+        <ExerciseButton key={exercise.exerciseName} onClick={() => handleExerciseClick(exercise)}>
+          <ExerciseContainer>
+            <ExerciseImage src={exercise.exerciseImage} alt={exercise.exerciseName} />
+            {exercise.exerciseName}
+          </ExerciseContainer>
         </ExerciseButton>
       ))}
     </Container>

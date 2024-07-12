@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { format } from "date-fns";
+import axios from 'axios';
+import { UserContext } from "../../context/LoginContext";
 
 const Container = styled.div`
   display: flex;
@@ -38,31 +40,42 @@ const Button = styled.button`
   cursor: pointer;
 `;
 
-const Input = styled.input`
-  padding: 5px;
-  width: 70%;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-`;
-
 export default function DailyTraining() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { date, newExercise } = location.state;
+  const { date, newExercise } = location.state || {};
   const formattedDate = format(new Date(date), "yyyy-MM-dd");
+  
+  const { accessToken, userId } = useContext(UserContext);
 
-  const [exercises, setExercises] = React.useState({
-    "2024-07-10": ["런닝 5km", "팔굽혀펴기 20회", "윗몸일으키기 30회"],
-    "2024-07-11": ["사이클링 10km", "스쿼트 50회"]
-  }[formattedDate] || []);
+  const [exercises, setExercises] = useState([]);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    const fetchExercises = async () => {
+      try {
+        const response = await axios.post('http://localhost:4000/exerciseLog', {
+          exerciseDate: formattedDate,
+          userId: userId
+        }, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
+        const data = response.data.map(record => `${record.exerciseName} - ${record.set}세트`);
+        setExercises(data);
+      } catch (error) {
+        console.error('Error fetching exercises:', error);
+      }
+    };
+
+    fetchExercises();
+  }, [date, formattedDate, userId, accessToken]);
+
+  useEffect(() => {
     if (newExercise) {
       setExercises((prevExercises) => [...prevExercises, newExercise]);
     }
   }, [newExercise]);
-
-  const [newExerciseName, setNewExerciseName] = React.useState("");
 
   const addExercise = () => {
     navigate("/selecttraining", { state: { date } });
@@ -70,10 +83,6 @@ export default function DailyTraining() {
 
   const deleteExercise = (index) => {
     setExercises(exercises.filter((_, i) => i !== index));
-  };
-
-  const handleInputChange = (e) => {
-    setNewExerciseName(e.target.value);
   };
 
   return (

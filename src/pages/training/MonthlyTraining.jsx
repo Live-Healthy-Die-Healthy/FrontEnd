@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 import { format } from "date-fns";
 
 const Container = styled.div`
@@ -63,37 +65,38 @@ const StyledCalendar = styled(Calendar)`
   }
 `;
 
-const RecordContainer = styled.div`
-  width: 80%;
-  max-width: 500px;
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  margin-bottom: 20px;
-`;
-
 export default function MonthlyTraining() {
   const today = new Date();
   const [date, setDate] = useState(today);
+  const [records, setRecords] = useState({});
   const navigate = useNavigate();
+
+  const fetchRecords = async (month) => {
+    try {
+      const response = await axios.post(`http://localhost:4000/exerciseCalender`, { month });
+      const data = response.data.reduce((acc, record) => {
+        const formattedDate = record.exerciseDate.split('T')[0];
+        if (!acc[formattedDate]) acc[formattedDate] = [];
+        acc[formattedDate].push(`${record.exerciseName} - ${record.set}세트`);
+        return acc;
+      }, {});
+      setRecords(data);
+    } catch (error) {
+      console.error('Error fetching records:', error);
+    }
+  };
+
+  useEffect(() => {
+    const month = date.getMonth() + 1;
+    fetchRecords(month);
+  }, [date]);
 
   const handleDateChange = (selectedDate) => {
     setDate(selectedDate);
     navigate(`/traindaily/${format(selectedDate, "yyyy-MM-dd")}`, { state: { date: selectedDate } });
   };
 
-  const handleTileDoubleClick = (selectedDate) => {
-    navigate(`/traindaily/${format(selectedDate, "yyyy-MM-dd")}`, { state: { date: selectedDate } });
-  };
-
   const tileContent = ({ date, view }) => {
-    const records = {
-      "2024-07-10": ["런닝 5km", "팔굽혀펴기 20회", "윗몸일으키기 30회"],
-      "2024-07-11": ["사이클링 10km", "스쿼트 50회"],
-      "2024-07-08": ["사이클링 10km", "스쿼트 50회"],
-    };
-
     const formattedDate = format(date, "yyyy-MM-dd");
     if (records[formattedDate]) {
       return (
@@ -120,7 +123,6 @@ export default function MonthlyTraining() {
           minDetail="year"
           tileContent={tileContent}
           onClickDay={handleDateChange}
-          onDoubleClickDay={handleTileDoubleClick} // 타일 더블클릭 이벤트 추가
         />
       </StyledCalendarWrapper>
     </Container>
