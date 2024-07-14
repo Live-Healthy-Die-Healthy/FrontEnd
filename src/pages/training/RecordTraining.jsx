@@ -33,13 +33,25 @@ const Button = styled.button`
 `;
 
 const SetContainer = styled.div`
+  display: flex;
+  align-items: center;
   margin: 10px 0;
+`;
+
+const RemoveButton = styled.button`
+  background: #ff6b6b;
+  border: none;
+  padding: 5px 10px;
+  margin-left: 10px;
+  cursor: pointer;
+  color: white;
+  border-radius: 5px;
 `;
 
 export default function RecordTraining() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { date, exerciseId, exerciseName, exerciseType } = location.state;
+  const { date, exerciseId, exerciseName, exerciseType, exercisePart } = location.state;
   const formattedDate = format(new Date(date), "yyyy-MM-dd");
 
   const [sets, setSets] = useState([{ weight: "", reps: "" }]);
@@ -52,6 +64,10 @@ export default function RecordTraining() {
     setSets([...sets, { weight: "", reps: "" }]);
   };
 
+  const handleRemoveSet = (index) => {
+    setSets(sets.filter((_, i) => i !== index));
+  };
+
   const handleSetChange = (index, field, value) => {
     const newSets = sets.map((set, i) => 
       i === index ? { ...set, [field]: value } : set
@@ -60,7 +76,6 @@ export default function RecordTraining() {
   };
 
   const handleSave = async () => {
-    // 유효성 검사
     let isValid = true;
     if (exerciseType === "AerobicExercise") {
       if (!exerciseTime || !distance) {
@@ -82,7 +97,6 @@ export default function RecordTraining() {
       return;
     }
 
-    // 유효성 검사를 통과한 경우
     let exerciseData = {};
 
     if (exerciseType === "AerobicExercise") {
@@ -90,22 +104,23 @@ export default function RecordTraining() {
         userId,
         exerciseId, 
         exerciseDate: formattedDate,
+        exercisePart: exercisePart,
         exerciseType,
         distance: Number(distance),
         exerciseTime: Number(exerciseTime)
       };
     } else {
-      const setsData = sets.map(set => ({
-        weight: Number(set.weight),
-        repetition: Number(set.reps)
-      }));
+      const weights = sets.map(set => Number(set.weight));
+      const repetitions = sets.map(set => Number(set.reps));
       exerciseData = {
         userId,
-        exerciseId, // This should be dynamically set based on actual exercise data
+        exerciseId,
         exerciseDate: formattedDate,
         exerciseType,
-        exercisePart: "chest", // This should be dynamically set based on actual exercise data
-        sets: setsData,
+        exercisePart: exercisePart,
+        set: sets.length,
+        weight: weights,
+        repetition: repetitions,
         exerciseTime: Number(exerciseTime)
       };
     }
@@ -121,12 +136,10 @@ export default function RecordTraining() {
       });
 
       if (response.status === 200) {
-
         navigate(`/traindaily/${formattedDate}`, {
           state: { date }
         });
       } else {
-        // 요청 실패 시 에러 처리
         alert("운동 기록 저장에 실패했습니다.");
       }
     } catch (error) {
@@ -169,6 +182,7 @@ export default function RecordTraining() {
                 value={set.reps}
                 onChange={(e) => handleSetChange(index, "reps", e.target.value)}
               />
+              <RemoveButton onClick={() => handleRemoveSet(index)}>삭제</RemoveButton>
             </SetContainer>
           ))}
           <Button onClick={handleAddSet}>+ 세트 추가</Button>

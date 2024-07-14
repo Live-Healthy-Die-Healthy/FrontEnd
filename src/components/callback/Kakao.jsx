@@ -19,6 +19,7 @@ export default function Kakao() {
   const { setAccessToken, setRefreshToken, setLoginType, setUserId } =
     useContext(UserContext);
 
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,11 +55,15 @@ export default function Kakao() {
           }).then((userResult) => {
             console.log("user info from kakao", userResult);
             const userId = userResult.data.id;
+            const userEmail = userResult.data.kakao_account.email;
+            const userNickname = userResult.data.kakao_account.profile.nickname;
             setUserId(userId);
-            axios.post('/checkUser', { userId })
+            axios.post('http://localhost:4000/checkUser', { userId })
               .then(response => {
                 if (!response.data.isExist) {
-                  navigate('/profilesetting');
+                  navigate('/profilesetting', {
+                    state: { userEmail, userNickname }
+                  });
                 } else {
                   navigate('/home');
                 }

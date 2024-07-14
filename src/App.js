@@ -12,6 +12,7 @@ import SelectTraining from './pages/training/SelectTraining';
 import Kakao from "./components/callback/Kakao";
 import { UserContext } from "./context/LoginContext";
 import ProfileSetting from './pages/Profilesetting';
+import EditTrain from './pages/training/EditTrain';
 
 function AppContent() {
   const [accessToken, setAccessToken] = useState(localStorage.getItem('accessToken'));
@@ -57,6 +58,7 @@ function AppContent() {
         <Route path="/selecttraining" element={<SelectTraining />} />
         <Route path="/recordtraining" element={<RecordTraining />} />
         <Route path="/profilesetting" element={<ProfileSetting />} />
+        <Route path="/edittraining" element={<EditTrain />} />
       </Routes>
       {shouldShowHeaderFooter && <Footer />}
     </UserContext.Provider>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { UserContext } from "../context/LoginContext";
 import styled from 'styled-components';
@@ -15,11 +16,15 @@ const Container = styled.div`
 
 
 const ProfileSetting = () => {
+  
+  const location = useLocation();
+  const { userEmail, userNickname } = location.state;
+
   const { userId } = React.useContext(UserContext);
   const [userBirth, setUserBirth] = useState("");
   const [userHeight, setUserHeight] = useState("");
   const [userWeight, setUserWeight] = useState("");
-  const [userGender, setUserGender] = useState("");
+  const [userGender, setUserGender] = useState("남성");
   const [userImage, setUserImage] = useState(null);
 
   const navigate = useNavigate();
@@ -32,6 +37,8 @@ const ProfileSetting = () => {
 
     const response = await axios.post(`http://localhost:4000/profile`, {
         userId : userId,
+        userEmail : userEmail,
+        userNickname : userNickname,
         userBirth : userBirth,
         userHeight : userHeight,
         userWeight : userWeight,
