@@ -33,7 +33,7 @@ export default function LoginPage() {
         로고
       </h1>
       <Button className="loginButton" onClick={kakao}>
-        <img src="../assets/kakao_login.png" alt="카카오 로그인"/>
+        <img src="https://live-healthy-die-healthy.github.io/FrontEnd/kakao_login.png" alt="카카오 로그인"/>
       </Button>
     </Container>
   );

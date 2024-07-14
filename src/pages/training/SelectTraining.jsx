@@ -41,23 +41,24 @@ export default function SelectTraining() {
   const location = useLocation();
   const { date } = location.state;
   // 더미 데이터
-  const exercises = dummyTrainings;
+  // const exercises = dummyTrainings;
 
-  // const {exercises, setExercises} = useState("");
+  const {exercises, setExercises} = useState("");
+  
   // 실제 서버 통신 코드
-  // useEffect(() => {
-  //   const fetchExercises = async () => {
-  //     try {
-  //       const response = await axios.get('http://localhost:4000/exerciseList');
-  //       console.log(response);
-  //       setExercises(response.data);
-  //     } catch (error) {
-  //       console.error('Error fetching exercises:', error);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchExercises = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/exerciseList');
+        console.log(response);
+        setExercises(response.data);
+      } catch (error) {
+        console.error('Error fetching exercises:', error);
+      }
+    };
 
-  //   fetchExercises();
-  // }, []);
+    fetchExercises();
+  }, []);
 
   const handleExerciseClick = (exerciseId, exerciseName, exerciseType) => {
     navigate("/recordtraining", { state: { date, exerciseId, exerciseName, exerciseType } });
