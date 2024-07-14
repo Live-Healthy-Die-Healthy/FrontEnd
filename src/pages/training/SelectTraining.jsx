@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
-// import axios from "axios"; // 서버 통신 시 사용할 axios
+import axios from "axios"; // 서버 통신 시 사용할 axios
+
+import dummyTrainings from "../../mocks/dummy.json"
 
 const Container = styled.div`
   display: flex;
@@ -38,20 +40,16 @@ export default function SelectTraining() {
   const navigate = useNavigate();
   const location = useLocation();
   const { date } = location.state;
-
   // 더미 데이터
-  const exercises = [
-    {
-      exerciseName: "스쿼트",
-      exerciseImage: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA" // 더미 base64 이미지 데이터
-    }
-  ];
+  const exercises = dummyTrainings;
 
+  // const {exercises, setExercises} = useState("");
   // 실제 서버 통신 코드
   // useEffect(() => {
   //   const fetchExercises = async () => {
   //     try {
   //       const response = await axios.get('http://localhost:4000/exerciseList');
+  //       console.log(response);
   //       setExercises(response.data);
   //     } catch (error) {
   //       console.error('Error fetching exercises:', error);
@@ -61,18 +59,23 @@ export default function SelectTraining() {
   //   fetchExercises();
   // }, []);
 
-  const handleExerciseClick = (exercise) => {
-    navigate("/recordtraining", { state: { date, exercise } });
+  const handleExerciseClick = (exerciseId, exerciseName, exerciseType) => {
+    navigate("/recordtraining", { state: { date, exerciseId, exerciseName, exerciseType } });
   };
 
   return (
     <Container>
       <h3>운동 선택</h3>
-      {exercises.map((exercise) => (
-        <ExerciseButton key={exercise.exerciseName} onClick={() => handleExerciseClick(exercise)}>
+      {exercises && exercises.map((exercise) => (
+        <ExerciseButton
+         key={exercise.exerciseId} 
+         onClick={() => handleExerciseClick(exercise.exerciseId ,exercise.exerciseName, exercise.exerciseType)}
+        >
           <ExerciseContainer>
             <ExerciseImage src={exercise.exerciseImage} alt={exercise.exerciseName} />
             {exercise.exerciseName}
+            <div>&nbsp;</div>
+            {exercise.exercisePart}
           </ExerciseContainer>
         </ExerciseButton>
       ))}

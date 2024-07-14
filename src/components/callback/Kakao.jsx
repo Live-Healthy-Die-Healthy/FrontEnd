@@ -55,7 +55,7 @@ export default function Kakao() {
             console.log("user info from kakao", userResult);
             const userId = userResult.data.id;
             setUserId(userId);
-            axios.post('/acheckUser', { userId })
+            axios.post('/checkUser', { userId })
               .then(response => {
                 if (!response.data.isExist) {
                   navigate('/profilesetting');

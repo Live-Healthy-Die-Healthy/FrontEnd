@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, BrowserRouter } from "react-router-dom";
 import axios from "axios";
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/login/LoginPage';
@@ -65,9 +65,9 @@ function AppContent() {
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter basename={process.env.PUBLIC_URL}>
       <AppContent />
-    </Router>
+    </BrowserRouter>
   );
 }
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Calendar from "react-calendar";
@@ -6,6 +5,7 @@ import "react-calendar/dist/Calendar.css";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { format } from "date-fns";
+import dummyTrain from "../../mocks/dummyTrain.json";
 
 const Container = styled.div`
   display: flex;
@@ -73,14 +73,21 @@ export default function MonthlyTraining() {
 
   const fetchRecords = async (month) => {
     try {
+      // 실제 서버 요청 대신 더미 데이터를 사용합니다.
       const response = await axios.post(`http://localhost:4000/exerciseCalender`, { month });
+      console.log("response : ", response);
       const data = response.data.reduce((acc, record) => {
+      // const data = dummyTrain.reduce((acc, record) => {
         const formattedDate = record.exerciseDate.split('T')[0];
         if (!acc[formattedDate]) acc[formattedDate] = [];
-        acc[formattedDate].push(`${record.exerciseName} - ${record.set}세트`);
+        const exerciseDetail = record.exerciseType === "AerobicExercise" 
+          ? `${record.exerciseName} - ${record.exerciseTime}분`
+          : `${record.exerciseName} - ${record.set}세트`;
+        acc[formattedDate].push(exerciseDetail);
         return acc;
       }, {});
       setRecords(data);
+      console.log("records : ",records);
     } catch (error) {
       console.error('Error fetching records:', error);
     }
@@ -100,7 +107,7 @@ export default function MonthlyTraining() {
     const formattedDate = format(date, "yyyy-MM-dd");
     if (records[formattedDate]) {
       return (
-        <div style={{ marginTop: "5px", fontSize: "10px", color: "#1890ff" }}>
+        <div style={{ marginTop: "1px", fontSize: "12px", color: "#1179db" }}>
           {records[formattedDate].map((exercise, index) => (
             <div key={index}>{exercise}</div>
           ))}

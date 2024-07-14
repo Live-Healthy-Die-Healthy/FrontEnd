@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { UserContext } from "../context/LoginContext";
 import styled from 'styled-components';
+import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
   display: flex;
@@ -21,6 +22,8 @@ const ProfileSetting = () => {
   const [userGender, setUserGender] = useState("");
   const [userImage, setUserImage] = useState(null);
 
+  const navigate = useNavigate();
+
   const handleImageUpload = (event) => {
     setUserImage(event.target.files[0]);
   };
@@ -37,6 +40,7 @@ const ProfileSetting = () => {
         })
       .then(response => {
         alert("프로필이 성공적으로 업데이트되었습니다.");
+        navigate("/home");
       })
       .catch(error => {
         console.log(error);

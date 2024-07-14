@@ -1,0 +1,40 @@
+[
+    {
+        "exerciseLogId": "2",
+        "exerciseName": "러닝",
+        "exerciseDate": "2024-07-09",
+        "exerciseType": "AerobicExercise",
+        "distance": 30,
+        "exerciseTime": "55"
+    },
+    {
+        "exerciseLogId": "1",
+        "exerciseName": "스쿼트",
+        "exerciseDate": "2024-07-10",
+        "exerciseType": "AnaerobicExercise",
+        "set": 5,
+        "weight": "55",
+        "repetition": 10,
+        "exerciseTime": "55"
+    },
+    {
+        "exerciseLogId": "1",
+        "exerciseName": "스쿼트",
+        "exerciseDate": "2024-07-09",
+        "exerciseType": "AnaerobicExercise",
+        "set": 5,
+        "weight": "55",
+        "repetition": 10,
+        "exerciseTime": "55"
+    },
+    {
+        "exerciseLogId": "1",
+        "exerciseName": "스쿼트",
+        "exerciseDate": "2024-07-11",
+        "exerciseType": "AnaerobicExercise",
+        "set": 5,
+        "weight": "55",
+        "repetition": 10,
+        "exerciseTime": "55"
+    }
+]

@@ -43,7 +43,7 @@ const Button = styled.button`
 export default function DailyTraining() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { date, newExercise } = location.state || {};
+  const { date } = location.state || {};
   const formattedDate = format(new Date(date), "yyyy-MM-dd");
   
   const { accessToken, userId } = useContext(UserContext);
@@ -61,7 +61,15 @@ export default function DailyTraining() {
             Authorization: `Bearer ${accessToken}`
           }
         });
-        const data = response.data.map(record => `${record.exerciseName} - ${record.set}세트`);
+        console.log("response", response);
+
+        const data = response.data.map(record => (
+          { 
+            exerciseLogId: record.exerciseLogId, 
+            name: `${record.exerciseName} - ${record.set}세트` 
+          }
+        ));
+        console.log("data", data);
         setExercises(data);
       } catch (error) {
         console.error('Error fetching exercises:', error);
@@ -71,28 +79,51 @@ export default function DailyTraining() {
     fetchExercises();
   }, [date, formattedDate, userId, accessToken]);
 
-  useEffect(() => {
-    if (newExercise) {
-      setExercises((prevExercises) => [...prevExercises, newExercise]);
-    }
-  }, [newExercise]);
+  // useEffect(() => {
+  //   if (newExercise) {
+  //     setExercises((prevExercises) => [...prevExercises, newExercise]);
+  //   }
+  // }, [newExercise]);
 
   const addExercise = () => {
     navigate("/selecttraining", { state: { date } });
   };
 
-  const deleteExercise = (index) => {
-    setExercises(exercises.filter((_, i) => i !== index));
+  const deleteExercise = async (id) => {
+    try {
+      const response = await axios.delete('http://localhost:4000/exerciseLog', {
+        data: { exerciseLogId: id },
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+
+      if (response.status === 200) {
+        setExercises(exercises.filter((exercise) => exercise.id !== id));
+      } else {
+        alert('운동 기록 삭제에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Error deleting exercise:', error);
+      alert('운동 기록 삭제 중 오류가 발생했습니다.');
+    }
+  };
+
+  const editExercise = (exerciseLogId) => {
+    navigate("/edittraining", { state: { date, exerciseLogId } });
   };
 
   return (
     <Container>
       <h3>{formattedDate} 운동 기록</h3>
       <RecordContainer>
-        {exercises.map((exercise, index) => (
-          <ExerciseItem key={index}>
-            <span>{exercise}</span>
-            <Button onClick={() => deleteExercise(index)}>삭제</Button>
+        {exercises.map((exercise) => (
+          <ExerciseItem key={exercise.exerciseLogId}>
+            <span>{exercise.name}</span>
+            <div>
+              <Button onClick={() => editExercise(exercise.exerciseLogId)}>수정</Button>
+              <Button onClick={() => deleteExercise(exercise.exerciseLogId)}>삭제</Button>
+            </div>
           </ExerciseItem>
         ))}
         <Button onClick={addExercise}>운동 추가</Button>
