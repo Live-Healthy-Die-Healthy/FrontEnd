@@ -15,7 +15,7 @@ const Container = styled.div`
 
 const FormContainer = styled.div`
   width: 80%;
-  max-width: 500px;
+  max-width: 600px;
   background-color: white;
   padding: 20px;
   border-radius: 10px;
@@ -45,6 +45,7 @@ const SetContainer = styled.div`
 `;
 
 const RemoveButton = styled.button`
+  width: 15%;
   background: #ff6b6b;
   border: none;
   padding: 5px 10px;
@@ -62,6 +63,7 @@ const EditTrain = () => {
 
   const [exerciseType, setExerciseType] = useState("");
   const [exerciseTime, setExerciseTime] = useState("");
+  const [exerciseName, setExerciseName] = useState("");
   const [distance, setDistance] = useState("");
   const [sets, setSets] = useState([{ weight: "", reps: "" }]);
 
@@ -80,7 +82,7 @@ const EditTrain = () => {
           const data = response.data;
           setExerciseType(data.exerciseType);
           setExerciseTime(data.exerciseTime.toString());
-
+          setExerciseName(data.exerciseName);
           if (data.exerciseType === "AerobicExercise") {
             setDistance(data.distance.toString());
           } else {
@@ -185,7 +187,7 @@ const EditTrain = () => {
 
   return (
     <Container>
-      <h3>{date} 운동 기록 수정</h3>
+      <h3>{date} &nbsp; {exerciseName} 운동 기록 수정</h3>
       <FormContainer>
         {exerciseType === "AerobicExercise" ? (
           <>
@@ -206,6 +208,7 @@ const EditTrain = () => {
           <>
             {sets.map((set, index) => (
               <SetContainer key={index}>
+                <h3>set{index+1}</h3>
                 <Input
                   type="number"
                   placeholder="중량 (kg)"

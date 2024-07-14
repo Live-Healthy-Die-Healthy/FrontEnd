@@ -11,7 +11,16 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   text-align: center;
-  height: 100vh; 
+  height: 100vh;
+`;
+
+const FormContainer = styled.div`
+  width: 80%;
+  max-width: 600px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 `;
 
 const Input = styled.input`
@@ -39,6 +48,7 @@ const SetContainer = styled.div`
 `;
 
 const RemoveButton = styled.button`
+  width: 15%;
   background: #ff6b6b;
   border: none;
   padding: 5px 10px;
@@ -151,6 +161,7 @@ export default function RecordTraining() {
   return (
     <Container>
       <h3>{formattedDate} {exerciseName} 기록</h3>
+      <FormContainer>
       {exerciseType === "AerobicExercise" ? (
         <>
           <Input
@@ -170,6 +181,7 @@ export default function RecordTraining() {
         <>
           {sets.map((set, index) => (
             <SetContainer key={index}>
+              <h3>set{index+1}</h3>
               <Input
                 type="number"
                 placeholder="중량 (kg)"
@@ -195,6 +207,8 @@ export default function RecordTraining() {
         </>
       )}
       <Button onClick={handleSave}>저장</Button>
+      
+      </FormContainer>
     </Container>
   );
 }

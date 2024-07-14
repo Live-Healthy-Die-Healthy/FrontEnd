@@ -65,7 +65,7 @@ const StyledCalendar = styled(Calendar)`
   }
 `;
 
-export default function MonthlyTraining() {
+export default function MonthlyDiet() {
   const today = new Date();
   const [date, setDate] = useState(today);
   const [records, setRecords] = useState({});
@@ -100,7 +100,7 @@ export default function MonthlyTraining() {
 
   const handleDateChange = (selectedDate) => {
     setDate(selectedDate);
-    navigate(`/traindaily/${format(selectedDate, "yyyy-MM-dd")}`, { state: { date: selectedDate } });
+    navigate(`/dietdaily/${format(selectedDate, "yyyy-MM-dd")}`, { state: { date: selectedDate } });
   };
 
   const tileContent = ({ date, view }) => {
@@ -119,7 +119,7 @@ export default function MonthlyTraining() {
 
   return (
     <Container>
-        <h1>월간 운동</h1>
+        <h1>월간 식단</h1>
       <StyledCalendarWrapper>
         <StyledCalendar
           value={date}

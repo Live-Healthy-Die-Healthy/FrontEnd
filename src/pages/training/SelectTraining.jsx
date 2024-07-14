@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios"; // 서버 통신 시 사용할 axios
+import dummyData from "../../mocks/dummyTrainList.json";
 
 const Container = styled.div`
   display: flex;
@@ -59,8 +60,10 @@ export default function SelectTraining() {
   const [exercises, setExercises] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredExercises, setFilteredExercises] = useState([]);
+  const [selectedPart, setSelectedPart] = useState("");
 
   useEffect(() => {
+    // 실제 서버 통신 코드
     const fetchExercises = async () => {
       try {
         const response = await axios.get('http://localhost:4000/exerciseList');
@@ -72,6 +75,10 @@ export default function SelectTraining() {
     };
 
     fetchExercises();
+
+    // 더미 데이터 사용
+    // setExercises(dummyData);
+    // setFilteredExercises(dummyData);
   }, []);
 
   const handleSearchChange = (e) => {
@@ -79,14 +86,13 @@ export default function SelectTraining() {
     filterExercises(e.target.value, selectedPart);
   };
 
-  const [selectedPart, setSelectedPart] = useState("");
-
   const handleFilterClick = (part) => {
     setSelectedPart(part);
     filterExercises(searchTerm, part);
   };
 
   const filterExercises = (searchTerm, part) => {
+    if(part==='all'){setFilteredExercises(exercises); return;}
     const filtered = exercises.filter((exercise) => {
       const matchesPart = part ? exercise.exercisePart === part || (part === "AerobicExercise" && exercise.exerciseType === "AerobicExercise") : true;
       const matchesSearchTerm = exercise.exerciseName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -109,6 +115,7 @@ export default function SelectTraining() {
         onChange={handleSearchChange}
       />
       <div>
+        <FilterButton onClick={() => handleFilterClick("all")}>전체</FilterButton>
         <FilterButton onClick={() => handleFilterClick("chest")}>가슴</FilterButton>
         <FilterButton onClick={() => handleFilterClick("back")}>등</FilterButton>
         <FilterButton onClick={() => handleFilterClick("arm")}>팔</FilterButton>

@@ -5,7 +5,7 @@
         "exerciseDate": "2024-07-09",
         "exerciseType": "AerobicExercise",
         "distance": 30,
-        "exerciseTime": "55"
+        "exerciseTime": "30"
     },
     {
         "exerciseLogId": "1",
@@ -13,8 +13,8 @@
         "exerciseDate": "2024-07-10",
         "exerciseType": "AnaerobicExercise",
         "set": 5,
-        "weight": "55",
-        "repetition": 10,
+        "weight": [10,15,222,30,40],
+        "repetition": [10,9,8,10,9],
         "exerciseTime": "55"
     },
     {
@@ -23,8 +23,8 @@
         "exerciseDate": "2024-07-09",
         "exerciseType": "AnaerobicExercise",
         "set": 5,
-        "weight": "55",
-        "repetition": 10,
+        "weight": [10,15,111,30,40],
+        "repetition": [10,9,8,10,9],
         "exerciseTime": "55"
     },
     {
@@ -33,8 +33,18 @@
         "exerciseDate": "2024-07-11",
         "exerciseType": "AnaerobicExercise",
         "set": 5,
-        "weight": "55",
-        "repetition": 10,
+        "weight": [10,15,20,30,40],
+        "repetition": [10,9,8,10,9],
+        "exerciseTime": "55"
+    },
+    {
+        "exerciseLogId": "3",
+        "exerciseName": "벤치 프레스",
+        "exerciseDate": "2024-07-11",
+        "exerciseType": "AnaerobicExercise",
+        "set": 5,
+        "weight": [12,15,24,30,40],
+        "repetition": [10,11,224,10,9],
         "exerciseTime": "55"
     }
 ]
