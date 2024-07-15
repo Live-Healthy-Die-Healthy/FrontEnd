@@ -26,7 +26,7 @@ export default function Kakao() {
     try {
       const url = new URL(window.location.href);
       const code = url.searchParams.get("code");
-      console.log(code);
+      console.log(code); //지워야댐
       if (code) {
         axios({
           url: "http://localhost:4000/auth/kakao/accesstoken",

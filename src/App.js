@@ -15,12 +15,19 @@ import ProfileSetting from './pages/Profilesetting';
 import EditTrain from './pages/training/EditTrain';
 import MonthlyDiet from './pages/diet/MonthlyDiet';
 import DailyDiet from './pages/diet/DailyDiet';
+import ReportPage from './pages/reports/ReportPage';
+import DailyReportPage from './pages/reports/DailyReportPage';
+import WeeklyReportPage from './pages/reports/WeeklyReportPage';
+import MonthlyReportPage from './pages/reports/MonthlyReportPage';
+import YearlyReportPage from './pages/reports/YearlyReportPage';
+import SettingPage from './pages/settings/SettingPage';
+import ProfilePage from './pages/settings/ProfilePage';
 
 function AppContent() {
   const [accessToken, setAccessToken] = useState(localStorage.getItem('accessToken'));
   const [refreshToken, setRefreshToken] = useState(localStorage.getItem('refreshToken'));
   const [loginType, setLoginType] = useState("");
-  const [userId, setUserId] = useState("");
+  const [userId, setUserId] = useState("1234");
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -54,15 +61,28 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/auth/callback/kakao" element={<Kakao />} />
+
         <Route path="/home" element={<HomePage />} />
+
         <Route path="/trainmonth" element={<MonthlyTraining />} />
         <Route path="/traindaily/:date" element={<DailyTraining />} />
         <Route path="/selecttraining" element={<SelectTraining />} />
         <Route path="/recordtraining" element={<RecordTraining />} />
         <Route path="/profilesetting" element={<ProfileSetting />} />
         <Route path="/edittraining" element={<EditTrain />} />
+
         <Route path="/dietmonth" element={<MonthlyDiet />} />
         <Route path="/dietdaily/:date" element={<DailyDiet />} />
+
+        <Route path="/report" element={<ReportPage />} />
+        <Route path="/dailyreport" element={<DailyReportPage />} />
+        <Route path="/weeklyreport" element={<WeeklyReportPage />} />
+        <Route path="/monthlyreport" element={<MonthlyReportPage />} />
+        <Route path="/yearlyreport" element={<YearlyReportPage />} />
+
+        <Route path="/settings" element={<SettingPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+
       </Routes>
       {shouldShowHeaderFooter && <Footer />}
     </UserContext.Provider>

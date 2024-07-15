@@ -18,7 +18,7 @@ const Container = styled.div`
 `;
 
 const Header = styled.div`
-  width: 60%;
+  width: 80%;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -44,7 +44,7 @@ const AddButton = styled.button`
 
 const RecordContainer = styled.div`
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
   background-color: white;
   padding: 20px;
   border-radius: 10px;
@@ -54,7 +54,10 @@ const RecordContainer = styled.div`
 `;
 
 const ExerciseItem = styled.div`
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
   margin-bottom: 20px;
+  padding: 10px;
 `;
 
 const ExerciseHeader = styled.div`
@@ -65,21 +68,35 @@ const ExerciseHeader = styled.div`
 `;
 
 const ExerciseName = styled.h3`
-  margin: 0;
+  margin: 0px 20px;
   font-size: 18px;
 `;
 
-const ExerciseDetails = styled.div`
-  background-color: #f8f8f8;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+const ExerciseImage = styled.img`
+  width: 50px;
+  height: 50px;
 `;
 
-const ExerciseDetailItem = styled.div`
+const SetContainer = styled.div`
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 5px;
+  justify-content: space-around;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 10px;
+  margin-top: 10px;
+`;
+
+const SetItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const SetNumber = styled.span`
+  font-weight: bold;
+`;
+
+const SetDetail = styled.span`
+  margin: 2px 0;
 `;
 
 const ButtonContainer = styled.div`
@@ -98,6 +115,10 @@ const Button = styled.button`
   }
 `;
 
+const ExerciseDetailItem = styled.div`
+  display: flex;
+`;
+
 export default function DailyTraining() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -107,24 +128,37 @@ export default function DailyTraining() {
   const [exercises, setExercises] = useState([]);
 
   useEffect(() => {
+    // 실제 서버 요청 부분
     const fetchExercises = async () => {
       try {
+        console.log("fetchExercise 시작");
         const response = await axios.post('http://localhost:4000/exerciseLog', {
           exerciseDate: formattedDate,
           userId: userId
-        }, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        });
-
+        }
+        // , {
+        //   headers: {
+        //     Authorization: `Bearer ${accessToken}`
+        //   }
+        // }
+        );
+        console.log("fetchExercise 끝");
+  
+        // 데이터 변환 후 설정
         const data = response.data.map(record => ({
           exerciseLogId: record.exerciseLogId,
-          name: `${record.exerciseName} - ${record.set}세트`
+          exerciseName: record.exerciseName,
+          exerciseType: record.exerciseType,
+          image: record.image, // 이미지 URL 추가
+          set: record.set,
+          weight: record.weight,
+          repetition: record.repetition,
+          distance: record.distance,
+          exerciseTime: record.exerciseTime
         }));
-        console.log("response", response);
-        console.log("data", data);
-        setExercises(response);
+        console.log("response : ", response);
+        console.log("data : ", data);
+        setExercises(data); // ✨ 수정된 부분: data 사용
       } catch (error) {
         console.error('Error fetching exercises:', error);
       }
@@ -133,11 +167,10 @@ export default function DailyTraining() {
     fetchExercises();
     
 
-    // 더미 데이터 사용
+    // 더미 데이터를 사용합니다.
     // const data = dummyData.filter(
     //   (record) => record.exerciseDate === formattedDate
     // );
-    // console.log(data);
     // setExercises(data);
   }, [formattedDate, userId, accessToken]);
 
@@ -146,6 +179,8 @@ export default function DailyTraining() {
   };
 
   const deleteExercise = async (id) => {
+    // 실제 삭제 요청 부분
+    
     try {
       const response = await axios.delete('http://localhost:4000/exerciseLog', {
         data: { exerciseLogId: id },
@@ -165,10 +200,12 @@ export default function DailyTraining() {
     }
     
 
+    // 더미 데이터에서 필터링
+    setExercises(exercises.filter((exercise) => exercise.exerciseLogId !== id));
   };
 
-  const editExercise = (exerciseLogId) => {
-    navigate("/edittraining", { state: { formattedDate, exerciseLogId } });
+  const editExercise = (exerciseLogId, exerciseName) => {
+    navigate("/edittraining", { state: { date, exerciseLogId, exerciseName } });
   };
 
   return (
@@ -178,33 +215,37 @@ export default function DailyTraining() {
         <AddButton onClick={addExercise}>+</AddButton>
       </Header>
       <RecordContainer>
-        {exercises.map((exercise) => (
-          <ExerciseItem key={exercise.exerciseLogId}>
-            <ExerciseHeader>
-              <ExerciseName>{exercise.exerciseName}</ExerciseName>
-              <span>{exercise.exerciseTime}분</span>
-            </ExerciseHeader>
-            <ExerciseDetails>
-              {exercise.exerciseType === "AerobicExercise" ? (
-                <ExerciseDetailItem>
-                  <span>거리</span>
-                  <span>{exercise.distance}km</span>
-                </ExerciseDetailItem>
-              ) : (
-                Array.from({ length: exercise.set }).map((_, index) => (
-                  <ExerciseDetailItem key={index}>
-                    <span>{index + 1}세트</span>
-                    <span>{exercise.weight[index]}kg x {exercise.repetition[index]}회</span>
-                  </ExerciseDetailItem>
-                ))
-              )}
-            </ExerciseDetails>
-            <ButtonContainer>
-              <Button onClick={() => editExercise(exercise.exerciseLogId)}>수정</Button>
-              <Button onClick={() => deleteExercise(exercise.exerciseLogId)}>삭제</Button>
-            </ButtonContainer>
-          </ExerciseItem>
-        ))}
+      {exercises && exercises.map((exercise) => (
+      <ExerciseItem key={exercise.exerciseLogId}>
+        <ExerciseHeader>
+          <ExerciseDetailItem>
+            <ExerciseName>{exercise.exerciseName}</ExerciseName>
+            <div>{exercise.exerciseTime}분</div>
+          </ExerciseDetailItem>
+          <ExerciseImage src={exercise.image} alt={exercise.exerciseName} />
+        </ExerciseHeader>
+
+        {exercise.exerciseType === "AerobicExercise" ? (
+          <SetContainer>
+            <span>거리 : {exercise.distance}km</span>
+          </SetContainer>
+        ) : (
+          <SetContainer>
+            {Array.from({ length: exercise.set }).map((_, index) => (
+              <SetItem key={index}>
+                <SetNumber>{index + 1}세트</SetNumber>
+                <SetDetail>{exercise.weight[index]}kg</SetDetail>
+                <SetDetail>{exercise.repetition[index]}회</SetDetail>
+              </SetItem>
+            ))}
+          </SetContainer>
+        )}
+        <ButtonContainer>
+          <Button onClick={() => editExercise(exercise.exerciseLogId, exercise.exerciseName)}>수정</Button>
+          <Button onClick={() => deleteExercise(exercise.exerciseLogId)}>삭제</Button>
+        </ButtonContainer>
+      </ExerciseItem>
+    ))}
       </RecordContainer>
     </Container>
   );

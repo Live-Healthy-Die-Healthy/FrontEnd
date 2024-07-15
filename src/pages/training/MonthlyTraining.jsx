@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { format } from "date-fns";
 import dummyTrain from "../../mocks/dummyTrain.json";
+import { UserContext } from "../../context/LoginContext";
 
 const Container = styled.div`
   display: flex;
@@ -50,14 +51,6 @@ const StyledCalendar = styled(Calendar)`
     background: #a3d2ca;
   }
   
-  /* .react-calendar__month-view__days__day--saturday {
-    color: #1890ff;
-  }  */
-  
-  /* .react-calendar__month-view__days__day--sunday {
-    color: red;
-  } */
-
   @media (max-width: 768px) {
     .react-calendar__tile {
       height: calc(80vh / 6);
@@ -68,20 +61,27 @@ const StyledCalendar = styled(Calendar)`
 export default function MonthlyTraining() {
   const today = new Date();
   const [date, setDate] = useState(today);
+  const [month, setMonth] = useState(today.getMonth() + 1);
   const [records, setRecords] = useState({});
+  const { accessToken, userId } = useContext(UserContext);
   const navigate = useNavigate();
 
   const fetchRecords = async (month) => {
+    console.log("userId : ", userId);
+    console.log("month : ", month);
     try {
-      // 실제 서버 요청 대신 더미 데이터를 사용합니다.
-      const response = await axios.post(`http://localhost:4000/exerciseCalender`, { month });
+      // 실제 서버 요청 
+      const response = await axios.post(`http://localhost:4000/exerciseCalender`, { userId, month });
       console.log("response : ", response);
       const data = response.data.reduce((acc, record) => {
+      
+      // 더미 사용
       // const data = dummyTrain.reduce((acc, record) => {
+        
         const formattedDate = record.exerciseDate.split('T')[0];
         if (!acc[formattedDate]) acc[formattedDate] = [];
         const exerciseDetail = record.exerciseType === "AerobicExercise" 
-          ? `${record.exerciseName} - ${record.exerciseTime}분`
+          ? `${record.exerciseName} - ${record.distance}km`
           : `${record.exerciseName} - ${record.set}세트`;
         acc[formattedDate].push(exerciseDetail);
         return acc;
@@ -90,17 +90,22 @@ export default function MonthlyTraining() {
       console.log("records : ",records);
     } catch (error) {
       console.error('Error fetching records:', error);
+      console.log(error);
     }
   };
 
   useEffect(() => {
-    const month = date.getMonth() + 1;
     fetchRecords(month);
-  }, [date]);
+  }, [month]);
 
   const handleDateChange = (selectedDate) => {
     setDate(selectedDate);
     navigate(`/traindaily/${format(selectedDate, "yyyy-MM-dd")}`, { state: { date: selectedDate } });
+  };
+
+  const handleActiveMonthChange = ({ activeStartDate }) => {
+    const newMonth = activeStartDate.getMonth() + 1;
+    setMonth(newMonth);
   };
 
   const tileContent = ({ date, view }) => {
@@ -124,6 +129,7 @@ export default function MonthlyTraining() {
         <StyledCalendar
           value={date}
           onChange={handleDateChange}
+          onActiveStartDateChange={handleActiveMonthChange}
           calendarType="gregory"
           showNeighboringMonth={false}
           next2Label={null}

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import axios from 'axios';
 import { UserContext } from '../../context/LoginContext';
+import { format } from "date-fns";
 
 const Container = styled.div`
   display: flex;
@@ -58,12 +59,12 @@ const RemoveButton = styled.button`
 const EditTrain = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { date, exerciseLogId } = location.state || {};
+  const { date, exerciseLogId, exerciseName } = location.state || {};
+  const formattedDate = format(new Date(date), "yyyy-MM-dd");
   const { accessToken, userId } = useContext(UserContext);
 
   const [exerciseType, setExerciseType] = useState("");
   const [exerciseTime, setExerciseTime] = useState("");
-  const [exerciseName, setExerciseName] = useState("");
   const [distance, setDistance] = useState("");
   const [sets, setSets] = useState([{ weight: "", reps: "" }]);
 
@@ -82,7 +83,6 @@ const EditTrain = () => {
           const data = response.data;
           setExerciseType(data.exerciseType);
           setExerciseTime(data.exerciseTime.toString());
-          setExerciseName(data.exerciseName);
           if (data.exerciseType === "AerobicExercise") {
             setDistance(data.distance.toString());
           } else {
@@ -93,10 +93,12 @@ const EditTrain = () => {
           }
         } else {
           alert('운동 기록을 불러오는데 실패했습니다.');
+          navigate(`/traindaily/${formattedDate}`, { state: { date } });
         }
       } catch (error) {
         console.error('Error fetching exercise log:', error);
         alert('운동 기록을 불러오는 중 오류가 발생했습니다.');
+        navigate(`/traindaily/${formattedDate}`, { state: { date } });
       }
     };
 
@@ -146,7 +148,7 @@ const EditTrain = () => {
       exerciseData = {
         userId,
         exerciseLogId,
-        exerciseDate: date,
+        exerciseDate: formattedDate,
         exerciseType,
         distance: Number(distance),
         exerciseTime: Number(exerciseTime)
@@ -159,9 +161,10 @@ const EditTrain = () => {
       exerciseData = {
         userId,
         exerciseLogId,
-        exerciseDate: date,
+        exerciseDate: formattedDate,
         exerciseType,
-        sets: setsData,
+        weight: setsData.map(set => set.weight),
+        repetition: setsData.map(set => set.repetition),
         exerciseTime: Number(exerciseTime)
       };
     }
@@ -175,7 +178,7 @@ const EditTrain = () => {
 
       if (response.status === 200) {
         alert('운동 기록이 수정되었습니다.');
-        navigate(`/traindaily/${date}`, { state: { date } });
+        navigate(`/traindaily/${formattedDate}`, { state: { date } });
       } else {
         alert('운동 기록 수정에 실패했습니다.');
       }
@@ -187,7 +190,7 @@ const EditTrain = () => {
 
   return (
     <Container>
-      <h3>{date} &nbsp; {exerciseName} 운동 기록 수정</h3>
+      <h3>{formattedDate} &nbsp; {exerciseName} 운동 기록 수정</h3>
       <FormContainer>
         {exerciseType === "AerobicExercise" ? (
           <>
