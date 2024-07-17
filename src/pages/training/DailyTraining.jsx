@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { format } from "date-fns";
 import axios from 'axios';
 import { UserContext } from "../../context/LoginContext";
-import dummyData from "../../mocks/dummyTrain.json";
 
 const Container = styled.div`
   display: flex;

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { format } from "date-fns";
-import dummyTrain from "../../mocks/dummyTrain.json";
+import { UserContext } from "../../context/LoginContext";
 
 const Container = styled.div`
   display: flex;
@@ -58,51 +58,54 @@ const StyledCalendar = styled(Calendar)`
 `;
 
 export default function MonthlyDiet() {
+  const {userId, accesstoken} = useContext(UserContext);
   const today = new Date();
   const [date, setDate] = useState(today);
-  const [records, setRecords] = useState({});
+  const formattedDate = format(new Date(date), "yyyy-MM-dd");
+  const [dietRecords, setDietRecords] = useState({});
   const navigate = useNavigate();
 
-  const fetchRecords = async (month) => {
+  const fetchDietRecords = async (date) => {
+    console.log("my date: ", date);
     try {
-      // 실제 서버 요청 대신 더미 데이터를 사용합니다.
-      const response = await axios.post(`http://localhost:4000/exerciseCalender`, { month });
+      const response = await axios.post(`http://localhost:4000/dietCalender`, { userId, date });
       console.log("response : ", response);
       const data = response.data.reduce((acc, record) => {
-      // const data = dummyTrain.reduce((acc, record) => {
-        const formattedDate = record.exerciseDate.split('T')[0];
+        const formattedDate = record.date.split('T')[0];
         if (!acc[formattedDate]) acc[formattedDate] = [];
-        const exerciseDetail = record.exerciseType === "AerobicExercise" 
-          ? `${record.exerciseName} - ${record.exerciseTime}분`
-          : `${record.exerciseName} - ${record.set}세트`;
-        acc[formattedDate].push(exerciseDetail);
+        const dietDetail = `${record.calories}`
+        acc[formattedDate].push(dietDetail);
         return acc;
       }, {});
-      setRecords(data);
-      console.log("records : ",records);
+      setDietRecords(data);
+      console.log("dietRecords : ", data);  // 여기서 data를 로그
     } catch (error) {
-      console.error('Error fetching records:', error);
+      console.error('Error fetching diet records:', error);
     }
   };
 
   useEffect(() => {
-    const month = date.getMonth() + 1;
-    fetchRecords(month);
-  }, [date]);
+    fetchDietRecords(formattedDate);
+  }, [formattedDate]);
 
   const handleDateChange = (selectedDate) => {
     setDate(selectedDate);
     navigate(`/dietdaily/${format(selectedDate, "yyyy-MM-dd")}`, { state: { date: selectedDate } });
   };
 
+  const handleActiveMonthChange = ({ activeStartDate }) => {
+    const newMonth = activeStartDate.getMonth() + 1;
+    const newDate = new Date(activeStartDate.getFullYear(), newMonth - 1, 1);
+    setDate(newDate); // 업데이트된 달의 첫 번째 날로 설정
+    fetchDietRecords(format(newDate, "yyyy-MM-dd")); // 새 날짜에 대한 기록을 가져옴
+  };
+
   const tileContent = ({ date, view }) => {
     const formattedDate = format(date, "yyyy-MM-dd");
-    if (records[formattedDate]) {
+    if (dietRecords[formattedDate]) {
       return (
         <div style={{ marginTop: "1px", fontSize: "12px", color: "#1179db" }}>
-          {records[formattedDate].map((exercise, index) => (
-            <div key={index}>{exercise}</div>
-          ))}
+          {dietRecords[formattedDate]} kcal
         </div>
       );
     }
@@ -111,11 +114,12 @@ export default function MonthlyDiet() {
 
   return (
     <Container>
-        <h1>월간 식단</h1>
+      <h1>월간 식단</h1>
       <StyledCalendarWrapper>
         <StyledCalendar
           value={date}
           onChange={handleDateChange}
+          onActiveStartDateChange={handleActiveMonthChange}
           calendarType="gregory"
           showNeighboringMonth={false}
           next2Label={null}

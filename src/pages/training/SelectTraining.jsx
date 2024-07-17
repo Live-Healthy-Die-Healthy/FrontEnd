@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios"; // 서버 통신 시 사용할 axios
-import dummyData from "../../mocks/dummyTrainList.json";
 
 const Container = styled.div`
   display: flex;

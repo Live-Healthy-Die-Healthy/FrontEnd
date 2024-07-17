@@ -1,50 +1,20 @@
 [
     {
-        "DietLogId": "1",
-        "exerciseName": "러닝",
-        "exerciseDate": "2024-07-09",
-        "exerciseType": "AerobicExercise",
-        "distance": 30,
-        "exerciseTime": "30"
+        "dietLogId" : 1,
+        "dietDate" : "2024-07-14",
+        "dietType" : "breakfast",
+        "userId" : 1234
     },
     {
-        "DietLogId": "2",
-        "exerciseName": "스쿼트",
-        "exerciseDate": "2024-07-10",
-        "exerciseType": "AnaerobicExercise",
-        "set": 5,
-        "weight": [10,15,222,30,40],
-        "repetition": [10,9,8,10,9],
-        "exerciseTime": "55"
+        "dietLogId" : 2,
+        "dietDate" : "2024-07-14",
+        "dietType" : "lunch",
+        "userId" : 1234
     },
     {
-        "DietLogId": "3",
-        "exerciseName": "스쿼트",
-        "exerciseDate": "2024-07-09",
-        "exerciseType": "AnaerobicExercise",
-        "set": 5,
-        "weight": [10,15,111,30,40],
-        "repetition": [10,9,8,10,9],
-        "exerciseTime": "55"
-    },
-    {
-        "DietLogId": "4",
-        "exerciseName": "스쿼트",
-        "exerciseDate": "2024-07-11",
-        "exerciseType": "AnaerobicExercise",
-        "set": 5,
-        "weight": [10,15,20,30,40],
-        "repetition": [10,9,8,10,9],
-        "exerciseTime": "55"
-    },
-    {
-        "DietLogId": "5",
-        "exerciseName": "벤치 프레스",
-        "exerciseDate": "2024-07-11",
-        "exerciseType": "AnaerobicExercise",
-        "set": 5,
-        "weight": [12,15,24,30,40],
-        "repetition": [10,11,224,10,9],
-        "exerciseTime": "55"
+        "dietLogId" : 3,
+        "dietDate" : "2024-07-14",
+        "dietType" : "dinner",
+        "userId" : 1234
     }
 ]

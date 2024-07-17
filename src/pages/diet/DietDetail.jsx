@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import axios from 'axios';
 import { UserContext } from "../../context/LoginContext";
+import { format } from "date-fns";
 
 const Container = styled.div`
   display: flex;
@@ -11,6 +12,14 @@ const Container = styled.div`
   align-items: center;
   height: 100vh; 
   text-align: center;
+`;
+
+const HeaderContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
+  max-width: 600px;
+  margin-bottom: 20px;
 `;
 
 const RecordContainer = styled.div`
@@ -23,33 +32,92 @@ const RecordContainer = styled.div`
   margin-bottom: 20px;
 `;
 
+const DietItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 10px;
+`;
+
+const DietText = styled.div`
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+`;
+
+const Quantity = styled.span`
+  font-size: 16px;
+  color: gray;
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+const Button = styled.button`
+  background-color: #a3d2ca;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+`;
+
+const RemoveButton = styled.button`
+  background: #ff6b6b;
+  border: none;
+  padding: 5px 10px;
+  margin-left: 10px;
+  cursor: pointer;
+  color: white;
+  border-radius: 5px;
+`;
+
+const AddButton = styled.button`
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+
+  &:hover {
+    background-color: #45a049;
+  }
+`;
+
 export default function DietDetail() {
   const location = useLocation();
   const { date, userId } = location.state || {};
-  const { mealType } = useParams();
+  const formattedDate = format(new Date(date), "yyyy-MM-dd");
+  const { dietType } = useParams(); 
   const { accessToken } = useContext(UserContext);
-  const [dietData, setDietData] = useState(null);
+  const navigate = useNavigate();
+  const [dietData, setDietData] = useState([]);
+
+  const fetchDietData = async () => { 
+    try {
+      const response = await axios.post(`http://localhost:4000/dietDetail/${dietType}`, {
+        userId,
+        date: formattedDate,
+      }, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+      console.log("response : ", response);
+      setDietData(response.data);
+    } catch (error) {
+      console.error('Error fetching diet data:', error);
+    }
+  };
 
   useEffect(() => {
-    const fetchDietData = async () => {
-      try {
-        const response = await axios.post(`http://localhost:4000/diet`, {
-          date,
-          userId,
-          mealType
-        }, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        });
-        setDietData(response.data);
-      } catch (error) {
-        console.error('Error fetching diet data:', error);
-      }
-    };
-
     fetchDietData();
-  }, [date, userId, mealType, accessToken]);
+  }, [date, userId, dietType, accessToken]);
 
   const getMealTypeText = (mealType) => {
     switch (mealType) {
@@ -66,17 +134,53 @@ export default function DietDetail() {
     }
   };
 
+  const handleEditClick = (dietData) => {
+    console.log(dietData);
+    navigate(`/editdiet/${formattedDate}/${dietType}/${dietData.dietLogDetailId}`, { state: { dietData } });
+  };
+
+  const handleDeleteClick = async (dietDetailLogId) => {
+    const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
+    if (!confirmDelete) return;
+    try {
+      await axios.delete(`http://localhost:4000/dietDetail/${dietDetailLogId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+      setDietData(dietData.filter(item => item.dietDetailLogId !== dietDetailLogId));
+    } catch (error) {
+      console.error('Error deleting diet data:', error);
+    }
+  };
+
+  const handleAddClick = () => {
+    navigate(`/selectmenu/${formattedDate}/${dietType}`, { state: { date, userId, dietType } });
+  };
+
   return (
     <Container>
-      <h3>{getMealTypeText(mealType)}</h3>
+      <HeaderContainer>
+        <h3>{formattedDate} {getMealTypeText(dietType)}</h3>
+        <AddButton onClick={handleAddClick}>메뉴 추가하기</AddButton>
+      </HeaderContainer>
       <RecordContainer>
-        {dietData ? (
-          <div>
-            {/* 식단 데이터를 표시할 JSX 코드 */}
-            <p>{dietData}</p>
-          </div>
+        {dietData.length > 0 ? (
+          dietData.map(item => (
+            <DietItem key={item.dietLogDetailId}>
+              <DietText>
+                <span>{item.menuName}</span>
+                <Quantity>{item.quantity}g</Quantity>
+              </DietText>
+              <span>{item.calories} kcal</span>
+              <ButtonContainer>
+                <Button onClick={() => handleEditClick(item)}>수정</Button>
+                <RemoveButton onClick={() => handleDeleteClick(item.dietDetailLogId)}>삭제</RemoveButton>
+              </ButtonContainer>
+            </DietItem>
+          ))
         ) : (
-          <p>식단 데이터를 불러오는 중입니다...</p>
+          <h3>기록된 식단이 없습니다</h3>
         )}
       </RecordContainer>
     </Container>
