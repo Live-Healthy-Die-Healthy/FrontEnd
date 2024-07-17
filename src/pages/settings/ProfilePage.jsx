@@ -1,6 +1,10 @@
-import React from "react";
+import React, { useEffect, useState, useContext } from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom"; 
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../context/LoginContext"; 
+import { format } from "date-fns";
+import default_image from "../../image/default-profile.png"
 
 const Container = styled.div`
   display: flex;
@@ -11,26 +15,123 @@ const Container = styled.div`
   text-align: center;
 `;
 
-const Button = styled.button`
-  background: rgb(196, 196, 196);
-  width: 20%;
-  max-width: 200px;
-  height: 20vh;
-  border: none;
-  font-size: 25px;
-  cursor: pointer;
-  padding: 0 20px; /* 버튼 사이의 간격을 위해 좌우 패딩 설정 */
-  margin: 10px;
+const ProfileContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+  max-width: 1000px;
+  background-color: #f8f8f8;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
-export default function ProfilePage() {
-  const navigate = useNavigate(); 
-  // editProfile -> useLocation?
+const ProfileImage = styled.img`
+  width: 150px;
+  height: 150px;
+  border-radius: 0%;
+  margin-right: 20px;
+`;
+
+const InfoContainer = styled.div`
+  display: flex;
+  width: 80%;
+  flex-direction: column;
+  align-items: flex-start;
+`;
+
+const InfoRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 10px;
+
+  & > div {
+    flex: 1;
+    margin-right: 10px;
+  }
+
+  & > div:last-child {
+    margin-right: 0;
+  }
+`;
+
+const InfoItem = styled.div`
+  background-color: #ffffff;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+const EditButton = styled.button`
+  background: #a3d2ca;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 20px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 5px;
+`;
+
+const ProfilePage = () => {
+  const { userId } = useContext(UserContext); 
+  const [profile, setProfile] = useState(null);
+  const [date, setDate] = useState(null); 
+  const [loading, setLoading] = useState(true); 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.post("http://localhost:4000/profile", { userId });
+        setProfile(response.data);
+        const formattedDate = format(new Date(response.data.userBirth), "yyyy-MM-dd");
+        setDate(formattedDate);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      } finally {
+        setLoading(false); // 데이터를 가져온 후 로딩 상태를 false로 변경합니다.
+      }
+    };
+
+    fetchProfile();
+  }, [userId]);
+
+  if (loading) {
+    return <Container>Loading...</Container>; // 로딩 중일 때 표시할 텍스트
+  }
 
   return (
     <Container>
-        <h1>프로필 api처리 (get /profile)</h1>
-        <h1>해서 정보 띄우기</h1>
+      {profile ? (
+        <>
+          <ProfileContainer>
+            <ProfileImage src={profile.userImage || default_image} alt="프로필 이미지" />
+            <InfoContainer>
+              <InfoRow>
+                <InfoItem>이메일: {profile.userEmail}</InfoItem>
+                <InfoItem>닉네임: {profile.username}</InfoItem>
+                <InfoItem>생년월일: {date}</InfoItem>
+              </InfoRow>
+              <InfoRow>
+                <InfoItem>성별: {profile.userGender}</InfoItem>
+                <InfoItem>키: {profile.userHeight} cm</InfoItem>
+                <InfoItem>몸무게: {profile.userWeight} kg</InfoItem>
+              </InfoRow>
+            </InfoContainer>
+          </ProfileContainer>
+          <EditButton onClick={() => navigate("/editprofile", { state: { profile } })}>
+            프로필 수정하기
+          </EditButton>
+        </>
+      ) : (
+        <p>프로필 정보를 불러오지 못했습니다.</p>
+      )}
     </Container>
   );
-}
+};
+
+export default ProfilePage;

@@ -16,7 +16,7 @@ const Container = styled.div`
 
 const RecordContainer = styled.div`
   width: 80%;
-  max-width: 500px;
+  max-width: 600px;
   background-color: white;
   padding: 20px;
   border-radius: 10px;
@@ -24,20 +24,43 @@ const RecordContainer = styled.div`
   margin-bottom: 20px;
 `;
 
-const ExerciseItem = styled.div`
+const MealContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
+
+const MealBox = styled.div`
+  width: 100%;
+  height: 100px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  margin-bottom: 10px;
+  margin: 10px 0;
+  background: #f0f0f0;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  cursor: pointer;
+  padding: 0 20px;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #e0e0e0;
+  }
 `;
 
-const Button = styled.button`
-  background: #a3d2ca;
-  border: none;
-  padding: 5px 10px;
-  margin-left: 10px;
-  cursor: pointer;
+const MealText = styled.h4`
+  margin: 0;
+`;
+
+const MealDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+`;
+
+const MealDetailItem = styled.span`
+  font-size: 14px;
 `;
 
 export default function DailyDiet() {
@@ -45,49 +68,77 @@ export default function DailyDiet() {
   const navigate = useNavigate();
   const { date } = location.state || {};
   const formattedDate = format(new Date(date), "yyyy-MM-dd");
-  
-  const { accessToken, userId } = useContext(UserContext);
-
-  const [exercises, setExercises] = useState([]);
+  const { userId, accessToken } = useContext(UserContext);
+  const [meals, setMeals] = useState({
+    breakfast: [],
+    lunch: [],
+    dinner: [],
+    snack: []
+  });
 
   useEffect(() => {
-    const fetchDiet = async () => {
+    const fetchMeals = async () => {
       try {
-        const response = await axios.post('http://localhost:4000/exerciseLog', {
-          exerciseDate: formattedDate,
+        const response = await axios.post('http://localhost:4000/dailyDiet', {
+          date: formattedDate,
           userId: userId
         }, {
           headers: {
             Authorization: `Bearer ${accessToken}`
           }
         });
-        console.log("response", response);
 
-        const data = response.data.map(record => (
-          { 
-            exerciseLogId: record.exerciseLogId, 
-            name: `${record.exerciseName} - ${record.set}세트` 
-          }
-        ));
-        console.log("data", data);
-        setExercises(data);
+        setMeals(response.data);
       } catch (error) {
-        console.error('Error fetching exercises:', error);
+        console.error('Error fetching meals:', error);
       }
     };
 
-    fetchDiet();
-  }, [date, formattedDate, userId, accessToken]);
+    fetchMeals();
+  }, [formattedDate, userId, accessToken]);
 
-  const addDiet = () => {
-    navigate("/selecttraining", { state: { date } });
+  const handleMealClick = (mealType) => {
+    navigate(`/dietdetail/${mealType}`, { state: { date, userId } });
   };
 
   return (
     <Container>
       <h3>{formattedDate} 일간 식단 기록</h3>
       <RecordContainer>
-        <Button onClick={addDiet}>식단 추가</Button>
+        <MealContainer>
+          <MealBox onClick={() => handleMealClick('breakfast')}>
+            <MealText>아침</MealText>
+            <MealDetails>
+              {meals.breakfast.map((item, index) => (
+                <MealDetailItem key={index}>{item}</MealDetailItem>
+              ))}
+            </MealDetails>
+          </MealBox>
+          <MealBox onClick={() => handleMealClick('lunch')}>
+            <MealText>점심</MealText>
+            <MealDetails>
+              {meals.lunch.map((item, index) => (
+                <MealDetailItem key={index}>{item}</MealDetailItem>
+              ))}
+            </MealDetails>
+          </MealBox>
+          <MealBox onClick={() => handleMealClick('dinner')}>
+            <MealText>저녁</MealText>
+            <MealDetails>
+              {meals.dinner.map((item, index) => (
+                <MealDetailItem key={index}>{item}</MealDetailItem>
+              ))}
+            </MealDetails>
+          </MealBox>
+          <MealBox onClick={() => handleMealClick('snack')}>
+            <MealText>간식</MealText>
+            <MealDetails>
+              {meals.snack.map((item, index) => (
+                <MealDetailItem key={index}>{item}</MealDetailItem>
+              ))}
+            </MealDetails>
+          </MealBox>
+        </MealContainer>
       </RecordContainer>
     </Container>
   );

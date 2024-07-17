@@ -32,14 +32,14 @@ const StyledCalendarWrapper = styled.div`
 `;
 
 const StyledCalendar = styled(Calendar)`
-  width: 80%;
-  height: 80vh;
+  width: 100%;
+  height: 90vh;
 
   border: none;
 
   .react-calendar__tile {
-    height: 110px;
-    max-width: none; /* 타일 너비의 기본 최대값 제거 */
+    height: calc(80vh / 6);
+    max-width: none;
   }
 
   .react-calendar__tile--now {
@@ -50,17 +50,9 @@ const StyledCalendar = styled(Calendar)`
     background: #a3d2ca;
   }
   
-  /* .react-calendar__month-view__days__day--saturday {
-    color: #1890ff;
-  }  */
-  
-  /* .react-calendar__month-view__days__day--sunday {
-    color: red;
-  } */
-
   @media (max-width: 768px) {
     .react-calendar__tile {
-      height: calc(80vh / 6);
+      height: calc(90vh / 6);
     }
   }
 `;

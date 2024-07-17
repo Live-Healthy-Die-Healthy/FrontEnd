@@ -13,15 +13,27 @@ import Kakao from "./components/callback/Kakao";
 import { UserContext } from "./context/LoginContext";
 import ProfileSetting from './pages/Profilesetting';
 import EditTrain from './pages/training/EditTrain';
+
 import MonthlyDiet from './pages/diet/MonthlyDiet';
 import DailyDiet from './pages/diet/DailyDiet';
+import DietDetail from './pages/diet/DietDetail';
+
 import ReportPage from './pages/reports/ReportPage';
 import DailyReportPage from './pages/reports/DailyReportPage';
 import WeeklyReportPage from './pages/reports/WeeklyReportPage';
 import MonthlyReportPage from './pages/reports/MonthlyReportPage';
 import YearlyReportPage from './pages/reports/YearlyReportPage';
+
 import SettingPage from './pages/settings/SettingPage';
 import ProfilePage from './pages/settings/ProfilePage';
+import EditProfile from './pages/settings/EditProfile';
+
+import styled from 'styled-components';
+
+const ContentContainer = styled.div`
+  padding-top: 30px; /* 헤더의 높이에 맞춘 패딩 */
+  padding-bottom: 30px; 
+`;
 
 function AppContent() {
   const [accessToken, setAccessToken] = useState(localStorage.getItem('accessToken'));
@@ -58,32 +70,30 @@ function AppContent() {
       value={{ accessToken, setAccessToken, refreshToken, setRefreshToken, loginType, setLoginType, userId, setUserId }}
     >
       {shouldShowHeaderFooter && <Header />}
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/auth/callback/kakao" element={<Kakao />} />
-
-        <Route path="/home" element={<HomePage />} />
-
-        <Route path="/trainmonth" element={<MonthlyTraining />} />
-        <Route path="/traindaily/:date" element={<DailyTraining />} />
-        <Route path="/selecttraining" element={<SelectTraining />} />
-        <Route path="/recordtraining" element={<RecordTraining />} />
-        <Route path="/profilesetting" element={<ProfileSetting />} />
-        <Route path="/edittraining" element={<EditTrain />} />
-
-        <Route path="/dietmonth" element={<MonthlyDiet />} />
-        <Route path="/dietdaily/:date" element={<DailyDiet />} />
-
-        <Route path="/report" element={<ReportPage />} />
-        <Route path="/dailyreport" element={<DailyReportPage />} />
-        <Route path="/weeklyreport" element={<WeeklyReportPage />} />
-        <Route path="/monthlyreport" element={<MonthlyReportPage />} />
-        <Route path="/yearlyreport" element={<YearlyReportPage />} />
-
-        <Route path="/settings" element={<SettingPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-
-      </Routes>
+      <ContentContainer>
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/auth/callback/kakao" element={<Kakao />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/trainmonth" element={<MonthlyTraining />} />
+          <Route path="/traindaily/:date" element={<DailyTraining />} />
+          <Route path="/selecttraining" element={<SelectTraining />} />
+          <Route path="/recordtraining" element={<RecordTraining />} />
+          <Route path="/profilesetting" element={<ProfileSetting />} />
+          <Route path="/edittraining" element={<EditTrain />} />
+          <Route path="/dietmonth" element={<MonthlyDiet />} />
+          <Route path="/dietdaily/:date" element={<DailyDiet />} />
+          <Route path="/dietdetail/:mealType" element={<DietDetail />} />
+          <Route path="/report" element={<ReportPage />} />
+          <Route path="/dailyreport" element={<DailyReportPage />} />
+          <Route path="/weeklyreport" element={<WeeklyReportPage />} />
+          <Route path="/monthlyreport" element={<MonthlyReportPage />} />
+          <Route path="/yearlyreport" element={<YearlyReportPage />} />
+          <Route path="/settings" element={<SettingPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/editprofile" element={<EditProfile />} />
+        </Routes>
+      </ContentContainer>
       {shouldShowHeaderFooter && <Footer />}
     </UserContext.Provider>
   );

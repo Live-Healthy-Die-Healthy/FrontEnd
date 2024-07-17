@@ -114,10 +114,26 @@ const EditTrain = () => {
   };
 
   const handleSetChange = (index, field, value) => {
-    const newSets = sets.map((set, i) => 
-      i === index ? { ...set, [field]: value } : set
-    );
-    setSets(newSets);
+    if (value > 0) {
+      const newSets = sets.map((set, i) => 
+        i === index ? { ...set, [field]: value } : set
+      );
+      setSets(newSets);
+    }
+  };
+
+  const handleTimeChange = (e) => {
+    const value = e.target.value;
+    if (value > 0) {
+      setExerciseTime(value);
+    }
+  };
+
+  const handleDistanceChange = (e) => {
+    const value = e.target.value;
+    if (value > 0) {
+      setDistance(value);
+    }
   };
 
   const handleSave = async () => {
@@ -198,20 +214,20 @@ const EditTrain = () => {
               type="number"
               placeholder="총 운동 시간 (분)"
               value={exerciseTime}
-              onChange={(e) => setExerciseTime(e.target.value)}
+              onChange={handleTimeChange}
             />
             <Input
               type="number"
               placeholder="운동 거리 (km)"
               value={distance}
-              onChange={(e) => setDistance(e.target.value)}
+              onChange={handleDistanceChange}
             />
           </>
         ) : (
           <>
             {sets.map((set, index) => (
               <SetContainer key={index}>
-                <h3>set{index+1}</h3>
+                <h3>set{index + 1}</h3>
                 <Input
                   type="number"
                   placeholder="중량 (kg)"
@@ -232,7 +248,7 @@ const EditTrain = () => {
               type="number"
               placeholder="총 운동 시간 (분)"
               value={exerciseTime}
-              onChange={(e) => setExerciseTime(e.target.value)}
+              onChange={handleTimeChange}
             />
           </>
         )}

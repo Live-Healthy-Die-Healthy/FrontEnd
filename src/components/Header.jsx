@@ -4,14 +4,15 @@ import { useNavigate } from "react-router-dom"; // React Router를 사용하여 
 
 const HeaderContainer = styled.div`
   display: flex;
-  justify-content: space-between; /* 로고와 알림 아이콘이 양 끝에 위치하게 합니다. */
+  justify-content: space-between; 
   align-items: center;
-  width: 95%;
+  width: 99%;
   padding: 10px 20px;
-  background-color: #f8f8f8; /* 헤더 배경색 설정 */
+  background-color: #f8f8f8; 
   position: fixed;
   top: 0;
   z-index: 1000;
+  height: 30px; /* 고정된 높이 */
 `;
 
 const SecondContainer = styled.div`

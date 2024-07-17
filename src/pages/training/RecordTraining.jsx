@@ -67,7 +67,7 @@ export default function RecordTraining() {
   const [sets, setSets] = useState([{ weight: "", reps: "" }]);
   const [exerciseTime, setExerciseTime] = useState("");
   const [distance, setDistance] = useState("");
-  
+
   const { accessToken, userId } = useContext(UserContext);
 
   const handleAddSet = () => {
@@ -79,10 +79,26 @@ export default function RecordTraining() {
   };
 
   const handleSetChange = (index, field, value) => {
-    const newSets = sets.map((set, i) => 
-      i === index ? { ...set, [field]: value } : set
-    );
-    setSets(newSets);
+    if (value > 0) {
+      const newSets = sets.map((set, i) => 
+        i === index ? { ...set, [field]: value } : set
+      );
+      setSets(newSets);
+    }
+  };
+
+  const handleTimeChange = (e) => {
+    const value = e.target.value;
+    if (value > 0) {
+      setExerciseTime(value);
+    }
+  };
+
+  const handleDistanceChange = (e) => {
+    const value = e.target.value;
+    if (value > 0) {
+      setDistance(value);
+    }
   };
 
   const handleSave = async () => {
@@ -112,9 +128,9 @@ export default function RecordTraining() {
     if (exerciseType === "AerobicExercise") {
       exerciseData = {
         userId,
-        exerciseId, 
+        exerciseId,
         exerciseDate: formattedDate,
-        exercisePart: exercisePart,
+        exercisePart,
         exerciseType,
         distance: Number(distance),
         exerciseTime: Number(exerciseTime)
@@ -127,15 +143,13 @@ export default function RecordTraining() {
         exerciseId,
         exerciseDate: formattedDate,
         exerciseType,
-        exercisePart: exercisePart,
+        exercisePart,
         set: sets.length,
         weight: weights,
         repetition: repetitions,
         exerciseTime: Number(exerciseTime)
       };
     }
-
-    console.log("exerciseData : ", exerciseData);
 
     try {
       const response = await axios.post("http://localhost:4000/addExerciseLog", exerciseData, {
@@ -162,52 +176,51 @@ export default function RecordTraining() {
     <Container>
       <h3>{formattedDate} {exerciseName} 기록</h3>
       <FormContainer>
-      {exerciseType === "AerobicExercise" ? (
-        <>
-          <Input
-            type="number"
-            placeholder="총 운동 시간 (분)"
-            value={exerciseTime}
-            onChange={(e) => setExerciseTime(e.target.value)}
-          />
-          <Input
-            type="number"
-            placeholder="운동 거리 (km)"
-            value={distance}
-            onChange={(e) => setDistance(e.target.value)}
-          />
-        </>
-      ) : (
-        <>
-          {sets.map((set, index) => (
-            <SetContainer key={index}>
-              <h3>set{index+1}</h3>
-              <Input
-                type="number"
-                placeholder="중량 (kg)"
-                value={set.weight}
-                onChange={(e) => handleSetChange(index, "weight", e.target.value)}
-              />
-              <Input
-                type="number"
-                placeholder="횟수"
-                value={set.reps}
-                onChange={(e) => handleSetChange(index, "reps", e.target.value)}
-              />
-              <RemoveButton onClick={() => handleRemoveSet(index)}>삭제</RemoveButton>
-            </SetContainer>
-          ))}
-          <Button onClick={handleAddSet}>+ 세트 추가</Button>
-          <Input
-            type="number"
-            placeholder="총 운동 시간 (분)"
-            value={exerciseTime}
-            onChange={(e) => setExerciseTime(e.target.value)}
-          />
-        </>
-      )}
-      <Button onClick={handleSave}>저장</Button>
-      
+        {exerciseType === "AerobicExercise" ? (
+          <>
+            <Input
+              type="number"
+              placeholder="총 운동 시간 (분)"
+              value={exerciseTime}
+              onChange={handleTimeChange}
+            />
+            <Input
+              type="number"
+              placeholder="운동 거리 (km)"
+              value={distance}
+              onChange={handleDistanceChange}
+            />
+          </>
+        ) : (
+          <>
+            {sets.map((set, index) => (
+              <SetContainer key={index}>
+                <h3>set{index + 1}</h3>
+                <Input
+                  type="number"
+                  placeholder="중량 (kg)"
+                  value={set.weight}
+                  onChange={(e) => handleSetChange(index, "weight", e.target.value)}
+                />
+                <Input
+                  type="number"
+                  placeholder="횟수"
+                  value={set.reps}
+                  onChange={(e) => handleSetChange(index, "reps", e.target.value)}
+                />
+                <RemoveButton onClick={() => handleRemoveSet(index)}>삭제</RemoveButton>
+              </SetContainer>
+            ))}
+            <Button onClick={handleAddSet}>+ 세트 추가</Button>
+            <Input
+              type="number"
+              placeholder="총 운동 시간 (분)"
+              value={exerciseTime}
+              onChange={handleTimeChange}
+            />
+          </>
+        )}
+        <Button onClick={handleSave}>저장</Button>
       </FormContainer>
     </Container>
   );

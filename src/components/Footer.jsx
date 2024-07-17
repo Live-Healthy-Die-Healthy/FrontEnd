@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 const Container = styled.div`
   display: flex;
   justify-content: space-around; 
-  width: 97%; 
+  width: 100%; 
   position: fixed;
   bottom: 0;
   background-color: #f8f8f8; 

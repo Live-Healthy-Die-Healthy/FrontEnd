@@ -5,7 +5,6 @@ import "react-calendar/dist/Calendar.css";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { format } from "date-fns";
-import dummyTrain from "../../mocks/dummyTrain.json";
 import { UserContext } from "../../context/LoginContext";
 
 const Container = styled.div`
@@ -33,14 +32,14 @@ const StyledCalendarWrapper = styled.div`
 `;
 
 const StyledCalendar = styled(Calendar)`
-  width: 80%;
-  height: 80vh;
+  width: 100%;
+  height: 90vh;
 
   border: none;
 
   .react-calendar__tile {
-    height: 110px;
-    max-width: none; /* 타일 너비의 기본 최대값 제거 */
+    height: calc(80vh / 6);
+    max-width: none;
   }
 
   .react-calendar__tile--now {
@@ -53,7 +52,7 @@ const StyledCalendar = styled(Calendar)`
   
   @media (max-width: 768px) {
     .react-calendar__tile {
-      height: calc(80vh / 6);
+      height: calc(90vh / 6);
     }
   }
 `;
@@ -61,23 +60,19 @@ const StyledCalendar = styled(Calendar)`
 export default function MonthlyTraining() {
   const today = new Date();
   const [date, setDate] = useState(today);
-  const [month, setMonth] = useState(today.getMonth() + 1);
+  const formattedDate = format(new Date(date), "yyyy-MM-dd");
   const [records, setRecords] = useState({});
   const { accessToken, userId } = useContext(UserContext);
   const navigate = useNavigate();
 
-  const fetchRecords = async (month) => {
+  const fetchRecords = async (date) => {
     console.log("userId : ", userId);
-    console.log("month : ", month);
+    console.log("date : ", date);
+
     try {
-      // 실제 서버 요청 
-      const response = await axios.post(`http://localhost:4000/exerciseCalender`, { userId, month });
+      const response = await axios.post(`http://localhost:4000/exerciseCalendar`, { userId, date });
       console.log("response : ", response);
       const data = response.data.reduce((acc, record) => {
-      
-      // 더미 사용
-      // const data = dummyTrain.reduce((acc, record) => {
-        
         const formattedDate = record.exerciseDate.split('T')[0];
         if (!acc[formattedDate]) acc[formattedDate] = [];
         const exerciseDetail = record.exerciseType === "AerobicExercise" 
@@ -95,8 +90,8 @@ export default function MonthlyTraining() {
   };
 
   useEffect(() => {
-    fetchRecords(month);
-  }, [month]);
+    fetchRecords(formattedDate);
+  }, [formattedDate]);
 
   const handleDateChange = (selectedDate) => {
     setDate(selectedDate);
@@ -105,7 +100,9 @@ export default function MonthlyTraining() {
 
   const handleActiveMonthChange = ({ activeStartDate }) => {
     const newMonth = activeStartDate.getMonth() + 1;
-    setMonth(newMonth);
+    const newDate = new Date(activeStartDate.getFullYear(), newMonth - 1, 1);
+    setDate(newDate); // 업데이트된 달의 첫 번째 날로 설정
+    fetchRecords(format(newDate, "yyyy-MM-dd")); // 새 날짜에 대한 기록을 가져옴
   };
 
   const tileContent = ({ date, view }) => {
@@ -124,7 +121,7 @@ export default function MonthlyTraining() {
 
   return (
     <Container>
-        <h1>월간 운동</h1>
+      <h1>월간 운동</h1>
       <StyledCalendarWrapper>
         <StyledCalendar
           value={date}

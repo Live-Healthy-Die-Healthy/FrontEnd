@@ -131,18 +131,14 @@ export default function DailyTraining() {
     // 실제 서버 요청 부분
     const fetchExercises = async () => {
       try {
-        console.log("fetchExercise 시작");
         const response = await axios.post('http://localhost:4000/exerciseLog', {
           exerciseDate: formattedDate,
           userId: userId
-        }
-        // , {
-        //   headers: {
-        //     Authorization: `Bearer ${accessToken}`
-        //   }
-        // }
-        );
-        console.log("fetchExercise 끝");
+        }, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
   
         // 데이터 변환 후 설정
         const data = response.data.map(record => ({
@@ -166,7 +162,6 @@ export default function DailyTraining() {
 
     fetchExercises();
     
-
     // 더미 데이터를 사용합니다.
     // const data = dummyData.filter(
     //   (record) => record.exerciseDate === formattedDate
@@ -179,8 +174,10 @@ export default function DailyTraining() {
   };
 
   const deleteExercise = async (id) => {
+    const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
+    if (!confirmDelete) return;
+
     // 실제 삭제 요청 부분
-    
     try {
       const response = await axios.delete('http://localhost:4000/exerciseLog', {
         data: { exerciseLogId: id },
@@ -190,7 +187,7 @@ export default function DailyTraining() {
       });
 
       if (response.status === 200) {
-        setExercises(exercises.filter((exercise) => exercise.id !== id));
+        setExercises(exercises.filter((exercise) => exercise.exerciseLogId !== id));
       } else {
         alert('운동 기록 삭제에 실패했습니다.');
       }
@@ -198,7 +195,6 @@ export default function DailyTraining() {
       console.error('Error deleting exercise:', error);
       alert('운동 기록 삭제 중 오류가 발생했습니다.');
     }
-    
 
     // 더미 데이터에서 필터링
     setExercises(exercises.filter((exercise) => exercise.exerciseLogId !== id));
@@ -215,37 +211,41 @@ export default function DailyTraining() {
         <AddButton onClick={addExercise}>+</AddButton>
       </Header>
       <RecordContainer>
-      {exercises && exercises.map((exercise) => (
-      <ExerciseItem key={exercise.exerciseLogId}>
-        <ExerciseHeader>
-          <ExerciseDetailItem>
-            <ExerciseName>{exercise.exerciseName}</ExerciseName>
-            <div>{exercise.exerciseTime}분</div>
-          </ExerciseDetailItem>
-          <ExerciseImage src={exercise.image} alt={exercise.exerciseName} />
-        </ExerciseHeader>
-
-        {exercise.exerciseType === "AerobicExercise" ? (
-          <SetContainer>
-            <span>거리 : {exercise.distance}km</span>
-          </SetContainer>
+        {exercises.length === 0 ? (
+          <h2>운동 기록이 없습니다.</h2>
         ) : (
-          <SetContainer>
-            {Array.from({ length: exercise.set }).map((_, index) => (
-              <SetItem key={index}>
-                <SetNumber>{index + 1}세트</SetNumber>
-                <SetDetail>{exercise.weight[index]}kg</SetDetail>
-                <SetDetail>{exercise.repetition[index]}회</SetDetail>
-              </SetItem>
-            ))}
-          </SetContainer>
+          exercises.map((exercise) => (
+            <ExerciseItem key={exercise.exerciseLogId}>
+              <ExerciseHeader>
+                <ExerciseDetailItem>
+                  <ExerciseName>{exercise.exerciseName}</ExerciseName>
+                  <div>{exercise.exerciseTime}분</div>
+                </ExerciseDetailItem>
+                <ExerciseImage src={exercise.image} alt={exercise.exerciseName} />
+              </ExerciseHeader>
+
+              {exercise.exerciseType === "AerobicExercise" ? (
+                <SetContainer>
+                  <span>거리 : {exercise.distance}km</span>
+                </SetContainer>
+              ) : (
+                <SetContainer>
+                  {Array.from({ length: exercise.set }).map((_, index) => (
+                    <SetItem key={index}>
+                      <SetNumber>{index + 1}세트</SetNumber>
+                      <SetDetail>{exercise.weight[index]}kg</SetDetail>
+                      <SetDetail>{exercise.repetition[index]}회</SetDetail>
+                    </SetItem>
+                  ))}
+                </SetContainer>
+              )}
+              <ButtonContainer>
+                <Button onClick={() => editExercise(exercise.exerciseLogId, exercise.exerciseName)}>수정</Button>
+                <Button onClick={() => deleteExercise(exercise.exerciseLogId)}>삭제</Button>
+              </ButtonContainer>
+            </ExerciseItem>
+          ))
         )}
-        <ButtonContainer>
-          <Button onClick={() => editExercise(exercise.exerciseLogId, exercise.exerciseName)}>수정</Button>
-          <Button onClick={() => deleteExercise(exercise.exerciseLogId)}>삭제</Button>
-        </ButtonContainer>
-      </ExerciseItem>
-    ))}
       </RecordContainer>
     </Container>
   );

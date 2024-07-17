@@ -14,45 +14,53 @@ const Container = styled.div`
   text-align: center;
 `;
 
-
 const ProfileSetting = () => {
-  
   const location = useLocation();
   const { userEmail, userNickname } = location.state;
-
   const { userId } = React.useContext(UserContext);
   const [userBirth, setUserBirth] = useState("");
   const [userHeight, setUserHeight] = useState("");
   const [userWeight, setUserWeight] = useState("");
   const [userGender, setUserGender] = useState("남성");
   const [userImage, setUserImage] = useState(null);
-
   const navigate = useNavigate();
 
   const handleImageUpload = (event) => {
     setUserImage(event.target.files[0]);
   };
 
-  const handleSubmit = async () => {
+  const handleHeightChange = (e) => {
+    const value = e.target.value;
+    if (value > 0) {
+      setUserHeight(value);
+    }
+  };
 
-    const response = await axios.post(`http://localhost:4000/profile`, {
-        userId : userId,
-        userEmail : userEmail,
-        userNickname : userNickname,
-        userBirth : userBirth,
-        userHeight : userHeight,
-        userWeight : userWeight,
-        userGender : userGender,
-        userImage : userImage,
-        })
-      .then(response => {
-        alert("프로필이 성공적으로 업데이트되었습니다.");
-        navigate("/home");
-      })
-      .catch(error => {
-        console.log(error);
-        alert("프로필 업데이트에 실패했습니다.");
+  const handleWeightChange = (e) => {
+    const value = e.target.value;
+    if (value > 0) {
+      setUserWeight(value);
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const response = await axios.post(`http://localhost:4000/newProfile`, {
+        userId,
+        userEmail,
+        userNickname,
+        userBirth,
+        userHeight,
+        userWeight,
+        userGender,
+        userImage,
       });
+      alert("프로필이 성공적으로 업데이트되었습니다.");
+      navigate("/home");
+    } catch (error) {
+      console.log(error);
+      alert("프로필 업데이트에 실패했습니다.");
+    }
   };
 
   return (
@@ -68,11 +76,11 @@ const ProfileSetting = () => {
       </div>
       <div>
         <label>키</label>
-        <input type="number" value={userHeight} onChange={(e) => setUserHeight(e.target.value)} />
+        <input type="number" value={userHeight} onChange={handleHeightChange} />
       </div>
       <div>
         <label>몸무게</label>
-        <input type="number" value={userWeight} onChange={(e) => setUserWeight(e.target.value)} />
+        <input type="number" value={userWeight} onChange={handleWeightChange} />
       </div>
       <div>
         <label>성별</label>
