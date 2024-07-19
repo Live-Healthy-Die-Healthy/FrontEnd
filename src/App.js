@@ -20,6 +20,8 @@ import DietDetail from './pages/diet/DietDetail';
 import EditDiet from './pages/diet/EditDiet';
 import SelectMenu from './pages/diet/SelectMenu';
 import RecordDiet from './pages/diet/RecordDiet';
+import AnalyzingPage from './pages/diet/AnalyzingPage';
+import ConfirmDietPage from './pages/diet/ConfirmDietPage';
 
 import ReportPage from './pages/reports/ReportPage';
 import DailyReportPage from './pages/reports/DailyReportPage';
@@ -77,6 +79,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/auth/callback/kakao" element={<Kakao />} />
+          
           <Route path="/home" element={<HomePage />} />
           <Route path="/profilesetting" element={<ProfileSetting />} />
           <Route path="/trainmonth" element={<MonthlyTraining />} />
@@ -91,6 +94,8 @@ function AppContent() {
           <Route path="/editdiet/:formattedDate/:dietType/:dietLogDetailId" element={<EditDiet />} />
           <Route path="/selectmenu/:formattedDate/:dietType" element={<SelectMenu />} />
           <Route path="/recorddiet/:dietType" element={<RecordDiet />} />
+          <Route path="/analyzing/:formattedDate/:dietType" element={<AnalyzingPage />} />
+          <Route path="/confirmDiet/:formattedDate/:dietType" element={<ConfirmDietPage />} />
 
           <Route path="/report" element={<ReportPage />} />
           <Route path="/dailyreport" element={<DailyReportPage />} />

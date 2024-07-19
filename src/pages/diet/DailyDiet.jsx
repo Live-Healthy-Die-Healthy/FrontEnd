@@ -5,8 +5,6 @@ import { format } from "date-fns";
 import axios from "axios";
 import { UserContext } from "../../context/LoginContext";
 
-import dummyDietData from "../../mocks/dummyDailyDiet.json";
-
 const Container = styled.div`
     display: flex;
     flex-direction: column;
@@ -18,7 +16,7 @@ const Container = styled.div`
 
 const RecordContainer = styled.div`
     width: 80%;
-    max-width: 600px;
+    max-width: 800px;
     background-color: white;
     padding: 20px;
     border-radius: 10px;
@@ -29,7 +27,7 @@ const RecordContainer = styled.div`
 const MealContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: 100%;
+    width: 95%;
 `;
 
 const MealBox = styled.div`
@@ -99,7 +97,6 @@ export default function DailyDiet() {
                         },
                     }
                 );
-                console.log("response : ", response);
 
                 const fetchedMeals = response.data;
                 const processedMeals = {
@@ -120,23 +117,6 @@ export default function DailyDiet() {
                 setMeals(processedMeals);
             } catch (error) {
                 console.error("Error fetching meals:", error);
-                // 더미 데이터를 설정합니다.
-                const dummyMeals = {
-                    breakfast: dummyDietData.filter(
-                        (item) => item.dietType === "breakfast"
-                    ),
-                    lunch: dummyDietData.filter(
-                        (item) => item.dietType === "lunch"
-                    ),
-                    dinner: dummyDietData.filter(
-                        (item) => item.dietType === "dinner"
-                    ),
-                    snack: dummyDietData.filter(
-                        (item) => item.dietType === "snack"
-                    ),
-                };
-
-                setMeals(dummyMeals);
             }
         };
 
@@ -149,141 +129,46 @@ export default function DailyDiet() {
         });
     };
 
+    const renderMealBox = (dietType, mealName) => (
+        <MealBox key={dietType} onClick={() => handleMealClick(dietType)}>
+            <MealText>{mealName}</MealText>
+            <MealDetails>
+                {meals[dietType].length > 0 ? (
+                    <>
+                        <MealDetailItem>{`총 칼로리: ${meals[dietType].reduce(
+                            (total, item) => total + item.calories,
+                            0
+                        )} kcal`}</MealDetailItem>
+                        {meals[dietType][0].menuNames &&
+                        Array.isArray(meals[dietType][0].menuNames) ? (
+                            meals[dietType][0].menuNames.map((menu, index) => (
+                                <MealDetailItem key={index}>
+                                    {menu}
+                                </MealDetailItem>
+                            ))
+                        ) : (
+                            <MealDetailItem>
+                                {meals[dietType][0].menuNames ||
+                                    "메뉴 정보 없음"}
+                            </MealDetailItem>
+                        )}
+                    </>
+                ) : (
+                    <MealDetailItem>기록이 없습니다.</MealDetailItem>
+                )}
+            </MealDetails>
+        </MealBox>
+    );
+
     return (
         <Container>
             <h3>{formattedDate} 일간 식단 기록</h3>
             <RecordContainer>
                 <MealContainer>
-                    <MealBox onClick={() => handleMealClick("breakfast")}>
-                        <MealText>아침</MealText>
-                        <MealDetails>
-                            {meals.breakfast.length > 0 ? (
-                                <>
-                                    <MealDetailItem>{`총 칼로리: ${meals.breakfast.reduce(
-                                        (total, item) => total + item.calories,
-                                        0
-                                    )} kcal`}</MealDetailItem>
-                                    {meals.breakfast[0].menuNames &&
-                                    Array.isArray(
-                                        meals.breakfast[0].menuNames
-                                    ) ? (
-                                        meals.breakfast[0].menuNames.map(
-                                            (menu, index) => (
-                                                <MealDetailItem key={index}>
-                                                    {menu}
-                                                </MealDetailItem>
-                                            )
-                                        )
-                                    ) : (
-                                        <MealDetailItem>
-                                            {meals.breakfast[0].menuNames ||
-                                                "메뉴 정보 없음"}
-                                        </MealDetailItem>
-                                    )}
-                                </>
-                            ) : (
-                                <MealDetailItem>
-                                    기록이 없습니다.
-                                </MealDetailItem>
-                            )}
-                        </MealDetails>
-                    </MealBox>
-                    <MealBox onClick={() => handleMealClick("lunch")}>
-                        <MealText>점심</MealText>
-                        <MealDetails>
-                            {meals.lunch.length > 0 ? (
-                                <>
-                                    <MealDetailItem>{`총 칼로리: ${meals.lunch.reduce(
-                                        (total, item) => total + item.calories,
-                                        0
-                                    )} kcal`}</MealDetailItem>
-                                    {meals.lunch[0].menuNames &&
-                                    Array.isArray(meals.lunch[0].menuNames) ? (
-                                        meals.lunch[0].menuNames.map(
-                                            (menu, index) => (
-                                                <MealDetailItem key={index}>
-                                                    {menu}
-                                                </MealDetailItem>
-                                            )
-                                        )
-                                    ) : (
-                                        <MealDetailItem>
-                                            {meals.lunch[0].menuNames ||
-                                                "메뉴 정보 없음"}
-                                        </MealDetailItem>
-                                    )}
-                                </>
-                            ) : (
-                                <MealDetailItem>
-                                    기록이 없습니다.
-                                </MealDetailItem>
-                            )}
-                        </MealDetails>
-                    </MealBox>
-                    <MealBox onClick={() => handleMealClick("dinner")}>
-                        <MealText>저녁</MealText>
-                        <MealDetails>
-                            {meals.dinner.length > 0 ? (
-                                <>
-                                    <MealDetailItem>{`총 칼로리: ${meals.dinner.reduce(
-                                        (total, item) => total + item.calories,
-                                        0
-                                    )} kcal`}</MealDetailItem>
-                                    {meals.dinner[0].menuNames &&
-                                    Array.isArray(meals.dinner[0].menuNames) ? (
-                                        meals.dinner[0].menuNames.map(
-                                            (menu, index) => (
-                                                <MealDetailItem key={index}>
-                                                    {menu}
-                                                </MealDetailItem>
-                                            )
-                                        )
-                                    ) : (
-                                        <MealDetailItem>
-                                            {meals.dinner[0].menuNames ||
-                                                "메뉴 정보 없음"}
-                                        </MealDetailItem>
-                                    )}
-                                </>
-                            ) : (
-                                <MealDetailItem>
-                                    기록이 없습니다.
-                                </MealDetailItem>
-                            )}
-                        </MealDetails>
-                    </MealBox>
-                    <MealBox onClick={() => handleMealClick("snack")}>
-                        <MealText>간식</MealText>
-                        <MealDetails>
-                            {meals.snack.length > 0 ? (
-                                <>
-                                    <MealDetailItem>{`총 칼로리: ${meals.snack.reduce(
-                                        (total, item) => total + item.calories,
-                                        0
-                                    )} kcal`}</MealDetailItem>
-                                    {meals.snack[0].menuNames &&
-                                    Array.isArray(meals.snack[0].menuNames) ? (
-                                        meals.snack[0].menuNames.map(
-                                            (menu, index) => (
-                                                <MealDetailItem key={index}>
-                                                    {menu}
-                                                </MealDetailItem>
-                                            )
-                                        )
-                                    ) : (
-                                        <MealDetailItem>
-                                            {meals.snack[0].menuNames ||
-                                                "메뉴 정보 없음"}
-                                        </MealDetailItem>
-                                    )}
-                                </>
-                            ) : (
-                                <MealDetailItem>
-                                    기록이 없습니다.
-                                </MealDetailItem>
-                            )}
-                        </MealDetails>
-                    </MealBox>
+                    {renderMealBox("breakfast", "아침")}
+                    {renderMealBox("lunch", "점심")}
+                    {renderMealBox("dinner", "저녁")}
+                    {renderMealBox("snack", "간식")}
                 </MealContainer>
             </RecordContainer>
         </Container>
