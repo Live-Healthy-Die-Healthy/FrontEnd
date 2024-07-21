@@ -68,11 +68,6 @@ const ImageUploadModal = ({ onClose }) => {
                 } catch (error) {
                     console.error("Error uploading image:", error);
                     alert("이미지 업로드에 실패했습니다.");
-                    navigate(`/analyzing/${formattedDate}/${dietType}`, {
-                        state: {
-                            dietImage: base64Image,
-                        },
-                    });
                 }
             };
         }

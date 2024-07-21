@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 import axios from "axios";
@@ -35,29 +35,67 @@ const AnalyzingPage = () => {
     const navigate = useNavigate();
     const { analysisId, dietImage } = location.state;
     const [isAnalyzing, setIsAnalyzing] = useState(true);
+    const [error, setError] = useState(null);
     const { formattedDate, dietType } = useParams();
 
-    useEffect(() => {
-        const checkAnalysisStatus = async () => {
-            try {
-                const response = await axios.get(
-                    `http://localhost:4000/analysisStatus/${analysisId}`
+    const checkAnalysisStatus = useCallback(async () => {
+        try {
+            const response = await axios.get(
+                `http://localhost:4000/analysisStatus/${analysisId}`
+            );
+            if (response.data.status === "completed") {
+                setIsAnalyzing(false);
+                console.log(
+                    "response.data.dietDetailLogIds : ",
+                    response.data.dietDetailLogIds
                 );
-                if (response.data.status === "completed") {
-                    setIsAnalyzing(false);
-                    navigate(`/confirmDiet/${formattedDate}/${dietType}`, {
-                        state: { dietInfo: response.data.dietInfo, dietImage },
-                    });
-                } else {
-                    setTimeout(checkAnalysisStatus, 5000); // 5초마다 상태 확인
-                }
-            } catch (error) {
-                console.error("Error checking analysis status:", error);
+
+                navigate(`/confirmDiet/${formattedDate}/${dietType}`, {
+                    state: {
+                        dietInfo: response.data.dietInfo,
+                        dietImage,
+                        dietDetailLogIds: response.data.dietDetailLogIds,
+                    },
+                });
+            } else if (response.data.status === "in_progress") {
+                setError("식단 사진을 분석 중입니다...");
+            } else if (response.data.status === "failed") {
+                alert(response.data.message);
+                navigate(-1);
             }
+        } catch (error) {
+            console.error("Error checking analysis status:", error);
+            setError("분석 상태를 확인하는 중 오류가 발생했습니다.");
+        }
+    }, [analysisId, navigate, formattedDate, dietType, dietImage]);
+
+    useEffect(() => {
+        let intervalId;
+        let timeoutId;
+
+        const startChecking = () => {
+            intervalId = setInterval(checkAnalysisStatus, 5000); // 5초마다 상태 확인
         };
 
-        checkAnalysisStatus();
-    }, [analysisId, navigate, formattedDate, dietType, dietImage]);
+        startChecking();
+
+        // 5분 후에도 분석이 완료되지 않으면 사용자에게 알림
+        timeoutId = setTimeout(() => {
+            clearInterval(intervalId);
+            setError(
+                "분석이 예상보다 오래 걸리고 있습니다. 나중에 다시 시도해주세요."
+            );
+            alert(
+                "분석이 예상보다 오래 걸리고 있습니다. 나중에 다시 시도해주세요."
+            );
+            navigate(-1);
+        }, 300000); // 5분
+
+        return () => {
+            clearInterval(intervalId);
+            clearTimeout(timeoutId);
+        };
+    }, [checkAnalysisStatus]);
 
     return (
         <Container>

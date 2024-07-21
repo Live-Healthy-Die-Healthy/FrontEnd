@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
@@ -55,20 +55,36 @@ const RetakeButton = styled(Button)`
 const ConfirmDietPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const [dietInfo, setDietInfo] = useState(location.state.dietInfo);
-    const [dietImage, setDietImage] = useState(location.state.dietImage);
+    const [dietInfo, setDietInfo] = useState(null);
+    const [dietImage, setDietImage] = useState(location.state?.dietImage);
     const { formattedDate, dietType } = useParams();
 
+    useEffect(() => {
+        if (location.state?.dietInfo) {
+            setDietInfo(location.state.dietInfo);
+        }
+    }, [location.state]);
+
+    console.log("dietInfo : ", dietInfo);
+
     const handleQuantityChange = (index, newQuantity) => {
-        const updatedDietInfo = [...dietInfo];
-        updatedDietInfo[index].quantity = newQuantity;
+        const updatedDietInfo = { ...dietInfo };
+        updatedDietInfo.음식상세[index].예상양 = Number(newQuantity);
         setDietInfo(updatedDietInfo);
     };
 
     const handleConfirm = async () => {
         try {
-            await axios.post("http://localhost:4000/confirmDiet", { dietInfo });
-            navigate(`/dietDetail/${formattedDate}/${dietType}`); // 식단 상세 페이지로 이동
+            const updatedDetails = dietInfo.음식상세.map((item, index) => ({
+                dietDetailLogId: location.state.dietDetailLogIds[index],
+                quantity: item.예상양,
+            }));
+            await axios.put("http://localhost:4000/updateDietDetail", {
+                updatedDetails,
+            });
+            navigate(`/dietDetail/${formattedDate}/${dietType}`, {
+                state: { date: formattedDate },
+            });
         } catch (error) {
             console.error("Error confirming diet:", error);
             alert("식단 확인에 실패했습니다.");
@@ -76,9 +92,12 @@ const ConfirmDietPage = () => {
     };
 
     const handleRetakePhoto = () => {
-        // 사진 다시 찍기 페이지로 이동
         navigate("/takePhoto");
     };
+
+    if (!dietInfo) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <Container>
@@ -87,19 +106,43 @@ const ConfirmDietPage = () => {
             <RetakeButton onClick={handleRetakePhoto}>
                 사진 다시 찍기
             </RetakeButton>
-            {dietInfo.map((item, index) => (
+            <h3>총 칼로리: {dietInfo.총칼로리}kcal</h3>
+            <h4>영양소 비율:</h4>
+            <ul>
+                <li>탄수화물: {dietInfo.영양소비율.탄수화물}%</li>
+                <li>단백질: {dietInfo.영양소비율.단백질}%</li>
+                <li>지방: {dietInfo.영양소비율.지방}%</li>
+            </ul>
+            <h4>음식 상세:</h4>
+            {dietInfo.음식상세.map((item, index) => (
                 <DietItem key={index}>
-                    <span>{item.menuName}</span>
+                    <span>{item.음식명}</span>
                     <Input
                         type='number'
-                        value={item.quantity}
+                        value={item.예상양}
                         onChange={(e) =>
                             handleQuantityChange(index, e.target.value)
                         }
                     />{" "}
-                    g
+                    g<span>({item.칼로리}kcal)</span>
                 </DietItem>
             ))}
+            <h4>영양 분석:</h4>
+            <ul>
+                <li>장점: {dietInfo.영양분석.장점.join(", ")}</li>
+                <li>개선점: {dietInfo.영양분석.개선점.join(", ")}</li>
+            </ul>
+            <h4>권장사항:</h4>
+            <ul>
+                {dietInfo.권장사항.map((item, index) => (
+                    <li key={index}>{item}</li>
+                ))}
+            </ul>
+            <h4>식사 시간:</h4>
+            <p>적합한 시간: {dietInfo.식사시간.적합한시간}</p>
+            <p>조언: {dietInfo.식사시간.조언}</p>
+            <h4>주의사항:</h4>
+            <p>{dietInfo.주의사항}</p>
             <Button onClick={handleConfirm}>확인</Button>
         </Container>
     );

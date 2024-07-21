@@ -190,6 +190,8 @@ export default function DietDetail() {
         setShowImageModal(false);
     };
 
+    console.log("dietData : ", dietData);
+
     return (
         <Container>
             <HeaderContainer>
@@ -198,6 +200,9 @@ export default function DietDetail() {
                 </h3>
                 <AddButton onClick={handleAddClick}>메뉴 추가하기</AddButton>
             </HeaderContainer>
+            {dietData.dietImage && (
+                <img src={dietData.dietImage} alt='식단 사진' />
+            )}
             <RecordContainer>
                 {dietData.length > 0 ? (
                     dietData.map((item) => (
