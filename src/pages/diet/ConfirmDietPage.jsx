@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
@@ -55,8 +55,8 @@ const RetakeButton = styled(Button)`
 const ConfirmDietPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const [dietInfo, setDietInfo] = useState(null);
-    const [dietImage, setDietImage] = useState(location.state?.dietImage);
+    const [dietInfo, setDietInfo] = useState(location.state?.dietInfo || {});
+    const [dietImage, setDietImage] = useState(location.state?.dietImage || "");
     const { formattedDate, dietType } = useParams();
 
     useEffect(() => {
@@ -65,13 +65,16 @@ const ConfirmDietPage = () => {
         }
     }, [location.state]);
 
-    console.log("dietInfo : ", dietInfo);
-
-    const handleQuantityChange = (index, newQuantity) => {
-        const updatedDietInfo = { ...dietInfo };
-        updatedDietInfo.음식상세[index].예상양 = Number(newQuantity);
-        setDietInfo(updatedDietInfo);
-    };
+    const handleQuantityChange = useCallback(
+        (index, newQuantity) => {
+            setDietInfo((prevDietInfo) => {
+                const updatedDietInfo = { ...prevDietInfo };
+                updatedDietInfo.음식상세[index].예상양 = Number(newQuantity);
+                return updatedDietInfo;
+            });
+        },
+        [setDietInfo]
+    );
 
     const handleConfirm = async () => {
         try {
@@ -95,7 +98,7 @@ const ConfirmDietPage = () => {
         navigate("/takePhoto");
     };
 
-    if (!dietInfo) {
+    if (!dietInfo.음식상세) {
         return <div>Loading...</div>;
     }
 

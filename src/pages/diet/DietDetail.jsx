@@ -190,8 +190,6 @@ export default function DietDetail() {
         setShowImageModal(false);
     };
 
-    console.log("dietData : ", dietData);
-
     return (
         <Container>
             <HeaderContainer>
