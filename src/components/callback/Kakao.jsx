@@ -25,7 +25,7 @@ export default function Kakao() {
             const code = url.searchParams.get("code");
             if (code) {
                 axios({
-                    url: `http://${process.env.REACT_APP_API_PORT}:4000/auth/kakao/accesstoken`,
+                    url: `${process.env.REACT_APP_API_PORT}/auth/kakao/accesstoken`,
                     method: "post",
                     data: {
                         code: code,
@@ -56,7 +56,7 @@ export default function Kakao() {
                             setUserId(userId);
                             axios
                                 .post(
-                                    `http://${process.env.REACT_APP_API_PORT}:4000/checkUser`,
+                                    `${process.env.REACT_APP_API_PORT}/checkUser`,
                                     {
                                         userId,
                                     }

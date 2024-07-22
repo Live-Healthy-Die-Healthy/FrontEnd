@@ -96,14 +96,12 @@ const ConfirmDietPage = () => {
     const handleRemoveItem = (index) => {
         setDietInfo((prevDietInfo) => {
             const updatedDietInfo = { ...prevDietInfo };
-            updatedDietInfo.음식상세.splice(index, 1);
+            updatedDietInfo.음식상세 = updatedDietInfo.음식상세.filter(
+                (_, i) => i !== index
+            );
             return updatedDietInfo;
         });
-        setDietDetailLogIds((prevIds) => {
-            const updatedIds = [...prevIds];
-            updatedIds.splice(index, 1);
-            return updatedIds;
-        });
+        setDietDetailLogIds((prevIds) => prevIds.filter((_, i) => i !== index));
     };
 
     const handleConfirm = async () => {
@@ -113,7 +111,7 @@ const ConfirmDietPage = () => {
                 quantity: item.예상양,
             }));
             await axios.put(
-                `http://${process.env.REACT_APP_API_PORT}:4000/gpt/updateDietDetail`,
+                `${process.env.REACT_APP_API_PORT}/gpt/updateDietDetail/${location.state.analysisId}`,
                 {
                     updatedDetails,
                 }

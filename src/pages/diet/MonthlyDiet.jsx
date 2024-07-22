@@ -68,7 +68,7 @@ export default function MonthlyDiet() {
     const fetchDietRecords = async (date) => {
         try {
             const response = await axios.post(
-                `http://${process.env.REACT_APP_API_PORT}:4000/dietCalender`,
+                `${process.env.REACT_APP_API_PORT}/dietCalender`,
                 { userId, date }
             );
             const data = response.data.reduce((acc, record) => {

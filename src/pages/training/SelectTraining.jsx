@@ -66,7 +66,7 @@ export default function SelectTraining() {
         const fetchExercises = async () => {
             try {
                 const response = await axios.get(
-                    `http://${process.env.REACT_APP_API_PORT}:4000/exerciseList`
+                    `${process.env.REACT_APP_API_PORT}/exerciseList`
                 );
                 setExercises(response.data);
                 setFilteredExercises(response.data);

@@ -72,7 +72,7 @@ const EditTrain = () => {
         const fetchExerciseLog = async () => {
             try {
                 const response = await axios.post(
-                    `http://${process.env.REACT_APP_API_PORT}:4000/getTrainingLog`,
+                    `${process.env.REACT_APP_API_PORT}/getTrainingLog`,
                     {
                         exerciseLogId: exerciseLogId,
                     },
@@ -195,7 +195,7 @@ const EditTrain = () => {
 
         try {
             const response = await axios.put(
-                `http://${process.env.REACT_APP_API_PORT}:4000/exerciseLog`,
+                `${process.env.REACT_APP_API_PORT}/exerciseLog`,
                 exerciseData,
                 {
                     headers: {

@@ -88,7 +88,7 @@ const ProfilePage = () => {
         const fetchProfile = async () => {
             try {
                 const response = await axios.post(
-                    `http://${process.env.REACT_APP_API_PORT}:4000/profile`,
+                    `${process.env.REACT_APP_API_PORT}/profile`,
                     { userId }
                 );
                 setProfile(response.data);

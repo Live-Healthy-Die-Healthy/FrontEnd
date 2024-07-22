@@ -86,7 +86,7 @@ export default function DailyDiet() {
         const fetchMeals = async () => {
             try {
                 const response = await axios.post(
-                    `http://${process.env.REACT_APP_API_PORT}:4000/dailyDiet`,
+                    `${process.env.REACT_APP_API_PORT}/dailyDiet`,
                     {
                         date: formattedDate,
                         userId: userId,

@@ -75,7 +75,7 @@ export default function RecordDiet() {
 
         try {
             const response = await axios.post(
-                `http://${process.env.REACT_APP_API_PORT}:4000/addDiet`,
+                `${process.env.REACT_APP_API_PORT}/addDiet`,
                 dietData,
                 {
                     headers: {

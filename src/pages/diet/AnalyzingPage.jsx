@@ -41,7 +41,7 @@ const AnalyzingPage = () => {
     const checkAnalysisStatus = useCallback(async () => {
         try {
             const response = await axios.get(
-                `http://${process.env.REACT_APP_API_PORT}:4000/gpt/analysisStatus/${analysisId}`
+                `${process.env.REACT_APP_API_PORT}/gpt/analysisStatus/${analysisId}`
             );
             if (response.data.status === "completed") {
                 setIsAnalyzing(false);
@@ -55,6 +55,7 @@ const AnalyzingPage = () => {
                         dietInfo: response.data.dietInfo,
                         dietImage,
                         dietDetailLogIds: response.data.dietDetailLogIds,
+                        analysisId,
                     },
                 });
             } else if (response.data.status === "in_progress") {

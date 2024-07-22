@@ -154,7 +154,7 @@ export default function RecordTraining() {
 
         try {
             const response = await axios.post(
-                `http://${process.env.REACT_APP_API_PORT}:4000/addExerciseLog`,
+                `${process.env.REACT_APP_API_PORT}/addExerciseLog`,
                 exerciseData,
                 {
                     headers: {

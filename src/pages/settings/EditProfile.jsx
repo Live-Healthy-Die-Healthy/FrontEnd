@@ -114,7 +114,7 @@ const EditProfile = () => {
     const handleSubmit = async () => {
         try {
             const response = await axios.put(
-                `http://${process.env.REACT_APP_API_PORT}:4000/profile`,
+                `${process.env.REACT_APP_API_PORT}/profile`,
                 {
                     userId,
                     userEmail,

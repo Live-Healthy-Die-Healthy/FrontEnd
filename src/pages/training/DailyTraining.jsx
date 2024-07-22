@@ -131,7 +131,7 @@ export default function DailyTraining() {
         const fetchExercises = async () => {
             try {
                 const response = await axios.post(
-                    `http://${process.env.REACT_APP_API_PORT}:4000/exerciseLog`,
+                    `${process.env.REACT_APP_API_PORT}/exerciseLog`,
                     {
                         exerciseDate: formattedDate,
                         userId: userId,
@@ -181,7 +181,7 @@ export default function DailyTraining() {
         // 실제 삭제 요청 부분
         try {
             const response = await axios.delete(
-                `http://${process.env.REACT_APP_API_PORT}:4000/exerciseLog`,
+                `${process.env.REACT_APP_API_PORT}/exerciseLog`,
                 {
                     data: { exerciseLogId: id },
                     headers: {
