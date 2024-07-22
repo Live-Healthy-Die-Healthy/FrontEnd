@@ -55,7 +55,7 @@ const ImageUploadModal = ({ onClose }) => {
                         {
                             userId,
                             dietType,
-                            formattedDate,
+                            dietDate: formattedDate,
                             dietImage: base64Image,
                         }
                     );
