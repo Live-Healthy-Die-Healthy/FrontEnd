@@ -82,7 +82,7 @@ const ConfirmDietPage = () => {
                 dietDetailLogId: location.state.dietDetailLogIds[index],
                 quantity: item.예상양,
             }));
-            await axios.put("http://localhost:4000/updateDietDetail", {
+            await axios.put("http://localhost:4000/gpt/updateDietDetail", {
                 updatedDetails,
             });
             navigate(`/dietDetail/${formattedDate}/${dietType}`, {

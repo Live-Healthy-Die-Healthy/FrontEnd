@@ -41,7 +41,7 @@ const AnalyzingPage = () => {
     const checkAnalysisStatus = useCallback(async () => {
         try {
             const response = await axios.get(
-                `http://localhost:4000/analysisStatus/${analysisId}`
+                `http://localhost:4000/gpt/analysisStatus/${analysisId}`
             );
             if (response.data.status === "completed") {
                 setIsAnalyzing(false);
