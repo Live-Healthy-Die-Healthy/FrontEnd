@@ -65,7 +65,7 @@ const EditDiet = () => {
     const handleSave = async () => {
         try {
             await axios.put(
-                `http://localhost:4000/dietDetail/${dietData.dietDetailLogId}`,
+                `http://${process.env.REACT_APP_API_PORT}:4000/dietDetail/${dietData.dietDetailLogId}`,
                 {
                     quantity,
                 },

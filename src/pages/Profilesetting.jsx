@@ -127,7 +127,7 @@ const ProfileSetting = () => {
             };
 
             const response = await axios.post(
-                `http://localhost:4000/newProfile`,
+                `http://${process.env.REACT_APP_API_PORT}:4000/newProfile`,
                 profileData
             );
             alert("프로필이 성공적으로 업데이트되었습니다.");

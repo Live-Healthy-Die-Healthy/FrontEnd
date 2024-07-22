@@ -113,16 +113,19 @@ const EditProfile = () => {
 
     const handleSubmit = async () => {
         try {
-            const response = await axios.put("http://localhost:4000/profile", {
-                userId,
-                userEmail,
-                username,
-                userBirth,
-                userHeight,
-                userWeight,
-                userGender,
-                userImage,
-            });
+            const response = await axios.put(
+                `http://${process.env.REACT_APP_API_PORT}:4000/profile`,
+                {
+                    userId,
+                    userEmail,
+                    username,
+                    userBirth,
+                    userHeight,
+                    userWeight,
+                    userGender,
+                    userImage,
+                }
+            );
             alert("프로필이 성공적으로 업데이트되었습니다.");
             navigate("/profile");
         } catch (error) {

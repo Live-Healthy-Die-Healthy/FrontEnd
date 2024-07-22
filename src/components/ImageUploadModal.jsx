@@ -51,7 +51,7 @@ const ImageUploadModal = ({ onClose }) => {
                 const base64Image = reader.result;
                 try {
                     const response = await axios.post(
-                        "http://localhost:4000/gpt/dietImage",
+                        `http://${process.env.REACT_APP_API_PORT}:4000/gpt/dietImage`,
                         {
                             userId,
                             dietType,

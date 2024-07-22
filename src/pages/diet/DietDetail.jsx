@@ -110,7 +110,7 @@ export default function DietDetail() {
     const fetchDietData = async () => {
         try {
             const response = await axios.post(
-                `http://localhost:4000/dietDetail/${dietType}`,
+                `http://${process.env.REACT_APP_API_PORT}:4000/dietDetail/${dietType}`,
                 {
                     userId,
                     date: formattedDate,
@@ -158,7 +158,7 @@ export default function DietDetail() {
         if (!confirmDelete) return;
         try {
             await axios.delete(
-                `http://localhost:4000/dietDetail/${dietDetailLogId}`,
+                `http://${process.env.REACT_APP_API_PORT}:4000/dietDetail/${dietDetailLogId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,

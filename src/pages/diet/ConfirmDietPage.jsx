@@ -68,7 +68,9 @@ const ConfirmDietPage = () => {
     const navigate = useNavigate();
     const [dietInfo, setDietInfo] = useState(location.state?.dietInfo || {});
     const [dietImage, setDietImage] = useState(location.state?.dietImage || "");
-    const [dietDetailLogIds, setDietDetailLogIds] = useState(location.state?.dietDetailLogIds || []);
+    const [dietDetailLogIds, setDietDetailLogIds] = useState(
+        location.state?.dietDetailLogIds || []
+    );
     const { formattedDate, dietType } = useParams();
 
     useEffect(() => {
@@ -110,9 +112,12 @@ const ConfirmDietPage = () => {
                 dietDetailLogId: dietDetailLogIds[index],
                 quantity: item.예상양,
             }));
-            await axios.put("http://localhost:4000/gpt/updateDietDetail", {
-                updatedDetails,
-            });
+            await axios.put(
+                `http://${process.env.REACT_APP_API_PORT}:4000/gpt/updateDietDetail`,
+                {
+                    updatedDetails,
+                }
+            );
             navigate(`/dietDetail/${formattedDate}/${dietType}`, {
                 state: { date: formattedDate },
             });
@@ -133,8 +138,10 @@ const ConfirmDietPage = () => {
     return (
         <Container>
             <h2>분석된 식단 정보</h2>
-            {dietImage && <DietImage src={dietImage} alt="식단 사진" />}
-            <RetakeButton onClick={handleRetakePhoto}>사진 다시 찍기</RetakeButton>
+            {dietImage && <DietImage src={dietImage} alt='식단 사진' />}
+            <RetakeButton onClick={handleRetakePhoto}>
+                사진 다시 찍기
+            </RetakeButton>
             <h3>총 칼로리: {dietInfo.총칼로리}kcal</h3>
             <h4>영양소 비율:</h4>
             <ul>
@@ -147,12 +154,16 @@ const ConfirmDietPage = () => {
                 <DietItem key={index}>
                     <span>{item.음식명}</span>
                     <Input
-                        type="number"
+                        type='number'
                         value={item.예상양}
-                        onChange={(e) => handleQuantityChange(index, e.target.value)}
+                        onChange={(e) =>
+                            handleQuantityChange(index, e.target.value)
+                        }
                     />
                     g <span>({item.칼로리}kcal)</span>
-                    <RemoveButton onClick={() => handleRemoveItem(index)}>삭제</RemoveButton>
+                    <RemoveButton onClick={() => handleRemoveItem(index)}>
+                        삭제
+                    </RemoveButton>
                 </DietItem>
             ))}
             <h4>영양 분석:</h4>

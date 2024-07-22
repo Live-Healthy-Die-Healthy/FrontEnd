@@ -25,7 +25,7 @@ export default function Kakao() {
             const code = url.searchParams.get("code");
             if (code) {
                 axios({
-                    url: "http://localhost:4000/auth/kakao/accesstoken",
+                    url: `http://${process.env.REACT_APP_API_PORT}:4000/auth/kakao/accesstoken`,
                     method: "post",
                     data: {
                         code: code,
@@ -55,9 +55,12 @@ export default function Kakao() {
                                 userResult.data.kakao_account.profile.nickname;
                             setUserId(userId);
                             axios
-                                .post("http://localhost:4000/checkUser", {
-                                    userId,
-                                })
+                                .post(
+                                    `http://${process.env.REACT_APP_API_PORT}:4000/checkUser`,
+                                    {
+                                        userId,
+                                    }
+                                )
                                 .then((response) => {
                                     if (!response.data.isExist) {
                                         navigate("/profilesetting", {

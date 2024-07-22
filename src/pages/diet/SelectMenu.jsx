@@ -56,7 +56,7 @@ export default function SelectMenu() {
         const fetchMenus = async () => {
             try {
                 const response = await axios.get(
-                    "http://localhost:4000/menuList"
+                    `http://${process.env.REACT_APP_API_PORT}:4000/menuList`
                 );
                 setMenus(response.data);
                 setFilteredMenus(response.data);

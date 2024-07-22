@@ -68,7 +68,7 @@ export default function MonthlyTraining() {
     const fetchRecords = async (date) => {
         try {
             const response = await axios.post(
-                `http://localhost:4000/exerciseCalendar`,
+                `http://${process.env.REACT_APP_API_PORT}:4000/exerciseCalendar`,
                 { userId, date }
             );
             const data = response.data.reduce((acc, record) => {
