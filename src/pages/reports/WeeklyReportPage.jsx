@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import styled from "styled-components";
 import Select from "react-select";
-import { format, startOfMonth, endOfMonth, eachWeekOfInterval, startOfWeek, endOfWeek } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachWeekOfInterval, endOfWeek, isBefore, startOfToday } from "date-fns";
+import { UserContext } from "../../context/LoginContext";
+import axios from "axios";
 
 const Container = styled.div`
   display: flex;
@@ -38,10 +40,15 @@ const SelectWrapper = styled.div`
   margin-bottom: 20px;
 `;
 
+const AlertMessage = styled.div`
+  color: red;
+  margin-bottom: 10px;
+`;
+
 const getYearOptions = () => {
   const currentYear = new Date().getFullYear();
   const yearOptions = [];
-  for (let i = currentYear - 5; i <= currentYear + 5; i++) {
+  for (let i = currentYear - 7; i <= currentYear; i++) {
     yearOptions.push({ value: i, label: `${i}년` });
   }
   return yearOptions;
@@ -55,41 +62,76 @@ const getMonthOptions = () => {
   return monthOptions;
 };
 
-const getWeekOptions = (year, month) => {
-  const startOfMonthDate = startOfMonth(new Date(year, month));
-  const endOfMonthDate = endOfMonth(new Date(year, month));
-  const weeksInMonth = eachWeekOfInterval({ start: startOfMonthDate, end: endOfMonthDate }, { weekStartsOn: 0 });
-
-  return weeksInMonth.map((startOfWeekDate, index) => {
-    const endOfWeekDate = endOfWeek(startOfWeekDate, { weekStartsOn: 0 });
-    return {
-      value: index + 1,
-      label: `${index + 1}주차 레포트`,
-      start: startOfWeekDate,
-      end: endOfWeekDate,
-      content: ``,
-    };
-  });
-};
-
 const WeeklyReportPage = () => {
   const [selectedYear, setSelectedYear] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [selectedWeek, setSelectedWeek] = useState(null);
+  const [startOfWeek, setStartOfWeek] = useState(null);
+  const { userId, accessToken } = useContext(UserContext);
+  const [weeklyReport, setWeeklyReport] = useState(null); 
+
+  const [alertMessage, setAlertMessage] = useState("");
+
+  const getWeekOptions = (year, month) => {
+    const startOfMonthDate = startOfMonth(new Date(year, month));
+    const endOfMonthDate = endOfMonth(new Date(year, month));
+    const weeksInMonth = eachWeekOfInterval({ start: startOfMonthDate, end: endOfMonthDate }, { weekStartsOn: 1 });
+    const today = startOfToday();
+  
+    return weeksInMonth.map((startOfWeekDate, index) => {
+      const endOfWeekDate = endOfWeek(startOfWeekDate, { weekStartsOn: 1 });
+      return {
+        value: index + 1,
+        label: `${index + 1}주차 레포트`,
+        start: startOfWeekDate,
+        end: endOfWeekDate,
+        content: ``,
+        isDisabled: !isBefore(endOfWeekDate, today)
+      };
+    });
+  };
 
   const handleYearChange = (option) => {
     setSelectedYear(option);
     setSelectedMonth(null);
     setSelectedWeek(null);
+    setAlertMessage("");
   };
 
   const handleMonthChange = (option) => {
     setSelectedMonth(option);
     setSelectedWeek(null);
+    setAlertMessage("");
   };
 
-  const handleWeekChange = (option) => {
+  const handleWeekChange = async (option) => {
+    if (option.isDisabled) {
+      setAlertMessage("미래의 주차는 선택할 수 없습니다.");
+      return;
+    }
+
     setSelectedWeek(option);
+    setStartOfWeek(format(option.start, "yyyy-MM-dd"));
+    setAlertMessage("");
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_PORT}/report/weekly`,
+        {
+          userId: userId,
+          date: format(option.start, "yyyy-MM-dd"),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      setWeeklyReport(response.data);
+    } catch (error) {
+      console.error("Error fetching report:", error);
+    }
   };
 
   const yearOptions = getYearOptions();
@@ -99,6 +141,7 @@ const WeeklyReportPage = () => {
   return (
     <Container>
       <h3>주간 레포트 리스트 페이지</h3>
+      {alertMessage && <AlertMessage>{alertMessage}</AlertMessage>}
       <SelectWrapper>
         <Select
           value={selectedYear}
@@ -123,17 +166,31 @@ const WeeklyReportPage = () => {
           options={weekOptions}
           placeholder="주차 선택"
           isDisabled={!selectedMonth}
+          isOptionDisabled={(option) => option.isDisabled}
         />
       </SelectWrapper>
       {selectedWeek && (
         <ReportList>
-          { selectedWeek.content ? (
-          <ReportItem>{selectedWeek.content}</ReportItem>
-          ):
-          (
-            <ReportItem> {selectedWeek.label}가 존재하지 않습니다.</ReportItem>
-          )
-          }
+          {weeklyReport ? (
+            <>
+            <ReportItem>
+              meanCalories : {weeklyReport.meanCalories}
+              </ReportItem>
+              <ReportItem>
+              meanExercise : {weeklyReport.meanExercise}
+              </ReportItem>
+              <ReportItem>
+              dietFeedback : {weeklyReport.dietFeedback}
+              </ReportItem>
+              <ReportItem>
+              execiseFeedback : {weeklyReport.exerciseFeedback}
+            </ReportItem>
+            </>
+          ) : (
+            <ReportItem>
+              <div>레포트가 존재하지 않습니다.</div>
+            </ReportItem>
+          )}
         </ReportList>
       )}
     </Container>

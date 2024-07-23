@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import styled from "styled-components";
 import Select from "react-select";
-import { format, startOfMonth, endOfMonth, eachMonthOfInterval, startOfYear, endOfYear } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachMonthOfInterval, startOfYear, endOfYear, isBefore, startOfToday } from "date-fns";
+import { UserContext } from "../../context/LoginContext";
+import axios from "axios";
 
 const Container = styled.div`
   display: flex;
@@ -38,10 +40,15 @@ const SelectWrapper = styled.div`
   margin-bottom: 20px;
 `;
 
+const AlertMessage = styled.div`
+  color: red;
+  margin-bottom: 10px;
+`;
+
 const getYearOptions = () => {
   const currentYear = new Date().getFullYear();
   const yearOptions = [];
-  for (let i = currentYear - 5; i <= currentYear + 5; i++) {
+  for (let i = currentYear - 5; i <= currentYear; i++) {
     yearOptions.push({ value: i, label: `${i}년` });
   }
   return yearOptions;
@@ -51,13 +58,11 @@ const getMonthOptions = (year) => {
   const startOfYearDate = startOfYear(new Date(year, 0));
   const endOfYearDate = endOfYear(new Date(year, 11));
   const monthsInYear = eachMonthOfInterval({ start: startOfYearDate, end: endOfYearDate });
+  const today = startOfToday();
 
   return monthsInYear.map((monthDate) => {
     const startOfMonthDate = startOfMonth(monthDate);
     const endOfMonthDate = endOfMonth(monthDate);
-
-    //API로 레포트 받아오기
-
 
     return {
       value: monthDate.getMonth(),
@@ -65,6 +70,7 @@ const getMonthOptions = (year) => {
       start: startOfMonthDate,
       end: endOfMonthDate,
       content: ``,
+      isDisabled: !isBefore(endOfMonthDate, today)
     };
   });
 };
@@ -72,14 +78,45 @@ const getMonthOptions = (year) => {
 const MonthlyReportPage = () => {
   const [selectedYear, setSelectedYear] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(null);
+  const { userId, accessToken } = useContext(UserContext);
+  const [monthlyReport, setMonthlyReport] = useState(null);
+  const [alertMessage, setAlertMessage] = useState(""); 
 
   const handleYearChange = (option) => {
     setSelectedYear(option);
     setSelectedMonth(null);
+    setAlertMessage("");
   };
 
-  const handleMonthChange = (option) => {
+  const handleMonthChange = async (option) => {
+    if (option.isDisabled) {
+      setAlertMessage("미래의 월은 선택할 수 없습니다.");
+      return;
+    }
+
     setSelectedMonth(option);
+    setAlertMessage("");
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_PORT}/report/monthly`,
+        {
+          userId: userId,
+          date: format(option.start, "yyyy-MM-dd"),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      console.log(response);
+
+      setMonthlyReport(response.data);
+    } catch (error) {
+      console.error("Error fetching report:", error);
+    }
   };
 
   const yearOptions = getYearOptions();
@@ -87,7 +124,8 @@ const MonthlyReportPage = () => {
 
   return (
     <Container>
-      <h3>주간 레포트 리스트 페이지</h3>
+      <h3>월간 레포트 리스트 페이지</h3>
+      {alertMessage && <AlertMessage>{alertMessage}</AlertMessage>}
       <SelectWrapper>
         <Select
           value={selectedYear}
@@ -103,21 +141,35 @@ const MonthlyReportPage = () => {
           options={monthOptions}
           placeholder="월 선택"
           isDisabled={!selectedYear}
+          isOptionDisabled={(option) => option.isDisabled}
         />
       </SelectWrapper>
       {selectedMonth && (
         <ReportList>
-          { selectedMonth.content ? (
-          <ReportItem>{selectedMonth.content}</ReportItem>
-          ):
-          (
-            <ReportItem> {selectedMonth.label}가 존재하지 않습니다.</ReportItem>
-          )
-          }
+          {monthlyReport ? (
+            <>
+              <ReportItem>
+                meanCalories : {monthlyReport.meanCalories}
+              </ReportItem>
+              <ReportItem>
+                meanTraning : {monthlyReport.meanTraining}
+              </ReportItem>
+              <ReportItem>
+                dietFeedback : {monthlyReport.dietFeedback}
+              </ReportItem>
+              <ReportItem>
+                execiseFeedback : {monthlyReport.exerciseFeedback}
+              </ReportItem>
+            </>
+          ) : (
+            <ReportItem>
+              <div>레포트가 존재하지 않습니다.</div>
+            </ReportItem>
+          )}
         </ReportList>
       )}
     </Container>
   );
 };
 
-export default MonthlyReportPage ;
+export default MonthlyReportPage;

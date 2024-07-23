@@ -10,7 +10,7 @@ const Container = styled.div`
     align-items: center;
     padding: 20px;
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
 `;
 
@@ -86,7 +86,10 @@ const ConfirmDietPage = () => {
                 ...location.state.dietInfo,
                 음식상세: location.state.dietInfo.음식상세.map(item => ({
                     ...item,
-                    칼로리비율: item.칼로리 / item.예상양 // 그램당 칼로리 비율 계산
+                    칼로리비율: item.칼로리 / item.예상양,
+                    탄수화물비율: item.영양정보.탄수화물 / item.예상양,
+                    단백질비율: item.영양정보.단백질 / item.예상양,
+                    지방비율: item.영양정보.지방 / item.예상양
                 }))
             };
             setDietInfo(updatedDietInfo);
@@ -94,12 +97,10 @@ const ConfirmDietPage = () => {
         }
     }, [location.state]);
 
-
     const calculateTotalCalories = useCallback((foodDetails) => {
         const total = foodDetails.reduce((sum, item) => sum + item.칼로리, 0);
         setTotalCalories(total);
     }, []);
-
 
     const handleQuantityChange = useCallback(
         (index, newQuantity) => {
@@ -108,6 +109,11 @@ const ConfirmDietPage = () => {
                 const updatedItem = { ...updatedDietInfo.음식상세[index] };
                 updatedItem.예상양 = Number(newQuantity);
                 updatedItem.칼로리 = Math.round(updatedItem.칼로리비율 * updatedItem.예상양);
+                updatedItem.영양정보 = {
+                    탄수화물: Math.round(updatedItem.탄수화물비율 * updatedItem.예상양),
+                    단백질: Math.round(updatedItem.단백질비율 * updatedItem.예상양),
+                    지방: Math.round(updatedItem.지방비율 * updatedItem.예상양)
+                };
                 updatedDietInfo.음식상세[index] = updatedItem;
 
                 calculateTotalCalories(updatedDietInfo.음식상세);
@@ -133,6 +139,9 @@ const ConfirmDietPage = () => {
             const updatedDetails = dietInfo.음식상세.map((item, index) => ({
                 dietDetailLogId: dietDetailLogIds[index],
                 quantity: item.예상양,
+                menuCarbo: item.영양정보.탄수화물,
+                menuProtein: item.영양정보.단백질,
+                menuFat: item.영양정보.지방
             }));
             await axios.put(
                 `${process.env.REACT_APP_API_PORT}/gpt/updateDietDetail/${location.state.analysisId}`,
@@ -188,6 +197,9 @@ const ConfirmDietPage = () => {
                         }
                     />
                     g <CalorieContainer>({item.칼로리}kcal)</CalorieContainer>
+                    <CalorieContainer>탄수화물: {item.영양정보.탄수화물}g</CalorieContainer>
+                    <CalorieContainer>단백질: {item.영양정보.단백질}g</CalorieContainer>
+                    <CalorieContainer>지방: {item.영양정보.지방}g</CalorieContainer>
                     <RemoveButton onClick={() => handleRemoveItem(index)}>
                         삭제
                     </RemoveButton>

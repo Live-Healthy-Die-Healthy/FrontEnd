@@ -45,10 +45,6 @@ const AnalyzingPage = () => {
             );
             if (response.data.status === "completed") {
                 setIsAnalyzing(false);
-                console.log(
-                    "response.data.dietDetailLogIds : ",
-                    response.data.dietDetailLogIds
-                );
 
                 navigate(`/confirmDiet/${formattedDate}/${dietType}`, {
                     state: {
@@ -80,7 +76,7 @@ const AnalyzingPage = () => {
 
         startChecking();
 
-        // 5분 후에도 분석이 완료되지 않으면 사용자에게 알림
+        // 2분 후에도 분석이 완료되지 않으면 사용자에게 알림
         timeoutId = setTimeout(() => {
             clearInterval(intervalId);
             setError(
@@ -90,7 +86,7 @@ const AnalyzingPage = () => {
                 "분석이 예상보다 오래 걸리고 있습니다. 나중에 다시 시도해주세요."
             );
             navigate(-1);
-        }, 300000); // 5분
+        }, 180000); // 2분
 
         return () => {
             clearInterval(intervalId);

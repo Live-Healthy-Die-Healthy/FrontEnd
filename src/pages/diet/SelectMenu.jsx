@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
-import dummyData from "../../mocks/dummyMenu.json";
 
 const Container = styled.div`
     display: flex;
@@ -31,15 +30,18 @@ const MenuButton = styled.button`
     width: 80%;
 `;
 
-const MenuImage = styled.img`
-    width: 50px;
-    height: 50px;
-    margin-right: 10px;
-`;
-
 const MenuContainer = styled.div`
     display: flex;
     align-items: center;
+    margin: 10px 0px;
+`;
+
+const InfoContainer = styled.div`
+    margin-left: 30px;
+`;
+
+const InfoContainertwo = styled.div`
+    margin-left: auto;
 `;
 
 export default function SelectMenu() {
@@ -62,8 +64,6 @@ export default function SelectMenu() {
                 setFilteredMenus(response.data);
             } catch (error) {
                 console.error("Error fetching menus:", error);
-                setMenus(dummyData);
-                setFilteredMenus(dummyData);
             }
         };
 
@@ -109,9 +109,12 @@ export default function SelectMenu() {
                     }
                 >
                     <MenuContainer>
-                        <MenuImage src={menu.menuImage} alt={menu.menuName} />
                         {menu.menuName}
-                        <div>&nbsp;({menu.menuCalorie} kcal)</div>
+                        <InfoContainer>&nbsp;({menu.menuCalorie * 100} kcal)</InfoContainer>
+                        <InfoContainer>&nbsp;(탄수화물: {menu.menuCarbo * 100})</InfoContainer>
+                        <InfoContainer>&nbsp;(프로틴: {menu.menuProtein * 100})</InfoContainer>
+                        <InfoContainer>&nbsp;(지방: {menu.menuFat * 100})</InfoContainer>
+                        <InfoContainertwo>100g당</InfoContainertwo>
                     </MenuContainer>
                 </MenuButton>
             ))}

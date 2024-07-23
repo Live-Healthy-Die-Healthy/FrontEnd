@@ -58,7 +58,7 @@ const YearlyReportPage = () => {
 
   return (
     <Container>
-      <h3>연간 레포트 리스트 페이지</h3>
+      {/* <h3>연간 레포트 리스트 페이지</h3>
       <SelectWrapper>
         <Select
           value={selectedYear}
@@ -77,7 +77,8 @@ const YearlyReportPage = () => {
           )
           }
         </ReportList>
-      )}
+      )} */}
+      지원하지 않는 기능입니다.
     </Container>
   );
 };
