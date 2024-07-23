@@ -89,7 +89,15 @@ const ProfilePage = () => {
             try {
                 const response = await axios.post(
                     `${process.env.REACT_APP_API_PORT}/profile`,
-                    { userId }
+                    { userId },
+                    {
+                        headers: {
+                            "Access-Control-Allow-Origin":
+                                "https://Live-Healthy-Die-Healthy.github.io",
+                            "Access-Control-Allow-Credentials": "true",
+                        },
+                        withCredentials: true,
+                    }
                 );
                 setProfile(response.data);
                 const formattedDate = format(
