@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
+import ImageUploadModal from "../../components/ImageUploadModal";
 
 const Container = styled.div`
     display: flex;
@@ -23,7 +24,6 @@ const DietImage = styled.img`
 
 const DietItem = styled.div`
     display: flex;
-    justify-content: space-between;
     align-items: center;
     width: 100%;
     margin-bottom: 10px;
@@ -31,6 +31,7 @@ const DietItem = styled.div`
 
 const Input = styled.input`
     width: 60px;
+    margin-left: 50px;
 `;
 
 const Button = styled.button`
@@ -57,10 +58,14 @@ const RemoveButton = styled.button`
     background: #ff6b6b;
     border: none;
     padding: 5px 10px;
-    margin-left: 10px;
+    margin-left: auto;
     cursor: pointer;
     color: white;
     border-radius: 5px;
+`;
+
+const CalorieContainer = styled.div`
+  margin-left: 40px;  
 `;
 
 const ConfirmDietPage = () => {
@@ -71,26 +76,45 @@ const ConfirmDietPage = () => {
     const [dietDetailLogIds, setDietDetailLogIds] = useState(
         location.state?.dietDetailLogIds || []
     );
+    const [showImageModal, setShowImageModal] = useState(false);
     const { formattedDate, dietType } = useParams();
+    const [totalCalories, setTotalCalories] = useState(0);
 
     useEffect(() => {
         if (location.state?.dietInfo) {
-            setDietInfo(location.state.dietInfo);
-        }
-        if (location.state?.dietDetailLogIds) {
-            setDietDetailLogIds(location.state.dietDetailLogIds);
+            const updatedDietInfo = {
+                ...location.state.dietInfo,
+                음식상세: location.state.dietInfo.음식상세.map(item => ({
+                    ...item,
+                    칼로리비율: item.칼로리 / item.예상양 // 그램당 칼로리 비율 계산
+                }))
+            };
+            setDietInfo(updatedDietInfo);
+            calculateTotalCalories(updatedDietInfo.음식상세);
         }
     }, [location.state]);
+
+
+    const calculateTotalCalories = useCallback((foodDetails) => {
+        const total = foodDetails.reduce((sum, item) => sum + item.칼로리, 0);
+        setTotalCalories(total);
+    }, []);
+
 
     const handleQuantityChange = useCallback(
         (index, newQuantity) => {
             setDietInfo((prevDietInfo) => {
                 const updatedDietInfo = { ...prevDietInfo };
-                updatedDietInfo.음식상세[index].예상양 = Number(newQuantity);
+                const updatedItem = { ...updatedDietInfo.음식상세[index] };
+                updatedItem.예상양 = Number(newQuantity);
+                updatedItem.칼로리 = Math.round(updatedItem.칼로리비율 * updatedItem.예상양);
+                updatedDietInfo.음식상세[index] = updatedItem;
+
+                calculateTotalCalories(updatedDietInfo.음식상세);
                 return updatedDietInfo;
             });
         },
-        [setDietInfo]
+        [calculateTotalCalories]
     );
 
     const handleRemoveItem = (index) => {
@@ -126,7 +150,12 @@ const ConfirmDietPage = () => {
     };
 
     const handleRetakePhoto = () => {
-        navigate("/takePhoto");
+        setShowImageModal(true);
+    };
+
+    const handleImageUpload = (imageFile) => {
+        console.log("Uploaded image:", imageFile);
+        setShowImageModal(false);
     };
 
     if (!dietInfo.음식상세) {
@@ -158,7 +187,7 @@ const ConfirmDietPage = () => {
                             handleQuantityChange(index, e.target.value)
                         }
                     />
-                    g <span>({item.칼로리}kcal)</span>
+                    g <CalorieContainer>({item.칼로리}kcal)</CalorieContainer>
                     <RemoveButton onClick={() => handleRemoveItem(index)}>
                         삭제
                     </RemoveButton>
@@ -181,6 +210,12 @@ const ConfirmDietPage = () => {
             <h4>주의사항:</h4>
             <p>{dietInfo.주의사항}</p>
             <Button onClick={handleConfirm}>확인</Button>
+            {showImageModal && (
+                <ImageUploadModal
+                    onClose={() => setShowImageModal(false)}
+                    onUpload={handleImageUpload}
+                />
+            )}
         </Container>
     );
 };
