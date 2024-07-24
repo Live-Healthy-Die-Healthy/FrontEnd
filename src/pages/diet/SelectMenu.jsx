@@ -9,7 +9,6 @@ const Container = styled.div`
     justify-content: center;
     align-items: center;
     text-align: center;
-    height: 100vh;
 `;
 
 const SearchInput = styled.input`
@@ -94,39 +93,48 @@ export default function SelectMenu() {
 
     return (
         <>
-        <SearchInput
-                type='text'
-                placeholder='메뉴 이름 검색'
-                value={searchTerm}
-                onChange={handleSearchChange}
-            />
-        <Container>
-            <h3>메뉴 선택</h3>
-            
-            {filteredMenus.map((menu) => (
-                <MenuButton
-                    key={menu.menuId}
-                    onClick={() =>
-                        handleMenuClick(
-                            menu.menuId,
-                            menu.menuName,
-                            menu.menuCalorie
-                        )
-                    }
-                >
-                    <MenuContainer>
-                        {menu.menuName}
-                        <InfoContainertwo>
-                        <InfoContainer>{Math.round(menu.menuCalorie * 100)} kcal</InfoContainer>
-                        <InfoContainer>탄수화물 {Math.round(menu.menuCarbo * 100)} g</InfoContainer>
-                        <InfoContainer>프로틴 {Math.round(menu.menuProtein * 100)} g</InfoContainer>
-                        <InfoContainer>지방 {Math.round(menu.menuFat * 100)} g</InfoContainer>
-                        </InfoContainertwo>
-                        <InfoContainer>100g당</InfoContainer>
-                    </MenuContainer>
-                </MenuButton>
-            ))}
-        </Container>
+            <Container>
+                <h3>메뉴 선택</h3>
+                <SearchInput
+                    type='text'
+                    placeholder='메뉴 이름 검색'
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                />
+                {filteredMenus.map((menu) => (
+                    <MenuButton
+                        key={menu.menuId}
+                        onClick={() =>
+                            handleMenuClick(
+                                menu.menuId,
+                                menu.menuName,
+                                menu.menuCalorie
+                            )
+                        }
+                    >
+                        <MenuContainer>
+                            {menu.menuName}
+                            <InfoContainertwo>
+                                <InfoContainer>
+                                    {Math.round(menu.menuCalorie * 100)} kcal
+                                </InfoContainer>
+                                <InfoContainer>
+                                    탄수화물 {Math.round(menu.menuCarbo * 100)}{" "}
+                                    g
+                                </InfoContainer>
+                                <InfoContainer>
+                                    프로틴 {Math.round(menu.menuProtein * 100)}{" "}
+                                    g
+                                </InfoContainer>
+                                <InfoContainer>
+                                    지방 {Math.round(menu.menuFat * 100)} g
+                                </InfoContainer>
+                            </InfoContainertwo>
+                            <InfoContainer>100g당</InfoContainer>
+                        </MenuContainer>
+                    </MenuButton>
+                ))}
+            </Container>
         </>
     );
 }
