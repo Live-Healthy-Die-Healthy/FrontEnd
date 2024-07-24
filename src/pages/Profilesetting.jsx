@@ -72,7 +72,11 @@ const ProfileSetting = () => {
     const [userHeight, setUserHeight] = useState("");
     const [userWeight, setUserWeight] = useState("");
     const [userGender, setUserGender] = useState("남성");
-    const [userImage, setUserImage] = useState(default_image); // 초기값을 defaultImage로 설정
+    const [userImage, setUserImage] = useState(default_image);
+    const [userMuscleMass, setUserMuscleMass] = useState(null);
+    const [userBmi, setUserBmi] = useState(null);
+    const [userBodyFatPercentage, setUserBodyFatPercentage] = useState(null);
+    const [userBmr, setUserBmr] = useState(null);
     const navigate = useNavigate();
 
     const fileInputRef = React.createRef();
@@ -99,20 +103,6 @@ const ProfileSetting = () => {
         }
     };
 
-    const handleHeightChange = (e) => {
-        const value = e.target.value;
-        if (value > 0) {
-            setUserHeight(value);
-        }
-    };
-
-    const handleWeightChange = (e) => {
-        const value = e.target.value;
-        if (value > 0) {
-            setUserWeight(value);
-        }
-    };
-
     const handleSubmit = async () => {
         try {
             const profileData = {
@@ -124,6 +114,10 @@ const ProfileSetting = () => {
                 userWeight,
                 userGender,
                 userImage,
+                userMuscleMass,
+                userBmi,
+                userBodyFatPercentage,
+                userBmr,
             };
 
             const response = await axios.post(
@@ -206,6 +200,39 @@ const ProfileSetting = () => {
                     <option value='남성'>남성</option>
                     <option value='여성'>여성</option>
                 </select>
+
+                <label>BMI</label>
+                <Input
+                    type='number'
+                    value={userBmi}
+                    onChange={(e) => setUserBmi(e.target.value)}
+                    placeholder='BMI'
+                />
+
+                <label>골격근량 (kg)</label>
+                <Input
+                    type='number'
+                    value={userMuscleMass}
+                    onChange={(e) => setUserMuscleMass(e.target.value)}
+                    placeholder='골격근량 (kg)'
+                />
+                
+                <label>체지방률 (%)</label>
+                <Input
+                    type='number'
+                    value={userBodyFatPercentage}
+                    onChange={(e) => setUserBodyFatPercentage(e.target.value)}
+                    placeholder='체지방률 (%)'
+                />
+                
+                <label>기초대사량 (kcal)</label>
+                <Input
+                    type='number'
+                    value={userBmr}
+                    onChange={(e) => setUserBmr(e.target.value)}
+                    placeholder='기초대사량 (kcal)'
+                />
+
                 <Button onClick={handleSubmit}>프로필 저장</Button>
             </FormContainer>
         </Container>

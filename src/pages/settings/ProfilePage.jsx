@@ -78,7 +78,7 @@ const EditButton = styled.button`
 `;
 
 const ProfilePage = () => {
-    const { userId } = useContext(UserContext);
+    const { userId, accessToken } = useContext(UserContext);
     const [profile, setProfile] = useState(null);
     const [date, setDate] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -89,15 +89,7 @@ const ProfilePage = () => {
             try {
                 const response = await axios.post(
                     `${process.env.REACT_APP_API_PORT}/profile`,
-                    { userId },
-                    {
-                        headers: {
-                            "Access-Control-Allow-Origin":
-                                "https://Live-Healthy-Die-Healthy.github.io",
-                            "Access-Control-Allow-Credentials": "true",
-                        },
-                        withCredentials: true,
-                    }
+                    { userId }
                 );
                 setProfile(response.data);
                 const formattedDate = format(
@@ -135,17 +127,34 @@ const ProfilePage = () => {
                         <InfoContainer>
                             <InfoRow>
                                 <InfoItem>이메일: {profile.userEmail}</InfoItem>
+                            </InfoRow>
+                            <InfoRow>
                                 <InfoItem>
                                     닉네임: {profile.userNickname}
                                 </InfoItem>
                                 <InfoItem>생년월일: {date}</InfoItem>
+                                <InfoItem>성별: {profile.userGender}</InfoItem>
                             </InfoRow>
                             <InfoRow>
-                                <InfoItem>성별: {profile.userGender}</InfoItem>
                                 <InfoItem>키: {profile.userHeight} cm</InfoItem>
                                 <InfoItem>
                                     몸무게: {profile.userWeight} kg
                                 </InfoItem>
+                            {profile.userBmi ? 
+                            (<InfoItem>BMI: {profile.userBmi} kg/m^2</InfoItem>) : ( <InfoItem>BMI: 정보 없음 </InfoItem>)
+                            }
+                            </InfoRow>
+                            <InfoRow>
+                                
+                            {profile.userBmi ? 
+                            (<InfoItem>골격근량: {profile.userMuscleMass} kg</InfoItem>) : ( <InfoItem>골격근량: 정보 없음 </InfoItem>)
+                            }
+                            {profile.userBodyFatPercentage ? 
+                            (<InfoItem>체지방률: {profile.userBodyFatPercentage} %</InfoItem>) : ( <InfoItem>체지방률: 정보 없음 </InfoItem>)
+                            }
+                            {profile.userBmr ? 
+                            (<InfoItem>기초대사량: {profile.userBmr} kcal</InfoItem>) : ( <InfoItem>기초대사량: 정보 없음 </InfoItem>)
+                            }
                             </InfoRow>
                         </InfoContainer>
                     </ProfileContainer>

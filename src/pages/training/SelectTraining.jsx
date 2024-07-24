@@ -51,6 +51,10 @@ const ExerciseContainer = styled.div`
     align-items: center;
 `;
 
+const TypeContainer = styled.div`
+    margin-left: auto;
+`;
+
 export default function SelectTraining() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -70,10 +74,12 @@ export default function SelectTraining() {
                 );
                 setExercises(response.data);
                 setFilteredExercises(response.data);
+                console.log("response : ", response);
             } catch (error) {
                 console.error("Error fetching exercises:", error);
             }
         };
+
 
         fetchExercises();
 
@@ -93,16 +99,8 @@ export default function SelectTraining() {
     };
 
     const filterExercises = (searchTerm, part) => {
-        if (part === "all") {
-            setFilteredExercises(exercises);
-            return;
-        }
         const filtered = exercises.filter((exercise) => {
-            const matchesPart = part
-                ? exercise.exercisePart === part ||
-                  (part === "AerobicExercise" &&
-                      exercise.exerciseType === "AerobicExercise")
-                : true;
+            const matchesPart = part === "all" || part === "" || exercise.exercisePart === part || (part === "AerobicExercise" && exercise.exerciseType === "AerobicExercise");
             const matchesSearchTerm = exercise.exerciseName
                 .toLowerCase()
                 .includes(searchTerm.toLowerCase());
@@ -126,6 +124,25 @@ export default function SelectTraining() {
                 exercisePart,
             },
         });
+    };
+
+    const getExercisePartName = (part) => {
+        switch (part) {
+            case 'arm':
+                return '팔';
+            case 'chest':
+                return '가슴';
+            case 'back':
+                return '등';
+            case 'leg':
+                return '하체';
+            case 'shoulder':
+                return '어깨';
+            case 'AerobicExercise':
+                return '유산소';
+            default:
+                return part;
+        }
     };
 
     return (
@@ -156,9 +173,7 @@ export default function SelectTraining() {
                 <FilterButton onClick={() => handleFilterClick("shoulder")}>
                     어깨
                 </FilterButton>
-                <FilterButton
-                    onClick={() => handleFilterClick("AerobicExercise")}
-                >
+                <FilterButton onClick={() => handleFilterClick("AerobicExercise")}>
                     유산소
                 </FilterButton>
             </div>
@@ -176,13 +191,15 @@ export default function SelectTraining() {
                         }
                     >
                         <ExerciseContainer>
-                            <ExerciseImage
-                                src={exercise.exerciseImage}
-                                alt={exercise.exerciseName}
-                            />
+                        <ExerciseImage
+                            src={`data:image/jpeg;base64,${exercise.exerciseImage}`}
+                            alt={exercise.exerciseName}
+                        />
                             {exercise.exerciseName}
                             <div>&nbsp;</div>
-                            {exercise.exercisePart}
+                            <TypeContainer>
+                                {getExercisePartName(exercise.exercisePart)}
+                            </TypeContainer>
                         </ExerciseContainer>
                     </ExerciseButton>
                 ))}

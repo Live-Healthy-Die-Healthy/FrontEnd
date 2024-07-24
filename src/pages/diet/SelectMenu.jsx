@@ -13,6 +13,10 @@ const Container = styled.div`
 `;
 
 const SearchInput = styled.input`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
     margin: 20px 0;
     padding: 10px;
     width: 80%;
@@ -89,14 +93,16 @@ export default function SelectMenu() {
     };
 
     return (
-        <Container>
-            <h3>메뉴 선택</h3>
-            <SearchInput
+        <>
+        <SearchInput
                 type='text'
                 placeholder='메뉴 이름 검색'
                 value={searchTerm}
                 onChange={handleSearchChange}
             />
+        <Container>
+            <h3>메뉴 선택</h3>
+            
             {filteredMenus.map((menu) => (
                 <MenuButton
                     key={menu.menuId}
@@ -110,14 +116,17 @@ export default function SelectMenu() {
                 >
                     <MenuContainer>
                         {menu.menuName}
-                        <InfoContainer>&nbsp;({menu.menuCalorie * 100} kcal)</InfoContainer>
-                        <InfoContainer>&nbsp;(탄수화물: {menu.menuCarbo * 100})</InfoContainer>
-                        <InfoContainer>&nbsp;(프로틴: {menu.menuProtein * 100})</InfoContainer>
-                        <InfoContainer>&nbsp;(지방: {menu.menuFat * 100})</InfoContainer>
-                        <InfoContainertwo>100g당</InfoContainertwo>
+                        <InfoContainertwo>
+                        <InfoContainer>{Math.round(menu.menuCalorie * 100)} kcal</InfoContainer>
+                        <InfoContainer>탄수화물 {Math.round(menu.menuCarbo * 100)} g</InfoContainer>
+                        <InfoContainer>프로틴 {Math.round(menu.menuProtein * 100)} g</InfoContainer>
+                        <InfoContainer>지방 {Math.round(menu.menuFat * 100)} g</InfoContainer>
+                        </InfoContainertwo>
+                        <InfoContainer>100g당</InfoContainer>
                     </MenuContainer>
                 </MenuButton>
             ))}
         </Container>
+        </>
     );
 }

@@ -66,24 +66,59 @@ const AlertMessage = styled.div`
   color: red;
   margin-bottom: 10px;
 `;
+const CreateReportButton = styled(Button)`
+  margin-top: 20px;
+`;
+
+const ConfirmationModal = styled(Overlay)`
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+`;
+
+const ModalButton = styled(Button)`
+  margin: 10px;
+`;
+
+const LoadingMessage = styled.div`
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: bold;
+`;
 
 export default function DailyReportPage() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dailyReport, setDailyReport] = useState(null);
-  const [alertMessage, setAlertMessage] = useState(""); // 알림 메시지 상태 추가
+  const [alertMessage, setAlertMessage] = useState("");
+  const [isValid, setIsValid] = useState(false);
+  const [isFilled, setIsFilled] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { accessToken, userId } = useContext(UserContext);
 
+  useEffect(() => {
+    if (dailyReport) {
+      console.log("dailyReport updated:", dailyReport);
+    }
+  }, [dailyReport]);
+
   const handleDateChange = async (date) => {
-    const today = startOfDay(new Date()); // 오늘 날짜의 시작
+    const today = startOfDay(new Date());
     if (isAfter(date, today)) {
       setAlertMessage("오늘 이후의 날짜는 선택할 수 없습니다. 다시 선택해주세요.");
-      return; // 함수 실행 중단
+      return;
     }
 
     setSelectedDate(date);
     setShowDatePicker(false);
-    setAlertMessage(""); // 알림 메시지 초기화
+    setAlertMessage("");
+    setIsLoading(true);
 
     try {
       const response = await axios.post(
@@ -99,9 +134,54 @@ export default function DailyReportPage() {
         }
       );
 
-      setDailyReport(response.data);
+      setIsValid(response.data.isValid);
+      setIsFilled(response.data.isFilled);
+      if (response.data.isValid) {
+        setDailyReport(response.data.dailyReport);
+      } else {
+        setDailyReport(null);
+      }
     } catch (error) {
       console.error("Error fetching report:", error);
+      setAlertMessage("레포트를 가져오는 데 실패했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCreateReport = () => {
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmCreateReport = async () => {
+    setShowConfirmation(false);
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_PORT}/report/newDaily`,
+        {
+          userId: userId,
+          date: format(selectedDate, "yyyy-MM-dd"),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          timeout: 120000 // 2분 타임아웃 설정
+        }
+      );
+
+      setDailyReport(response.data);
+      console.log("response.data : ", response.data);
+      console.log("dailyReport : ", dailyReport);
+      
+      setIsValid(true);
+    } catch (error) {
+      console.error("Error creating report:", error);
+      setAlertMessage("레포트 생성에 실패했습니다.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -118,35 +198,57 @@ export default function DailyReportPage() {
             <DatePicker
               selected={selectedDate}
               onChange={handleDateChange}
-              maxDate={new Date()} // 오늘 날짜까지만 선택 가능
+              maxDate={new Date()}
               inline
             />
           </DatePickerContainer>
         </Overlay>
       )}
-      {selectedDate && (
-        <ReportList>
-          {dailyReport ? (
-            <>
-              <ReportItem>
-                totalCalories : {dailyReport.totalCalories}
-              </ReportItem>
-              <ReportItem>
-                totalTraning : {dailyReport.totalTraining}
-              </ReportItem>
-              <ReportItem>
-                dietFeedback : {dailyReport.dietFeedback}
-              </ReportItem>
-              <ReportItem>
-                execiseFeedback : {dailyReport.exerciseFeedback}
-              </ReportItem>
-            </>
-          ) : (
-            <ReportItem>
-              <div>레포트가 존재하지 않습니다.</div>
-            </ReportItem>
-          )}
-        </ReportList>
+      {isLoading ? (
+        <LoadingMessage>레포트를 생성 중입니다...</LoadingMessage>
+      ) : (
+        selectedDate && (
+          <ReportList>
+            {isValid ? (
+              <>
+                <ReportItem>
+                  totalCalories : {dailyReport.totalCalories}
+                </ReportItem>
+                <ReportItem>
+                  totalTraning : {dailyReport.totalTraining}
+                </ReportItem>
+                <ReportItem>
+                  dietFeedback : {dailyReport.dietFeedback}
+                </ReportItem>
+                <ReportItem>
+                  execiseFeedback : {dailyReport.exerciseFeedback}
+                </ReportItem>
+              </>
+            ) : (
+              <>
+                <ReportItem>
+                  <div>레포트가 존재하지 않습니다.</div>
+                </ReportItem>
+                <CreateReportButton onClick={handleCreateReport}>
+                  레포트 생성하기
+                </CreateReportButton>
+              </>
+            )}
+          </ReportList>
+        )
+      )}
+      {showConfirmation && (
+        <ConfirmationModal>
+          <ModalContent>
+            <p>
+              {isFilled
+                ? "레포트를 생성하시겠습니까?"
+                : "오늘 기록하지 않은 식단이 있습니다. 레포트를 받으시겠습니까? 레포트를 받으면 다시 수정할 수 없습니다."}
+            </p>
+            <ModalButton onClick={handleConfirmCreateReport}>확인</ModalButton>
+            <ModalButton onClick={() => setShowConfirmation(false)}>취소</ModalButton>
+          </ModalContent>
+        </ConfirmationModal>
       )}
     </Container>
   );
