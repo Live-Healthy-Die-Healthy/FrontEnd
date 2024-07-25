@@ -4,7 +4,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { format } from "date-fns";
+import { format, startOfToday } from "date-fns";
 import { UserContext } from "../../context/LoginContext";
 
 const Container = styled.div`
@@ -55,10 +55,15 @@ const StyledCalendar = styled(Calendar)`
             height: calc(90vh / 6);
         }
     }
+
+    .react-calendar__tile--disabled {
+        background-color: #f0f0f0;
+        color: #ccc;
+    }
 `;
 
 export default function MonthlyTraining() {
-    const today = new Date();
+    const today = startOfToday();
     const [date, setDate] = useState(today);
     const formattedDate = format(new Date(date), "yyyy-MM-dd");
     const [records, setRecords] = useState({});
@@ -93,12 +98,13 @@ export default function MonthlyTraining() {
     }, [formattedDate]);
 
     const handleDateChange = (selectedDate) => {
-        setDate(selectedDate);
-        navigate(`/traindaily/${format(selectedDate, "yyyy-MM-dd")}`, {
-            state: { date: selectedDate },
-        });
+        if (selectedDate <= today) {
+            setDate(selectedDate);
+            navigate(`/traindaily/${format(selectedDate, "yyyy-MM-dd")}`, {
+                state: { date: selectedDate },
+            });
+        }
     };
-
     const handleActiveMonthChange = ({ activeStartDate }) => {
         const newMonth = activeStartDate.getMonth() + 1;
         const newDate = new Date(
@@ -130,6 +136,10 @@ export default function MonthlyTraining() {
         return null;
     };
 
+    const tileDisabled = ({ date }) => {
+        return date > today;
+    };
+
     return (
         <Container>
             <h1>월간 운동</h1>
@@ -144,7 +154,8 @@ export default function MonthlyTraining() {
                     prev2Label={null}
                     minDetail='year'
                     tileContent={tileContent}
-                    onClickDay={handleDateChange}
+                    tileDisabled={tileDisabled}
+                    maxDate={today}
                 />
             </StyledCalendarWrapper>
         </Container>

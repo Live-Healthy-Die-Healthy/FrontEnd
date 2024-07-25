@@ -4,7 +4,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { format } from "date-fns";
+import { format, startOfToday } from "date-fns";
 import { UserContext } from "../../context/LoginContext";
 
 const Container = styled.div`
@@ -55,11 +55,16 @@ const StyledCalendar = styled(Calendar)`
             height: calc(90vh / 6);
         }
     }
+
+    .react-calendar__tile--disabled {
+        background-color: #f0f0f0;
+        color: #ccc;
+    }
 `;
 
 export default function MonthlyDiet() {
     const { userId, accesstoken } = useContext(UserContext);
-    const today = new Date();
+    const today = startOfToday();
     const [date, setDate] = useState(today);
     const formattedDate = format(new Date(date), "yyyy-MM-dd");
     const [dietRecords, setDietRecords] = useState({});
@@ -89,10 +94,12 @@ export default function MonthlyDiet() {
     }, [formattedDate]);
 
     const handleDateChange = (selectedDate) => {
-        setDate(selectedDate);
-        navigate(`/dietdaily/${format(selectedDate, "yyyy-MM-dd")}`, {
-            state: { date: selectedDate },
-        });
+        if (selectedDate <= today) {
+            setDate(selectedDate);
+            navigate(`/dietdaily/${format(selectedDate, "yyyy-MM-dd")}`, {
+                state: { date: selectedDate },
+            });
+        }
     };
 
     const handleActiveMonthChange = ({ activeStartDate }) => {
@@ -124,6 +131,10 @@ export default function MonthlyDiet() {
         return null;
     };
 
+    const tileDisabled = ({ date }) => {
+        return date > today;
+    };
+
     return (
         <Container>
             <h1>월간 식단</h1>
@@ -138,7 +149,8 @@ export default function MonthlyDiet() {
                     prev2Label={null}
                     minDetail='year'
                     tileContent={tileContent}
-                    onClickDay={handleDateChange}
+                    tileDisabled={tileDisabled}
+                    maxDate={today}
                 />
             </StyledCalendarWrapper>
         </Container>

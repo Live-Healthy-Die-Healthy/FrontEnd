@@ -1,15 +1,16 @@
 import React, { useState, useContext, useEffect } from "react";
 import styled from "styled-components";
-import Select from "react-select";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 import {
     format,
     startOfMonth,
     endOfMonth,
-    eachMonthOfInterval,
-    startOfYear,
-    endOfYear,
     isBefore,
+    isAfter,
     startOfToday,
+    getYear,
+    getMonth,
 } from "date-fns";
 import { UserContext } from "../../context/LoginContext";
 import axios from "axios";
@@ -30,7 +31,7 @@ const ReportList = styled.div`
     padding: 0;
     width: 80%;
     max-width: 600px;
-    margin: 0 auto;
+    margin: 20px auto;
     text-align: left;
 `;
 
@@ -39,11 +40,6 @@ const ReportItem = styled.div`
     margin: 10px 0;
     background: #f0f0f0;
     border-radius: 10px;
-`;
-
-const SelectWrapper = styled.div`
-    width: 200px;
-    margin-bottom: 20px;
 `;
 
 const AlertMessage = styled.div`
@@ -114,42 +110,48 @@ const LoadingSpinner = styled.div`
     }
 `;
 
-const getYearOptions = () => {
-    const currentYear = new Date().getFullYear();
-    const yearOptions = [];
-    for (let i = currentYear - 5; i <= currentYear; i++) {
-        yearOptions.push({ value: i, label: `${i}년` });
+const StyledCalendar = styled(Calendar)`
+    width: 350px;
+    max-width: 100%;
+    background: white;
+    border: 1px solid #a0a096;
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.125em;
+
+    .react-calendar__navigation button {
+        min-width: 44px;
+        background: none;
     }
-    return yearOptions;
-};
 
-const getMonthOptions = (year) => {
-    const startOfYearDate = startOfYear(new Date(year, 0));
-    const endOfYearDate = endOfYear(new Date(year, 11));
-    const monthsInYear = eachMonthOfInterval({
-        start: startOfYearDate,
-        end: endOfYearDate,
-    });
-    const today = startOfToday();
+    .react-calendar__month-view__days__day--weekend {
+        color: #d10000;
+    }
 
-    return monthsInYear.map((monthDate) => {
-        const startOfMonthDate = startOfMonth(monthDate);
-        const endOfMonthDate = endOfMonth(monthDate);
+    .react-calendar__tile--now {
+        background: #ffff76;
+    }
 
-        return {
-            value: monthDate.getMonth(),
-            label: `${format(monthDate, "yyyy년 M월")} 레포트`,
-            start: startOfMonthDate,
-            end: endOfMonthDate,
-            content: ``,
-            isDisabled: !isBefore(endOfMonthDate, today),
-        };
-    });
-};
+    .react-calendar__tile--active {
+        background: #006edc;
+        color: white;
+    }
+
+    .react-calendar__tile--hasActive {
+        background: #76baff;
+    }
+
+    .react-calendar__tile--highlighted {
+        background: #e6f3ff;
+    }
+
+    .react-calendar__tile:disabled {
+        background-color: #f0f0f0;
+        color: #ccc;
+    }
+`;
 
 const MonthlyReportPage = () => {
-    const [selectedYear, setSelectedYear] = useState(null);
-    const [selectedMonth, setSelectedMonth] = useState(null);
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const { userId, accessToken } = useContext(UserContext);
     const [monthlyReport, setMonthlyReport] = useState(null);
     const [alertMessage, setAlertMessage] = useState("");
@@ -157,26 +159,36 @@ const MonthlyReportPage = () => {
     const [isValid, setIsValid] = useState(false);
     const [isFilled, setIsFilled] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
+    const [highlightedMonths, setHighlightedMonths] = useState([]);
 
     useEffect(() => {
-        if (monthlyReport) {
-            setIsValid(true);
-        }
-    }, [monthlyReport]);
+        fetchHighlightedMonths(getYear(selectedDate));
+    }, [selectedDate]);
 
-    const handleYearChange = (option) => {
-        setSelectedYear(option);
-        setSelectedMonth(null);
-        setAlertMessage("");
+    const fetchHighlightedMonths = async (year) => {
+        try {
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_PORT}/report/monthlyReportDate`,
+                {
+                    userId: userId,
+                    year: year.toString(),
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+            setHighlightedMonths(
+                response.data.dates.map((date) => date.slice(0, 7))
+            );
+        } catch (error) {
+            console.error("Error fetching report dates:", error);
+        }
     };
 
-    const handleMonthChange = async (option) => {
-        if (option.isDisabled) {
-            setAlertMessage("미래의 월은 선택할 수 없습니다.");
-            return;
-        }
-
-        setSelectedMonth(option);
+    const handleMonthChange = async (date) => {
+        setSelectedDate(date);
         setAlertMessage("");
         setIsLoading(true);
 
@@ -185,7 +197,7 @@ const MonthlyReportPage = () => {
                 `${process.env.REACT_APP_API_PORT}/report/monthly`,
                 {
                     userId: userId,
-                    date: format(option.start, "yyyy-MM-dd"),
+                    date: format(date, "yyyy-MM-dd"),
                 },
                 {
                     headers: {
@@ -209,6 +221,22 @@ const MonthlyReportPage = () => {
         }
     };
 
+    const tileDisabled = ({ date, view }) => {
+        if (view === "year") {
+            return isAfter(startOfMonth(date), startOfToday());
+        }
+        return false;
+    };
+
+    const tileClassName = ({ date, view }) => {
+        if (view === "year") {
+            const monthString = format(date, "yyyy-MM");
+            return highlightedMonths.includes(monthString)
+                ? "highlighted"
+                : null;
+        }
+    };
+
     const handleCreateReport = () => {
         setShowConfirmation(true);
     };
@@ -222,13 +250,13 @@ const MonthlyReportPage = () => {
                 `${process.env.REACT_APP_API_PORT}/report/newMonthly`,
                 {
                     userId: userId,
-                    date: format(selectedMonth.start, "yyyy-MM-dd"),
+                    date: format(selectedDate, "yyyy-MM-dd"),
                 },
                 {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
                     },
-                    timeout: 120000, // 2분 타임아웃 설정
+                    timeout: 120000,
                 }
             );
 
@@ -242,40 +270,26 @@ const MonthlyReportPage = () => {
         }
     };
 
-    const yearOptions = getYearOptions();
-    const monthOptions = selectedYear
-        ? getMonthOptions(selectedYear.value)
-        : [];
-
     return (
         <Container>
             <h3>월간 레포트 리스트 페이지</h3>
             {alertMessage && <AlertMessage>{alertMessage}</AlertMessage>}
-            <SelectWrapper>
-                <Select
-                    value={selectedYear}
-                    onChange={handleYearChange}
-                    options={yearOptions}
-                    placeholder='년 선택'
-                />
-            </SelectWrapper>
-            <SelectWrapper>
-                <Select
-                    value={selectedMonth}
-                    onChange={handleMonthChange}
-                    options={monthOptions}
-                    placeholder='월 선택'
-                    isDisabled={!selectedYear}
-                    isOptionDisabled={(option) => option.isDisabled}
-                />
-            </SelectWrapper>
+            <StyledCalendar
+                onChange={handleMonthChange}
+                value={selectedDate}
+                maxDetail='year'
+                minDetail='year'
+                maxDate={startOfToday()}
+                tileDisabled={tileDisabled}
+                tileClassName={tileClassName}
+            />
             {isLoading ? (
                 <>
                     <LoadingSpinner />
                     <LoadingMessage>레포트를 생성 중입니다...</LoadingMessage>
                 </>
             ) : (
-                selectedMonth && (
+                monthlyReport && (
                     <ReportList>
                         {isValid ? (
                             <>

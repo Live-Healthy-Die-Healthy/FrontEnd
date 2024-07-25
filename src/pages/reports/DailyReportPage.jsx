@@ -111,10 +111,10 @@ const LoadingSpinner = styled.div`
 `;
 
 const StyledDatePicker = styled(DatePicker)`
-  .react-datepicker__day--highlighted {
-    background-color: #007bff;
-    color: white;
-  }
+    .react-datepicker__day--highlighted {
+        background-color: #007bff;
+        color: white;
+    }
 `;
 
 const BackButton = styled(Button)`
@@ -140,10 +140,10 @@ export default function DailyReportPage() {
     const fetchReportDates = async (date) => {
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_API_PORT}/dailyReportDate`,
+                `${process.env.REACT_APP_API_PORT}/report/dailyReportDate`,
                 {
                     userId: userId,
-                    month: format(date, "yyyy-MM")
+                    month: format(date, "yyyy-MM"),
                 },
                 {
                     headers: {
@@ -151,7 +151,9 @@ export default function DailyReportPage() {
                     },
                 }
             );
-            setHighlightedDates(response.data.date.map(date => parseISO(date)));
+            setHighlightedDates(
+                response.data.date.map((date) => parseISO(date))
+            );
         } catch (error) {
             console.error("Error fetching report dates:", error);
         }
@@ -248,7 +250,6 @@ export default function DailyReportPage() {
         }
     };
 
-
     return (
         <Container>
             <h3>일간 레포트 리스트 페이지</h3>
@@ -263,27 +264,35 @@ export default function DailyReportPage() {
                 />
             ) : (
                 <>
-                    {alertMessage && <AlertMessage>{alertMessage}</AlertMessage>}
+                    {alertMessage && (
+                        <AlertMessage>{alertMessage}</AlertMessage>
+                    )}
                     {isLoading ? (
                         <>
                             <LoadingSpinner />
-                            <LoadingMessage>레포트를 생성 중입니다...</LoadingMessage>
+                            <LoadingMessage>
+                                레포트를 생성 중입니다...
+                            </LoadingMessage>
                         </>
                     ) : (
                         <ReportList>
                             {isValid && dailyReport ? (
                                 <>
                                     <ReportItem>
-                                        totalCalories : {dailyReport.totalCalories}
+                                        totalCalories :{" "}
+                                        {dailyReport.totalCalories}
                                     </ReportItem>
                                     <ReportItem>
-                                        totalTraning : {dailyReport.totalTraining}
+                                        totalTraning :{" "}
+                                        {dailyReport.totalTraining}
                                     </ReportItem>
                                     <ReportItem>
-                                        dietFeedback : {dailyReport.dietFeedback}
+                                        dietFeedback :{" "}
+                                        {dailyReport.dietFeedback}
                                     </ReportItem>
                                     <ReportItem>
-                                        execiseFeedback : {dailyReport.exerciseFeedback}
+                                        execiseFeedback :{" "}
+                                        {dailyReport.exerciseFeedback}
                                     </ReportItem>
                                 </>
                             ) : (
@@ -291,7 +300,9 @@ export default function DailyReportPage() {
                                     <ReportItem>
                                         <div>레포트가 존재하지 않습니다.</div>
                                     </ReportItem>
-                                    <CreateReportButton onClick={handleCreateReport}>
+                                    <CreateReportButton
+                                        onClick={handleCreateReport}
+                                    >
                                         레포트 생성하기
                                     </CreateReportButton>
                                 </>
