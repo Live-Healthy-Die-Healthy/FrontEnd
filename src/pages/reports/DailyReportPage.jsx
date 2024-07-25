@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { format, isAfter, startOfDay } from "date-fns";
+import { format, isAfter, startOfDay, parseISO } from "date-fns";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
@@ -110,23 +110,52 @@ const LoadingSpinner = styled.div`
     }
 `;
 
+const StyledDatePicker = styled(DatePicker)`
+  .react-datepicker__day--highlighted {
+    background-color: #007bff;
+    color: white;
+  }
+`;
+
+const BackButton = styled(Button)`
+    margin-top: 20px;
+`;
+
 export default function DailyReportPage() {
-    const [selectedDate, setSelectedDate] = useState(null);
-    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const [dailyReport, setDailyReport] = useState(null);
     const [alertMessage, setAlertMessage] = useState("");
     const [isValid, setIsValid] = useState(false);
     const [isFilled, setIsFilled] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [highlightedDates, setHighlightedDates] = useState([]);
+    const [showDatePicker, setShowDatePicker] = useState(true);
     const { accessToken, userId } = useContext(UserContext);
-    const datePickerRef = useRef(null);
 
     useEffect(() => {
-        if (dailyReport) {
-            setIsValid(true);
+        fetchReportDates(selectedDate);
+    }, [selectedDate]);
+
+    const fetchReportDates = async (date) => {
+        try {
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_PORT}/dailyReportDate`,
+                {
+                    userId: userId,
+                    month: format(date, "yyyy-MM")
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+            setHighlightedDates(response.data.date.map(date => parseISO(date)));
+        } catch (error) {
+            console.error("Error fetching report dates:", error);
         }
-    }, [dailyReport]);
+    };
 
     const handleDateChange = async (date) => {
         const today = startOfDay(new Date());
@@ -137,15 +166,10 @@ export default function DailyReportPage() {
             return;
         }
 
-        if (selectedDate && date.getTime() === selectedDate.getTime()) {
-            setShowDatePicker(false);
-            return;
-        }
-
         setSelectedDate(date);
-        setShowDatePicker(false);
         setAlertMessage("");
         setIsLoading(true);
+        setShowDatePicker(false);
 
         try {
             const response = await axios.post(
@@ -163,8 +187,10 @@ export default function DailyReportPage() {
 
             if (response.data.isValid) {
                 setDailyReport(response.data.dailyReport);
+                setIsValid(true);
             } else {
                 setDailyReport(null);
+                setIsValid(false);
             }
         } catch (error) {
             console.error("Error fetching report:", error);
@@ -172,6 +198,16 @@ export default function DailyReportPage() {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleMonthChange = (date) => {
+        fetchReportDates(date);
+    };
+
+    const handleBackClick = () => {
+        setShowDatePicker(true);
+        setDailyReport(null);
+        setIsValid(false);
     };
 
     const handleCreateReport = () => {
@@ -212,67 +248,58 @@ export default function DailyReportPage() {
         }
     };
 
-    const handleOutsideClick = (event) => {
-        if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
-            setShowDatePicker(false);
-        }
-    };
 
     return (
         <Container>
             <h3>일간 레포트 리스트 페이지</h3>
-            <Button onClick={() => setShowDatePicker(true)}>날짜 선택</Button>
-            {alertMessage && <AlertMessage>{alertMessage}</AlertMessage>}
-            {showDatePicker && (
-                <Overlay onClick={handleOutsideClick}>
-                    <DatePickerContainer ref={datePickerRef}>
-                        <DatePicker
-                            selected={selectedDate}
-                            onChange={handleDateChange}
-                            maxDate={new Date()}
-                            inline
-                        />
-                    </DatePickerContainer>
-                </Overlay>
-            )}
-            {isLoading ? (
-                <>
-                    <LoadingSpinner />
-                    <LoadingMessage>레포트를 생성 중입니다...</LoadingMessage>
-                </>
+            {showDatePicker ? (
+                <StyledDatePicker
+                    selected={selectedDate}
+                    onChange={handleDateChange}
+                    onMonthChange={handleMonthChange}
+                    maxDate={new Date()}
+                    inline
+                    highlightDates={highlightedDates}
+                />
             ) : (
-                selectedDate && (
-                    <ReportList>
-                        {isValid && dailyReport ? (
-                            <>
-                                <ReportItem>
-                                    totalCalories : {dailyReport.totalCalories}
-                                </ReportItem>
-                                <ReportItem>
-                                    totalTraning : {dailyReport.totalTraining}
-                                </ReportItem>
-                                <ReportItem>
-                                    dietFeedback : {dailyReport.dietFeedback}
-                                </ReportItem>
-                                <ReportItem>
-                                    execiseFeedback :{" "}
-                                    {dailyReport.exerciseFeedback}
-                                </ReportItem>
-                            </>
-                        ) : (
-                            <>
-                                <ReportItem>
-                                    <div>레포트가 존재하지 않습니다.</div>
-                                </ReportItem>
-                                <CreateReportButton
-                                    onClick={handleCreateReport}
-                                >
-                                    레포트 생성하기
-                                </CreateReportButton>
-                            </>
-                        )}
-                    </ReportList>
-                )
+                <>
+                    {alertMessage && <AlertMessage>{alertMessage}</AlertMessage>}
+                    {isLoading ? (
+                        <>
+                            <LoadingSpinner />
+                            <LoadingMessage>레포트를 생성 중입니다...</LoadingMessage>
+                        </>
+                    ) : (
+                        <ReportList>
+                            {isValid && dailyReport ? (
+                                <>
+                                    <ReportItem>
+                                        totalCalories : {dailyReport.totalCalories}
+                                    </ReportItem>
+                                    <ReportItem>
+                                        totalTraning : {dailyReport.totalTraining}
+                                    </ReportItem>
+                                    <ReportItem>
+                                        dietFeedback : {dailyReport.dietFeedback}
+                                    </ReportItem>
+                                    <ReportItem>
+                                        execiseFeedback : {dailyReport.exerciseFeedback}
+                                    </ReportItem>
+                                </>
+                            ) : (
+                                <>
+                                    <ReportItem>
+                                        <div>레포트가 존재하지 않습니다.</div>
+                                    </ReportItem>
+                                    <CreateReportButton onClick={handleCreateReport}>
+                                        레포트 생성하기
+                                    </CreateReportButton>
+                                </>
+                            )}
+                        </ReportList>
+                    )}
+                    <BackButton onClick={handleBackClick}>뒤로가기</BackButton>
+                </>
             )}
             {showConfirmation && (
                 <ConfirmationModal>

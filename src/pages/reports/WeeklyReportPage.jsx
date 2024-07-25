@@ -9,6 +9,7 @@ import {
     endOfWeek,
     isBefore,
     startOfToday,
+    parseISO,
 } from "date-fns";
 import { UserContext } from "../../context/LoginContext";
 import axios from "axios";
@@ -125,6 +126,7 @@ const WeeklyReportPage = () => {
     const [isValid, setIsValid] = useState(false);
     const [isFilled, setIsFilled] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
+    const [highlightedDates, setHighlightedDates] = useState([]);
 
     useEffect(() => {
         if (weeklyReport) {
@@ -157,20 +159,31 @@ const WeeklyReportPage = () => {
             { weekStartsOn: 1 }
         );
         const today = startOfToday();
-
+    
         return weeksInMonth.map((startOfWeekDate, index) => {
             const endOfWeekDate = endOfWeek(startOfWeekDate, {
                 weekStartsOn: 1,
             });
+            const isHighlighted = highlightedDates.includes(
+                format(startOfWeekDate, "yyyy-MM-dd")
+            );
             return {
                 value: index + 1,
-                label: `${index + 1}주차 레포트`,
+                label: `${index + 1}주차 레포트${isHighlighted ? " (작성됨)" : ""}`,
                 start: startOfWeekDate,
                 end: endOfWeekDate,
-                content: ``,
                 isDisabled: !isBefore(endOfWeekDate, today),
+                isHighlighted: isHighlighted,
             };
         });
+    };
+
+    const customStyles = {
+        option: (provided, state) => ({
+            ...provided,
+            backgroundColor: state.data.isHighlighted ? '#e6f3ff' : provided.backgroundColor,
+            color: state.isDisabled ? '#ccc' : '#333',
+        }),
     };
 
     const handleYearChange = (option) => {
@@ -180,10 +193,29 @@ const WeeklyReportPage = () => {
         setAlertMessage("");
     };
 
-    const handleMonthChange = (option) => {
+    const handleMonthChange = async (option) => {
         setSelectedMonth(option);
         setSelectedWeek(null);
         setAlertMessage("");
+
+        // Fetch dates for the selected month
+        try {
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_PORT}/weeklyReportDate`,
+                {
+                    userId: userId,
+                    month: `${selectedYear.value}-${String(option.value + 1).padStart(2, "0")}`,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+            setHighlightedDates(response.data.date);
+        } catch (error) {
+            console.error("Error fetching report dates:", error);
+        }
     };
 
     const handleWeekChange = async (option) => {
@@ -200,7 +232,7 @@ const WeeklyReportPage = () => {
         try {
             const response = await axios.post(
                 `${process.env.REACT_APP_API_PORT}/report/weekly`,
-                {
+                { 
                     userId: userId,
                     date: format(option.start, "yyyy-MM-dd"),
                 },
@@ -266,95 +298,96 @@ const WeeklyReportPage = () => {
             ? getWeekOptions(selectedYear.value, selectedMonth.value)
             : [];
 
-    return (
-        <Container>
-            <h3>주간 레포트 리스트 페이지</h3>
-            {alertMessage && <AlertMessage>{alertMessage}</AlertMessage>}
-            <SelectWrapper>
-                <Select
-                    value={selectedYear}
-                    onChange={handleYearChange}
-                    options={yearOptions}
-                    placeholder='년 선택'
-                />
-            </SelectWrapper>
-            <SelectWrapper>
-                <Select
-                    value={selectedMonth}
-                    onChange={handleMonthChange}
-                    options={monthOptions}
-                    placeholder='월 선택'
-                    isDisabled={!selectedYear}
-                />
-            </SelectWrapper>
-            <SelectWrapper>
-                <Select
-                    value={selectedWeek}
-                    onChange={handleWeekChange}
-                    options={weekOptions}
-                    placeholder='주차 선택'
-                    isDisabled={!selectedMonth}
-                    isOptionDisabled={(option) => option.isDisabled}
-                />
-            </SelectWrapper>
-            {isLoading ? (
-                <>
-                    <LoadingSpinner />
-                    <LoadingMessage>레포트를 생성 중입니다...</LoadingMessage>
-                </>
-            ) : (
-                selectedWeek && (
-                    <ReportList>
-                        {isValid ? (
-                            <>
-                                <ReportItem>
-                                    meanCalories : {weeklyReport.meanCalories}
-                                </ReportItem>
-                                <ReportItem>
-                                    meanExercise : {weeklyReport.meanExercise}
-                                </ReportItem>
-                                <ReportItem>
-                                    dietFeedback : {weeklyReport.dietFeedback}
-                                </ReportItem>
-                                <ReportItem>
-                                    execiseFeedback :{" "}
-                                    {weeklyReport.exerciseFeedback}
-                                </ReportItem>
-                            </>
-                        ) : (
-                            <>
-                                <ReportItem>
-                                    <div>레포트가 존재하지 않습니다.</div>
-                                </ReportItem>
-                                <CreateReportButton
-                                    onClick={handleCreateReport}
-                                >
-                                    레포트 생성하기
-                                </CreateReportButton>
-                            </>
-                        )}
-                    </ReportList>
-                )
-            )}
-            {showConfirmation && (
-                <ConfirmationModal>
-                    <ModalContent>
-                        <p>
-                            {isFilled
-                                ? "레포트를 생성하시겠습니까?"
-                                : "이번 주 기록하지 않은 날이 있습니다. 레포트를 받으시겠습니까? 레포트를 받으면 다시 수정할 수 없습니다."}
-                        </p>
-                        <ModalButton onClick={handleConfirmCreateReport}>
-                            확인
-                        </ModalButton>
-                        <ModalButton onClick={() => setShowConfirmation(false)}>
-                            취소
-                        </ModalButton>
-                    </ModalContent>
-                </ConfirmationModal>
-            )}
-        </Container>
-    );
-};
-
-export default WeeklyReportPage;
+            return (
+                <Container>
+                    <h3>주간 레포트 리스트 페이지</h3>
+                    {alertMessage && <AlertMessage>{alertMessage}</AlertMessage>}
+                    <SelectWrapper>
+                        <Select
+                            value={selectedYear}
+                            onChange={handleYearChange}
+                            options={yearOptions}
+                            placeholder='년 선택'
+                        />
+                    </SelectWrapper>
+                    <SelectWrapper>
+                        <Select
+                            value={selectedMonth}
+                            onChange={handleMonthChange}
+                            options={monthOptions}
+                            placeholder='월 선택'
+                            isDisabled={!selectedYear}
+                        />
+                    </SelectWrapper>
+                    <SelectWrapper>
+                    <Select
+    value={selectedWeek}
+    onChange={handleWeekChange}
+    options={weekOptions}
+    placeholder='주차 선택'
+    isDisabled={!selectedMonth}
+    isOptionDisabled={(option) => option.isDisabled}
+    styles={customStyles}
+/>
+                    </SelectWrapper>
+                    {isLoading ? (
+                        <>
+                            <LoadingSpinner />
+                            <LoadingMessage>레포트를 생성 중입니다...</LoadingMessage>
+                        </>
+                    ) : (
+                        selectedWeek && (
+                            <ReportList>
+                                {isValid ? (
+                                    <>
+                                        <ReportItem>
+                                            meanCalories : {weeklyReport.meanCalories}
+                                        </ReportItem>
+                                        <ReportItem>
+                                            meanExercise : {weeklyReport.meanExercise}
+                                        </ReportItem>
+                                        <ReportItem>
+                                            dietFeedback : {weeklyReport.dietFeedback}
+                                        </ReportItem>
+                                        <ReportItem>
+                                            execiseFeedback :{" "}
+                                            {weeklyReport.exerciseFeedback} 
+                                        </ReportItem>
+                                    </>
+                                ) : (
+                                    <>
+                                        <ReportItem>
+                                            <div>레포트가 존재하지 않습니다.</div>
+                                        </ReportItem>
+                                        <CreateReportButton
+                                            onClick={handleCreateReport}
+                                        >
+                                            레포트 생성하기
+                                        </CreateReportButton>
+                                    </>
+                                )}
+                            </ReportList>
+                        )
+                    )}
+                    {showConfirmation && (
+                        <ConfirmationModal>
+                            <ModalContent>
+                                <p>
+                                    {isFilled
+                                        ? "레포트를 생성하시겠습니까?"
+                                        : "이번 주 기록하지 않은 날이 있습니다. 레포트를 받으시겠습니까? 레포트를 받으면 다시 수정할 수 없습니다."}
+                                </p>
+                                <ModalButton onClick={handleConfirmCreateReport}>
+                                    확인
+                                </ModalButton>
+                                <ModalButton onClick={() => setShowConfirmation(false)}>
+                                    취소
+                                </ModalButton>
+                            </ModalContent>
+                        </ConfirmationModal>
+                    )}
+                </Container>
+            );
+        };
+        
+        export default WeeklyReportPage;
