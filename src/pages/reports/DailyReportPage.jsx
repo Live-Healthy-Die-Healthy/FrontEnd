@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { format, isAfter, startOfDay } from "date-fns";
 import DatePicker from "react-datepicker";
@@ -120,6 +120,7 @@ export default function DailyReportPage() {
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const { accessToken, userId } = useContext(UserContext);
+    const datePickerRef = useRef(null);
 
     useEffect(() => {
         if (dailyReport) {
@@ -133,6 +134,11 @@ export default function DailyReportPage() {
             setAlertMessage(
                 "오늘 이후의 날짜는 선택할 수 없습니다. 다시 선택해주세요."
             );
+            return;
+        }
+
+        if (selectedDate && date.getTime() === selectedDate.getTime()) {
+            setShowDatePicker(false);
             return;
         }
 
@@ -206,14 +212,20 @@ export default function DailyReportPage() {
         }
     };
 
+    const handleOutsideClick = (event) => {
+        if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
+            setShowDatePicker(false);
+        }
+    };
+
     return (
         <Container>
             <h3>일간 레포트 리스트 페이지</h3>
             <Button onClick={() => setShowDatePicker(true)}>날짜 선택</Button>
             {alertMessage && <AlertMessage>{alertMessage}</AlertMessage>}
             {showDatePicker && (
-                <Overlay>
-                    <DatePickerContainer>
+                <Overlay onClick={handleOutsideClick}>
+                    <DatePickerContainer ref={datePickerRef}>
                         <DatePicker
                             selected={selectedDate}
                             onChange={handleDateChange}
