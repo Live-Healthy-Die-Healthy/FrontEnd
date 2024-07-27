@@ -232,7 +232,7 @@ const MonthlyReportPage = () => {
         if (view === "year") {
             const monthString = format(date, "yyyy-MM");
             return highlightedMonths.includes(monthString)
-                ? "highlighted"
+                ? "react-calendar__tile--highlighted"
                 : null;
         }
     };
@@ -270,6 +270,10 @@ const MonthlyReportPage = () => {
         }
     };
 
+    const handleYearChange = ({ activeStartDate }) => {
+        fetchHighlightedMonths(getYear(activeStartDate));
+    };
+
     return (
         <Container>
             <h3>월간 레포트 리스트 페이지</h3>
@@ -282,6 +286,7 @@ const MonthlyReportPage = () => {
                 maxDate={startOfToday()}
                 tileDisabled={tileDisabled}
                 tileClassName={tileClassName}
+                onActiveStartDateChange={handleYearChange}
             />
             {isLoading ? (
                 <>

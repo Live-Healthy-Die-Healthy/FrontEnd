@@ -62,23 +62,34 @@ const AddFriendOverlay = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if(userId === friendId){
+        alert("자신은 친구로 추가할 수 없습니다.");
+        setFriendId("");
+        return;
+    }
+
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_PORT}/friendRequest`, {
         userId,
         to_user_id: friendId
       });
+      if(response.data.success === false){
+        alert("이미 친구 요청을 보낸 사용자입니다 !");  
+        return;
+      }
+      else if(!response.data.isExist){
+           alert("존재하지 않는 사용자 입니다, 아이디를 확인해주세요 !");
+           return;
+         }
+      
       console.log("친구 추가 요청 성공:", response.data);
       alert("친구 요청을 보냈습니다.");
       onClose();
     } catch (error) {
-      if (error.response && error.response.data.isExist === false) {
-        alert("유저가 존재하지 않습니다. 다시 확인해주세요.");
-        setFriendId(""); // 입력 필드 초기화
-      } else {
         alert("친구 요청 중 오류가 발생했습니다.");
         setFriendId("");
         console.error("친구 추가 요청 오류:", error);
-      }
     }
   };
 

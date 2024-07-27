@@ -127,12 +127,19 @@ const WeeklyReportPage = () => {
     const [isFilled, setIsFilled] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [highlightedDates, setHighlightedDates] = useState([]);
+    const [weekOptions, setWeekOptions] = useState([]);
 
     useEffect(() => {
         if (weeklyReport) {
             setIsValid(true);
         }
     }, [weeklyReport]);
+
+    useEffect(() => {
+        if (selectedYear && selectedMonth) {
+            updateWeekOptions();
+        }
+    }, [selectedYear, selectedMonth, highlightedDates]);
 
     const getYearOptions = () => {
         const currentYear = new Date().getFullYear();
@@ -180,6 +187,13 @@ const WeeklyReportPage = () => {
         });
     };
 
+    const updateWeekOptions = () => {
+        if (selectedYear && selectedMonth) {
+            const newWeekOptions = getWeekOptions(selectedYear.value, selectedMonth.value);
+            setWeekOptions(newWeekOptions);
+        }
+    };
+
     const customStyles = {
         option: (provided, state) => ({
             ...provided,
@@ -195,14 +209,16 @@ const WeeklyReportPage = () => {
         setSelectedMonth(null);
         setSelectedWeek(null);
         setAlertMessage("");
+        setHighlightedDates([]);
+        setWeekOptions([]);
     };
 
     const handleMonthChange = async (option) => {
         setSelectedMonth(option);
         setSelectedWeek(null);
         setAlertMessage("");
+        setHighlightedDates([]);
 
-        // Fetch dates for the selected month
         try {
             const response = await axios.post(
                 `${process.env.REACT_APP_API_PORT}/report/weeklyReportDate`,
@@ -218,9 +234,12 @@ const WeeklyReportPage = () => {
                     },
                 }
             );
+
             setHighlightedDates(response.data.date);
+            console.log("Fetched dates:", response.data.date);
         } catch (error) {
             console.error("Error fetching report dates:", error);
+            setAlertMessage("날짜 정보를 가져오는데 실패했습니다.");
         }
     };
 
@@ -283,12 +302,16 @@ const WeeklyReportPage = () => {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
                     },
-                    timeout: 120000, // 2분 타임아웃 설정
+                    timeout: 120000,
                 }
             );
 
             setWeeklyReport(response.data);
             setIsValid(true);
+            
+            // 새 레포트가 생성되었으므로 highlightedDates 업데이트
+            const newHighlightedDates = [...highlightedDates, format(startOfWeek, "yyyy-MM-dd")];
+            setHighlightedDates(newHighlightedDates);
         } catch (error) {
             console.error("Error creating report:", error);
             setAlertMessage("레포트 생성에 실패했습니다.");
@@ -299,10 +322,6 @@ const WeeklyReportPage = () => {
 
     const yearOptions = getYearOptions();
     const monthOptions = selectedYear ? getMonthOptions() : [];
-    const weekOptions =
-        selectedYear && selectedMonth
-            ? getWeekOptions(selectedYear.value, selectedMonth.value)
-            : [];
 
     return (
         <Container>
@@ -356,8 +375,7 @@ const WeeklyReportPage = () => {
                                     dietFeedback : {weeklyReport.dietFeedback}
                                 </ReportItem>
                                 <ReportItem>
-                                    execiseFeedback :{" "}
-                                    {weeklyReport.exerciseFeedback}
+                                    execiseFeedback : {weeklyReport.exerciseFeedback}
                                 </ReportItem>
                             </>
                         ) : (
@@ -365,9 +383,7 @@ const WeeklyReportPage = () => {
                                 <ReportItem>
                                     <div>레포트가 존재하지 않습니다.</div>
                                 </ReportItem>
-                                <CreateReportButton
-                                    onClick={handleCreateReport}
-                                >
+                                <CreateReportButton onClick={handleCreateReport}>
                                     레포트 생성하기
                                 </CreateReportButton>
                             </>

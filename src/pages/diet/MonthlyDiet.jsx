@@ -40,22 +40,22 @@ const CalendarContainer = styled.div`
 `;
 
 export default function MonthlyView() {
-    const [activeTab, setActiveTab] = useState("diet");
+    const [activeTab, setActiveTab] = useState("training");
 
     return (
         <Container>
             <TabContainer>
                 <Tab 
-                    active={activeTab === "diet"} 
-                    onClick={() => setActiveTab("diet")}
-                >
-                    식단
-                </Tab>
-                <Tab 
                     active={activeTab === "training"} 
                     onClick={() => setActiveTab("training")}
                 >
                     운동
+                </Tab>
+                <Tab 
+                    active={activeTab === "diet"} 
+                    onClick={() => setActiveTab("diet")}
+                >
+                    식단
                 </Tab>
             </TabContainer>
             <CalendarContainer>

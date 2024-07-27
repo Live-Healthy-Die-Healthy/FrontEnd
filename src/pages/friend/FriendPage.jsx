@@ -65,7 +65,6 @@ export default function FriendPage() {
         const response = await axios.post(`${process.env.REACT_APP_API_PORT}/friendList`, {
             userId
           });
-          console.log("response : ", response);
         setFriends(response.data);
       } catch (error) {
         console.error("친구 목록 가져오기 실패:", error);
@@ -73,7 +72,7 @@ export default function FriendPage() {
     };
 
     fetchFriends();
-  }, [userId]);
+  }, [userId, showFriendRequests]);
 
   const friendClickHandler = (friend) => {
     setSelectedFriend(friend);

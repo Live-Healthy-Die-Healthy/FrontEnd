@@ -3,6 +3,7 @@ import styled from "styled-components";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { UserContext } from "../context/LoginContext";
+import heic2any from 'heic2any';
 
 const ModalOverlay = styled.div`
     position: fixed;
@@ -45,14 +46,32 @@ const ImageUploadModal = ({ onClose }) => {
     const { userId } = useContext(UserContext);
     const { formattedDate, dietType } = useParams();
 
-    const handleFileChange = (event) => {
+    const handleFileChange = async (event) => {
         const file = event.target.files[0];
-        setSelectedFile(file);
+        let processedFile = file;
+    
+        if (file.type === 'image/heic') {
+            try {
+                const convertedBlob = await heic2any({
+                    blob: file,
+                    toType: 'image/jpeg',
+                });
+                processedFile = new File([convertedBlob], file.name.replace('.heic', '.jpg'), {
+                    type: 'image/jpeg',
+                });
+            } catch (error) {
+                console.error('HEIC 변환 실패:', error);
+                alert('이미지 변환에 실패했습니다.');
+                return;
+            }
+        }
+    
+        setSelectedFile(processedFile);
         const reader = new FileReader();
         reader.onloadend = () => {
             setPreview(reader.result);
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(processedFile);
     };
 
     const handleUpload = async () => {
@@ -78,8 +97,14 @@ const ImageUploadModal = ({ onClose }) => {
                         },
                     });
                 } catch (error) {
+                    if(error.response.status === 413){
+                        console.error("Error uploading image:", error);
+                        alert("payload error");
+                    }
+                    else{
                     console.error("Error uploading image:", error);
                     alert("이미지 업로드에 실패했습니다.");
+                }
                 }
             };
         }

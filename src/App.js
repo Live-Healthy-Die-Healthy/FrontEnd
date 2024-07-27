@@ -84,7 +84,6 @@ function AppContent() {
           
           <Route path="/home" element={<HomePage />} />
           <Route path="/profilesetting" element={<ProfileSetting />} />
-          <Route path="/trainmonth" element={<MonthlyTraining />} />
           <Route path="/traindaily/:date" element={<DailyTraining />} />
           <Route path="/selecttraining" element={<SelectTraining />} />
           <Route path="/recordtraining" element={<RecordTraining />} />

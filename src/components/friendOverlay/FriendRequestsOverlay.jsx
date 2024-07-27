@@ -86,7 +86,7 @@ const FriendRequestsOverlay = ({ onClose }) => {
         to_user_id,
         confirm
       });
-      
+
       setFriendRequests(friendRequests.filter(request => request.userId !== to_user_id));
     } catch (error) {
       console.error("친구 요청 응답 실패:", error);
