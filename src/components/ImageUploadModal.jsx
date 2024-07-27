@@ -31,8 +31,15 @@ const Button = styled.button`
     cursor: pointer;
 `;
 
+const ImagePreview = styled.img`
+    width: 100%;
+    margin-bottom: 10px;
+    border-radius: 10px;
+`;
+
 const ImageUploadModal = ({ onClose }) => {
     const [selectedFile, setSelectedFile] = useState(null);
+    const [preview, setPreview] = useState(null);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
     const { userId } = useContext(UserContext);
@@ -41,6 +48,11 @@ const ImageUploadModal = ({ onClose }) => {
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         setSelectedFile(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPreview(reader.result);
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleUpload = async () => {
@@ -77,6 +89,7 @@ const ImageUploadModal = ({ onClose }) => {
         <ModalOverlay>
             <ModalContent>
                 <h2>이미지 업로드</h2>
+                {preview && <ImagePreview src={preview} alt="이미지 미리보기" />}
                 <input
                     type='file'
                     accept='image/*'
@@ -84,7 +97,6 @@ const ImageUploadModal = ({ onClose }) => {
                     style={{ display: "none" }}
                     ref={fileInputRef}
                 />
-
                 <Button onClick={() => fileInputRef.current.click()}>
                     이미지 선택
                 </Button>

@@ -27,7 +27,7 @@ export default function Footer() {
         <Container>
             <Button onClick={() => navigate("/dietmonth")}>운동/식단</Button>
             <Button onClick={() => navigate("/report")}>레포트</Button>
-            <Button onClick={() => navigate("/freinds")}>친구</Button>
+            <Button onClick={() => navigate("/friends")}>친구</Button>
             <Button onClick={() => navigate("/settings")}>설정</Button>
         </Container>
     );

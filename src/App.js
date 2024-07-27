@@ -33,6 +33,8 @@ import SettingPage from './pages/settings/SettingPage';
 import ProfilePage from './pages/settings/ProfilePage';
 import EditProfile from './pages/settings/EditProfile';
 
+import FriendPage from './pages/friend/FriendPage';
+
 import styled from 'styled-components';
 
 const ContentContainer = styled.div`
@@ -106,6 +108,9 @@ function AppContent() {
           <Route path="/settings" element={<SettingPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/editprofile" element={<EditProfile />} />
+
+          
+          <Route path="/friends" element={<FriendPage />} />
         </Routes>
       </ContentContainer>
       {shouldShowHeaderFooter && <Footer />}
