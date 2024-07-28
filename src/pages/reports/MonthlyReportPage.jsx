@@ -289,44 +289,39 @@ const MonthlyReportPage = () => {
                 onActiveStartDateChange={handleYearChange}
             />
             {isLoading ? (
-                <>
-                    <LoadingSpinner />
-                    <LoadingMessage>레포트를 생성 중입니다...</LoadingMessage>
-                </>
-            ) : (
-                monthlyReport && (
-                    <ReportList>
-                        {isValid ? (
-                            <>
-                                <ReportItem>
-                                    meanCalories : {monthlyReport.meanCalories}
-                                </ReportItem>
-                                <ReportItem>
-                                    meanTraning : {monthlyReport.meanTraining}
-                                </ReportItem>
-                                <ReportItem>
-                                    dietFeedback : {monthlyReport.dietFeedback}
-                                </ReportItem>
-                                <ReportItem>
-                                    execiseFeedback :{" "}
-                                    {monthlyReport.exerciseFeedback}
-                                </ReportItem>
-                            </>
-                        ) : (
-                            <>
-                                <ReportItem>
-                                    <div>레포트가 존재하지 않습니다.</div>
-                                </ReportItem>
-                                <CreateReportButton
-                                    onClick={handleCreateReport}
-                                >
-                                    레포트 생성하기
-                                </CreateReportButton>
-                            </>
-                        )}
-                    </ReportList>
-                )
-            )}
+    <>
+        <LoadingSpinner />
+        <LoadingMessage>레포트를 생성 중입니다...</LoadingMessage>
+    </>
+) : (
+    <ReportList>
+        {isValid && monthlyReport ? (
+            <>
+                <ReportItem>
+                    meanCalories : {monthlyReport.meanCalories}
+                </ReportItem>
+                <ReportItem>
+                    meanTraning : {monthlyReport.meanTraining}
+                </ReportItem>
+                <ReportItem>
+                    dietFeedback : {monthlyReport.dietFeedback}
+                </ReportItem>
+                <ReportItem>
+                    execiseFeedback : {monthlyReport.exerciseFeedback}
+                </ReportItem>
+            </>
+        ) : (
+            <>
+                <ReportItem>
+                    <div>레포트가 존재하지 않습니다.</div>
+                </ReportItem>
+                <CreateReportButton onClick={handleCreateReport}>
+                    레포트 생성하기
+                </CreateReportButton>
+            </>
+        )}
+    </ReportList>
+)}
             {showConfirmation && (
                 <ConfirmationModal>
                     <ModalContent>
