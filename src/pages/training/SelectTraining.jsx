@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
@@ -54,6 +54,7 @@ const ExerciseContainer = styled.div`
 const TypeContainer = styled.div`
     margin-left: auto;
 `;
+
 const StarButton = styled.button`
     background: none;
     border: none;
@@ -72,7 +73,7 @@ export default function SelectTraining() {
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredExercises, setFilteredExercises] = useState([]);
     const [selectedPart, setSelectedPart] = useState("");
-    const [scrapIds, setScrapIds] = useState([]);
+    const [localScrapIds, setLocalScrapIds] = useState([]);
 
     useEffect(() => {
         fetchExercises();
@@ -80,15 +81,17 @@ export default function SelectTraining() {
 
     const fetchExercises = async () => {
         try {
-            console.log("userId : ", userId);
             const response = await axios.post(
                 `${process.env.REACT_APP_API_PORT}/exerciseList`,
                 { userId }
             );
-            console.log("response : ",response);
-            setExercises(response.data.exercisesWithBase64Images);
-            setFilteredExercises(response.data.exercisesWithBase64Images);
-            setScrapIds(response.data.scrapIds);
+            const exercisesWithScrapStatus = response.data.exercisesWithBase64Images.map(exercise => ({
+                ...exercise,
+                isScraped: response.data.scrapIds.includes(exercise.exerciseId)
+            }));
+            setExercises(exercisesWithScrapStatus);
+            setFilteredExercises(exercisesWithScrapStatus);
+            setLocalScrapIds(response.data.scrapIds);
         } catch (error) {
             console.error("Error fetching exercises:", error);
         }
@@ -104,7 +107,7 @@ export default function SelectTraining() {
         filterExercises(searchTerm, part);
     };
 
-    const filterExercises = (searchTerm, part) => {
+    const filterExercises = useCallback((term, part) => {
         const filtered = exercises.filter((exercise) => {
             const matchesPart =
                 part === "all" ||
@@ -112,14 +115,18 @@ export default function SelectTraining() {
                 exercise.exercisePart === part ||
                 (part === "AerobicExercise" &&
                     exercise.exerciseType === "AerobicExercise") ||
-                (part === "scrap" && scrapIds.includes(exercise.exerciseId));
+                (part === "scrap" && exercise.isScraped);
             const matchesSearchTerm = exercise.exerciseName
                 .toLowerCase()
-                .includes(searchTerm.toLowerCase());
+                .includes(term.toLowerCase());
             return matchesPart && matchesSearchTerm;
         });
         setFilteredExercises(filtered);
-    };
+    }, [exercises]);
+
+    useEffect(() => {
+        filterExercises(searchTerm, selectedPart);
+    }, [filterExercises, searchTerm, selectedPart]);
 
     const handleExerciseClick = (
         exerciseId,
@@ -138,20 +145,50 @@ export default function SelectTraining() {
         });
     };
 
-    const handleScrapClick = async (exerciseId) => {
+    const handleScrapClick = useCallback(async (exerciseId) => {
         try {
             await axios.post(`${process.env.REACT_APP_API_PORT}/exerciseScrap`, {
                 userId,
                 exerciseId,
             });
-            fetchExercises(); // 데이터 다시 불러오기
+            
+            setExercises(prevExercises => 
+                prevExercises.map(exercise => 
+                    exercise.exerciseId === exerciseId
+                        ? { ...exercise, isScraped: !exercise.isScraped }
+                        : exercise
+                )
+            );
+
+            setLocalScrapIds(prev => 
+                prev.includes(exerciseId) 
+                    ? prev.filter(id => id !== exerciseId)
+                    : [...prev, exerciseId]
+            );
         } catch (error) {
             console.error("Error scrapping exercise:", error);
         }
-    };
+    }, [userId]);
 
     const getExercisePartName = (part) => {
-        // ... (기존 코드 유지)
+        switch (part) {
+            case "arm":
+                return "팔";
+            case "chest":
+                return "가슴";
+            case "back":
+                return "등";
+            case "leg":
+                return "하체";
+            case "shoulder":
+                return "어깨";
+                case "core":
+                    return "코어";
+            case "AerobicExercise":
+                return "유산소";
+            default:
+                return part;
+        }
     };
 
     return (
@@ -164,67 +201,49 @@ export default function SelectTraining() {
                 onChange={handleSearchChange}
             />
             <div>
-                <FilterButton onClick={() => handleFilterClick("all")}>
-                    전체
-                </FilterButton>
-                <FilterButton onClick={() => handleFilterClick("chest")}>
-                    가슴
-                </FilterButton>
-                <FilterButton onClick={() => handleFilterClick("back")}>
-                    등
-                </FilterButton>
-                <FilterButton onClick={() => handleFilterClick("arm")}>
-                    팔
-                </FilterButton>
-                <FilterButton onClick={() => handleFilterClick("leg")}>
-                    하체
-                </FilterButton>
-                <FilterButton onClick={() => handleFilterClick("shoulder")}>
-                    어깨
-                </FilterButton>
-                <FilterButton
-                    onClick={() => handleFilterClick("AerobicExercise")}
-                >
-                    유산소
-                </FilterButton>
-                <FilterButton onClick={() => handleFilterClick("scrap")}>
-                    즐겨찾기 보기
-                </FilterButton>
+                <FilterButton onClick={() => handleFilterClick("all")}>전체</FilterButton>
+                <FilterButton onClick={() => handleFilterClick("chest")}>가슴</FilterButton>
+                <FilterButton onClick={() => handleFilterClick("back")}>등</FilterButton>
+                <FilterButton onClick={() => handleFilterClick("arm")}>팔</FilterButton>
+                <FilterButton onClick={() => handleFilterClick("leg")}>하체</FilterButton>
+                <FilterButton onClick={() => handleFilterClick("shoulder")}>어깨</FilterButton>
+                <FilterButton onClick={() => handleFilterClick("core")}>코어</FilterButton>
+                <FilterButton onClick={() => handleFilterClick("AerobicExercise")}>유산소</FilterButton>
+                <FilterButton onClick={() => handleFilterClick("scrap")}>즐겨찾기 보기</FilterButton>
             </div>
-            {filteredExercises &&
-                filteredExercises.map((exercise) => (
-                    <ExerciseButton
-                        key={exercise.exerciseId}
-                        onClick={() =>
-                            handleExerciseClick(
-                                exercise.exerciseId,
-                                exercise.exerciseName,
-                                exercise.exerciseType,
-                                exercise.exercisePart
-                            )
-                        }
-                    >
-                        <ExerciseContainer>
-                            <ExerciseImage
-                                src={`data:image/jpeg;base64,${exercise.exerciseImage}`}
-                                alt={exercise.exerciseName}
-                            />
-                            {exercise.exerciseName}
-                            <div>&nbsp;</div>
-                            <TypeContainer>
-                                {getExercisePartName(exercise.exercisePart)}
-                            </TypeContainer>
-                            <StarButton
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleScrapClick(exercise.exerciseId);
-                                }}
-                            >
-                                {scrapIds.includes(exercise.exerciseId) ? "⭐" : "☆"}
-                            </StarButton>
-                        </ExerciseContainer>
-                    </ExerciseButton>
-                ))}
+            {filteredExercises.map((exercise) => (
+                <ExerciseButton
+                    key={exercise.exerciseId}
+                    onClick={() =>
+                        handleExerciseClick(
+                            exercise.exerciseId,
+                            exercise.exerciseName,
+                            exercise.exerciseType,
+                            exercise.exercisePart
+                        )
+                    }
+                >
+                    <ExerciseContainer>
+                        <ExerciseImage
+                            src={`data:image/jpeg;base64,${exercise.exerciseImage}`}
+                            alt={exercise.exerciseName}
+                        />
+                        {exercise.exerciseName}
+                        <div>&nbsp;</div>
+                        <TypeContainer>
+                            {getExercisePartName(exercise.exercisePart)}
+                        </TypeContainer>
+                        <StarButton
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleScrapClick(exercise.exerciseId);
+                            }}
+                        >
+                            {exercise.isScraped ? "⭐" : "☆"}
+                        </StarButton>
+                    </ExerciseContainer>
+                </ExerciseButton>
+            ))}
         </Container>
     );
 }
