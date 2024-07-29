@@ -5,7 +5,6 @@ import axios from "axios";
 import { UserContext } from "../../context/LoginContext";
 import { format } from "date-fns";
 import default_image from "../../image/default-profile.png";
-import imageCompression from "browser-image-compression";
 
 const Container = styled.div`
     display: flex;
@@ -82,6 +81,10 @@ const EditProfile = () => {
     const [userWeight, setUserWeight] = useState(profile.userWeight);
     const [userGender, setUserGender] = useState(profile.userGender);
     const [userImage, setUserImage] = useState(profileImageSrc);
+    const [userMuscleMass, setUserMuscleMass] = useState(profile.userMuscleMass || '');
+    const [userBmi, setUserBmi] = useState(profile.userBmi || '');
+    const [userBodyFatPercentage, setUserBodyFatPercentage] = useState(profile.userBodyFatPercentage || '');
+    const [userBmr, setUserBmr] = useState(profile.userBmr || '');
 
     const fileInputRef = React.createRef();
 
@@ -124,6 +127,10 @@ const EditProfile = () => {
                     userWeight,
                     userGender,
                     userImage,
+                    userMuscleMass,
+                    userBmi,
+                    userBodyFatPercentage,
+                    userBmr,
                 }
             );
             alert("프로필이 성공적으로 업데이트되었습니다.");
@@ -189,6 +196,34 @@ const EditProfile = () => {
                     value={userWeight}
                     onChange={(e) => setUserWeight(e.target.value)}
                     placeholder='몸무게 (kg)'
+                />
+                <label>골격근량 (kg)</label>
+                <Input
+                    type='number'
+                    value={userMuscleMass}
+                    onChange={(e) => setUserMuscleMass(e.target.value)}
+                    placeholder='골격근량 (kg)'
+                />
+                <label>BMI</label>
+                <Input
+                    type='number'
+                    value={userBmi}
+                    onChange={(e) => setUserBmi(e.target.value)}
+                    placeholder='BMI'
+                />
+                <label>체지방률 (%)</label>
+                <Input
+                    type='number'
+                    value={userBodyFatPercentage}
+                    onChange={(e) => setUserBodyFatPercentage(e.target.value)}
+                    placeholder='체지방률 (%)'
+                />
+                <label>기초대사량 (kcal)</label>
+                <Input
+                    type='number'
+                    value={userBmr}
+                    onChange={(e) => setUserBmr(e.target.value)}
+                    placeholder='기초대사량 (kcal)'
                 />
                 <Button onClick={handleSubmit}>저장</Button>
             </FormContainer>

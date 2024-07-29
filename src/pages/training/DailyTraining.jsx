@@ -148,7 +148,7 @@ export default function DailyTraining() {
                     exerciseLogId: record.exerciseLogId,
                     exerciseName: record.exerciseName,
                     exerciseType: record.exerciseType,
-                    image: record.image, // 이미지 URL 추가
+                    exerciseImage: record.exerciseImage, // 이미지 URL 추가
                     set: record.set,
                     weight: record.weight,
                     repetition: record.repetition,
@@ -236,7 +236,7 @@ export default function DailyTraining() {
                                     <div>{exercise.exerciseTime}분</div>
                                 </ExerciseDetailItem>
                                 <ExerciseImage
-                                    src={exercise.image}
+                                    src={`data:image/jpeg;base64,${exercise.exerciseImage}`}
                                     alt={exercise.exerciseName}
                                 />
                             </ExerciseHeader>

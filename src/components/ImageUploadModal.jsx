@@ -3,6 +3,7 @@ import styled from "styled-components";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { UserContext } from "../context/LoginContext";
+import heic2any from 'heic2any';
 
 const ModalOverlay = styled.div`
     position: fixed;
@@ -31,16 +32,46 @@ const Button = styled.button`
     cursor: pointer;
 `;
 
+const ImagePreview = styled.img`
+    width: 100%;
+    margin-bottom: 10px;
+    border-radius: 10px;
+`;
+
 const ImageUploadModal = ({ onClose }) => {
     const [selectedFile, setSelectedFile] = useState(null);
+    const [preview, setPreview] = useState(null);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
     const { userId } = useContext(UserContext);
     const { formattedDate, dietType } = useParams();
 
-    const handleFileChange = (event) => {
+    const handleFileChange = async (event) => {
         const file = event.target.files[0];
-        setSelectedFile(file);
+        let processedFile = file;
+    
+        if (file.type === 'image/heic') {
+            try {
+                const convertedBlob = await heic2any({
+                    blob: file,
+                    toType: 'image/jpeg',
+                });
+                processedFile = new File([convertedBlob], file.name.replace('.heic', '.jpg'), {
+                    type: 'image/jpeg',
+                });
+            } catch (error) {
+                console.error('HEIC 변환 실패:', error);
+                alert('이미지 변환에 실패했습니다.');
+                return;
+            }
+        }
+    
+        setSelectedFile(processedFile);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPreview(reader.result);
+        };
+        reader.readAsDataURL(processedFile);
     };
 
     const handleUpload = async () => {
@@ -66,8 +97,14 @@ const ImageUploadModal = ({ onClose }) => {
                         },
                     });
                 } catch (error) {
+                    if(error.response.status === 413){
+                        console.error("Error uploading image:", error);
+                        alert("payload error");
+                    }
+                    else{
                     console.error("Error uploading image:", error);
                     alert("이미지 업로드에 실패했습니다.");
+                }
                 }
             };
         }
@@ -77,6 +114,7 @@ const ImageUploadModal = ({ onClose }) => {
         <ModalOverlay>
             <ModalContent>
                 <h2>이미지 업로드</h2>
+                {preview && <ImagePreview src={preview} alt="이미지 미리보기" />}
                 <input
                     type='file'
                     accept='image/*'
@@ -84,7 +122,6 @@ const ImageUploadModal = ({ onClose }) => {
                     style={{ display: "none" }}
                     ref={fileInputRef}
                 />
-
                 <Button onClick={() => fileInputRef.current.click()}>
                     이미지 선택
                 </Button>

@@ -20,6 +20,7 @@ const DietImage = styled.img`
     object-fit: cover;
     margin-bottom: 20px;
     border-radius: 8px;
+    
 `;
 
 const DietItem = styled.div`
