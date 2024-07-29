@@ -7,7 +7,7 @@ module.exports = function(app) {
       target: 'https://api.live-healthy.store/',
       changeOrigin: true,
       pathRewrite: {
-        '^/api': '', // remove base path
+        '^/': '', // remove base path
       },
     })
   )
