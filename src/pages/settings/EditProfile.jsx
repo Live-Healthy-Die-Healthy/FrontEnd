@@ -11,7 +11,8 @@ const Container = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 85vh;
+    margin-top: 5vh;
     text-align: center;
 `;
 
@@ -19,8 +20,8 @@ const FormContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 80%;
-    max-width: 400px;
+    width: 90%;
+    max-width: 480px;
     background-color: #f8f8f8;
     padding: 20px;
     border-radius: 10px;
@@ -81,10 +82,14 @@ const EditProfile = () => {
     const [userWeight, setUserWeight] = useState(profile.userWeight);
     const [userGender, setUserGender] = useState(profile.userGender);
     const [userImage, setUserImage] = useState(profileImageSrc);
-    const [userMuscleMass, setUserMuscleMass] = useState(profile.userMuscleMass || '');
-    const [userBmi, setUserBmi] = useState(profile.userBmi || '');
-    const [userBodyFatPercentage, setUserBodyFatPercentage] = useState(profile.userBodyFatPercentage || '');
-    const [userBmr, setUserBmr] = useState(profile.userBmr || '');
+    const [userMuscleMass, setUserMuscleMass] = useState(
+        profile.userMuscleMass || ""
+    );
+    const [userBmi, setUserBmi] = useState(profile.userBmi || "");
+    const [userBodyFatPercentage, setUserBodyFatPercentage] = useState(
+        profile.userBodyFatPercentage || ""
+    );
+    const [userBmr, setUserBmr] = useState(profile.userBmr || "");
 
     const fileInputRef = React.createRef();
 

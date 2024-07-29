@@ -129,6 +129,9 @@ export default function SelectMenu() {
                                 <InfoContainer>
                                     지방 {Math.round(menu.menuFat * 100)} g
                                 </InfoContainer>
+                                <InfoContainer>
+                                    GI지수 {Math.round(menu.menuGI)}
+                                </InfoContainer>
                             </InfoContainertwo>
                             <InfoContainer>100g당</InfoContainer>
                         </MenuContainer>

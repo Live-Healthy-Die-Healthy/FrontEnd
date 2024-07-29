@@ -7,8 +7,9 @@ const HeaderContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
+    max-width: 480px;
     width: 100%;
-    padding: 10px 20px;
+    padding: 10px 0px;
     background-color: #f8f8f8;
     position: fixed;
     top: 0;
@@ -17,11 +18,11 @@ const HeaderContainer = styled.div`
 `;
 
 const SecondContainer = styled.div`
+    max-width: 480px;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
-    margin-right: 80px;
 `;
 
 const Logo = styled.div`
@@ -41,16 +42,8 @@ const LogoutButton = styled.button`
 
 export default function Header() {
     const navigate = useNavigate(); // 페이지 이동을 위한 hook
-    const {
-        accessToken,
-        setAccessToken,
-        refreshToken,
-        setRefreshToken,
-        loginType,
-        setLoginType,
-        userId,
-        setUserId,
-    } = useContext(UserContext);
+    const { setAccessToken, setRefreshToken, setUserId } =
+        useContext(UserContext);
 
     return (
         <HeaderContainer>

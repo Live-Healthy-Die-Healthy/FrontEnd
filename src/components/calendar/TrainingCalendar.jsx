@@ -12,10 +12,9 @@ const Container = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     text-align: center;
     background-color: #f0f0f0;
-    padding: 20px;
+    width: 100%;
 `;
 
 const StyledCalendarWrapper = styled.div`
@@ -33,7 +32,7 @@ const StyledCalendarWrapper = styled.div`
 
 const StyledCalendar = styled(Calendar)`
     width: 100%;
-    height: 90vh;
+    height: 84vh;
 
     border: none;
 

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, BrowserRouter } from "react-router-dom";
 import axios from "axios";
+
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/login/LoginPage';
-import MonthlyTraining from './pages/training/MonthlyTraining';
+
 import Footer from './components/Footer';
 import Header from './components/Header';
 import DailyTraining from './pages/training/DailyTraining';
@@ -34,12 +35,21 @@ import ProfilePage from './pages/settings/ProfilePage';
 import EditProfile from './pages/settings/EditProfile';
 
 import FriendPage from './pages/friend/FriendPage';
+import CompareFriendPage from './pages/friend/CompareFriendPage';
 
 import styled from 'styled-components';
 
 const ContentContainer = styled.div`
   padding-top: 30px; /* 헤더의 높이에 맞춘 패딩 */
   padding-bottom: 30px; 
+`;
+
+const AppContainer = styled.div`
+  max-width: 480px;  // 일반적인 모바일 기기의 너비
+  margin: 0 auto;  // 중앙 정렬
+  overflow-y: auto;  // 세로 스크롤 허용
+  background-color: #fff;  // 배경색 설정
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);  // 테두리에 그림자 효과
 `;
 
 function AppContent() {
@@ -110,6 +120,7 @@ function AppContent() {
 
           
           <Route path="/friends" element={<FriendPage />} />
+          <Route path="/comparefriend/:formattedDate" element={<CompareFriendPage />} />
         </Routes>
       </ContentContainer>
       {shouldShowHeaderFooter && <Footer />}
@@ -119,9 +130,11 @@ function AppContent() {
 
 function App() {
   return (
+    <AppContainer>
     <BrowserRouter basename={process.env.PUBLIC_URL}>
       <AppContent />
     </BrowserRouter>
+    </AppContainer>
   );
 }
 

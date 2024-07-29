@@ -1,10 +1,14 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useMemo } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
 import { UserContext } from "../../context/LoginContext";
 import { format } from "date-fns";
-import ImageUploadModal from "../../components/ImageUploadModal"; // 새로운 컴포넌트
+import ImageUploadModal from "../../components/ImageUploadModal";
+import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip } from "chart.js";
+
+ChartJS.register(ArcElement, Tooltip);
 
 const Container = styled.div`
     display: flex;
@@ -97,6 +101,18 @@ const PhotoButton = styled(Button)`
     }
 `;
 
+const ChartContainer = styled.div`
+    width: 300px;
+    height: 300px;
+    margin: 0 auto 20px;
+`;
+
+const TotalCalories = styled.div`
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+`;
+
 export default function DietDetail() {
     const location = useLocation();
     const { date } = location.state || {};
@@ -125,6 +141,52 @@ export default function DietDetail() {
         } catch (error) {
             console.error("Error fetching diet data:", error);
         }
+    };
+
+    const nutritionInfo = useMemo(() => {
+        return dietData.reduce(
+            (acc, item) => {
+                acc.carbo += item.carbo;
+                acc.protein += item.protein;
+                acc.fat += item.fat;
+                acc.calories += item.calories;
+                return acc;
+            },
+            { carbo: 0, protein: 0, fat: 0, calories: 0 }
+        );
+    }, [dietData]);
+
+    const chartData = {
+        labels: ["탄수화물", "단백질", "지방"],
+        datasets: [
+            {
+                data: [
+                    nutritionInfo.carbo,
+                    nutritionInfo.protein,
+                    nutritionInfo.fat,
+                ],
+                backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+                hoverBackgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+            },
+        ],
+    };
+
+    const chartOptions = {
+        plugins: {
+            legend: {
+                display: false,
+            },
+            tooltip: {
+                callbacks: {
+                    label: function (context) {
+                        const label = context.label || "";
+                        const value = context.parsed || 0;
+                        return `${label}: ${value.toFixed(2)}g`;
+                    },
+                },
+            },
+        },
+        maintainAspectRatio: false,
     };
 
     useEffect(() => {
@@ -198,6 +260,15 @@ export default function DietDetail() {
                 </h3>
                 <AddButton onClick={handleAddClick}>메뉴 추가하기</AddButton>
             </HeaderContainer>
+
+            <TotalCalories>
+                총 칼로리: {nutritionInfo.calories.toFixed(2)} kcal
+            </TotalCalories>
+
+            <ChartContainer>
+                <Pie data={chartData} options={chartOptions} />
+            </ChartContainer>
+
             {dietData.dietImage && (
                 <img src={dietData.dietImage} alt='식단 사진' />
             )}
