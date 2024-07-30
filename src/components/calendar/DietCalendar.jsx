@@ -15,6 +15,7 @@ const Container = styled.div`
     text-align: center;
     background-color: #f0f0f0;
     width: 100%;
+    height: 85vh;
 `;
 
 const StyledCalendarWrapper = styled.div`
@@ -22,7 +23,6 @@ const StyledCalendarWrapper = styled.div`
     display: flex;
     justify-content: center;
     position: relative;
-    margin-top: 20px;
 
     @media (max-width: 768px) {
         width: 100%;

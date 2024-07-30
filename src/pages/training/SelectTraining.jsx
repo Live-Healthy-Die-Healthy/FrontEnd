@@ -10,6 +10,8 @@ const Container = styled.div`
     justify-content: center;
     align-items: center;
     text-align: center;
+    margin-top: 10vh;
+    margin-bottom: 10vh;
 `;
 
 const SearchInput = styled.input`
@@ -85,10 +87,13 @@ export default function SelectTraining() {
                 `${process.env.REACT_APP_API_PORT}/exerciseList`,
                 { userId }
             );
-            const exercisesWithScrapStatus = response.data.exercisesWithBase64Images.map(exercise => ({
-                ...exercise,
-                isScraped: response.data.scrapIds.includes(exercise.exerciseId)
-            }));
+            const exercisesWithScrapStatus =
+                response.data.exercisesWithBase64Images.map((exercise) => ({
+                    ...exercise,
+                    isScraped: response.data.scrapIds.includes(
+                        exercise.exerciseId
+                    ),
+                }));
             setExercises(exercisesWithScrapStatus);
             setFilteredExercises(exercisesWithScrapStatus);
             setLocalScrapIds(response.data.scrapIds);
@@ -107,22 +112,25 @@ export default function SelectTraining() {
         filterExercises(searchTerm, part);
     };
 
-    const filterExercises = useCallback((term, part) => {
-        const filtered = exercises.filter((exercise) => {
-            const matchesPart =
-                part === "all" ||
-                part === "" ||
-                exercise.exercisePart === part ||
-                (part === "AerobicExercise" &&
-                    exercise.exerciseType === "AerobicExercise") ||
-                (part === "scrap" && exercise.isScraped);
-            const matchesSearchTerm = exercise.exerciseName
-                .toLowerCase()
-                .includes(term.toLowerCase());
-            return matchesPart && matchesSearchTerm;
-        });
-        setFilteredExercises(filtered);
-    }, [exercises]);
+    const filterExercises = useCallback(
+        (term, part) => {
+            const filtered = exercises.filter((exercise) => {
+                const matchesPart =
+                    part === "all" ||
+                    part === "" ||
+                    exercise.exercisePart === part ||
+                    (part === "AerobicExercise" &&
+                        exercise.exerciseType === "AerobicExercise") ||
+                    (part === "scrap" && exercise.isScraped);
+                const matchesSearchTerm = exercise.exerciseName
+                    .toLowerCase()
+                    .includes(term.toLowerCase());
+                return matchesPart && matchesSearchTerm;
+            });
+            setFilteredExercises(filtered);
+        },
+        [exercises]
+    );
 
     useEffect(() => {
         filterExercises(searchTerm, selectedPart);
@@ -145,30 +153,36 @@ export default function SelectTraining() {
         });
     };
 
-    const handleScrapClick = useCallback(async (exerciseId) => {
-        try {
-            await axios.post(`${process.env.REACT_APP_API_PORT}/exerciseScrap`, {
-                userId,
-                exerciseId,
-            });
-            
-            setExercises(prevExercises => 
-                prevExercises.map(exercise => 
-                    exercise.exerciseId === exerciseId
-                        ? { ...exercise, isScraped: !exercise.isScraped }
-                        : exercise
-                )
-            );
+    const handleScrapClick = useCallback(
+        async (exerciseId) => {
+            try {
+                await axios.post(
+                    `${process.env.REACT_APP_API_PORT}/exerciseScrap`,
+                    {
+                        userId,
+                        exerciseId,
+                    }
+                );
 
-            setLocalScrapIds(prev => 
-                prev.includes(exerciseId) 
-                    ? prev.filter(id => id !== exerciseId)
-                    : [...prev, exerciseId]
-            );
-        } catch (error) {
-            console.error("Error scrapping exercise:", error);
-        }
-    }, [userId]);
+                setExercises((prevExercises) =>
+                    prevExercises.map((exercise) =>
+                        exercise.exerciseId === exerciseId
+                            ? { ...exercise, isScraped: !exercise.isScraped }
+                            : exercise
+                    )
+                );
+
+                setLocalScrapIds((prev) =>
+                    prev.includes(exerciseId)
+                        ? prev.filter((id) => id !== exerciseId)
+                        : [...prev, exerciseId]
+                );
+            } catch (error) {
+                console.error("Error scrapping exercise:", error);
+            }
+        },
+        [userId]
+    );
 
     const getExercisePartName = (part) => {
         switch (part) {
@@ -182,8 +196,8 @@ export default function SelectTraining() {
                 return "하체";
             case "shoulder":
                 return "어깨";
-                case "core":
-                    return "코어";
+            case "core":
+                return "코어";
             case "AerobicExercise":
                 return "유산소";
             default:
@@ -194,6 +208,13 @@ export default function SelectTraining() {
     return (
         <Container>
             <h3>운동 선택</h3>
+            <button
+                onClick={() => {
+                    navigate(-1);
+                }}
+            >
+                뒤
+            </button>
             <SearchInput
                 type='text'
                 placeholder='운동 이름 검색'
@@ -201,15 +222,35 @@ export default function SelectTraining() {
                 onChange={handleSearchChange}
             />
             <div>
-                <FilterButton onClick={() => handleFilterClick("all")}>전체</FilterButton>
-                <FilterButton onClick={() => handleFilterClick("chest")}>가슴</FilterButton>
-                <FilterButton onClick={() => handleFilterClick("back")}>등</FilterButton>
-                <FilterButton onClick={() => handleFilterClick("arm")}>팔</FilterButton>
-                <FilterButton onClick={() => handleFilterClick("leg")}>하체</FilterButton>
-                <FilterButton onClick={() => handleFilterClick("shoulder")}>어깨</FilterButton>
-                <FilterButton onClick={() => handleFilterClick("core")}>코어</FilterButton>
-                <FilterButton onClick={() => handleFilterClick("AerobicExercise")}>유산소</FilterButton>
-                <FilterButton onClick={() => handleFilterClick("scrap")}>즐겨찾기 보기</FilterButton>
+                <FilterButton onClick={() => handleFilterClick("all")}>
+                    전체
+                </FilterButton>
+                <FilterButton onClick={() => handleFilterClick("chest")}>
+                    가슴
+                </FilterButton>
+                <FilterButton onClick={() => handleFilterClick("back")}>
+                    등
+                </FilterButton>
+                <FilterButton onClick={() => handleFilterClick("arm")}>
+                    팔
+                </FilterButton>
+                <FilterButton onClick={() => handleFilterClick("leg")}>
+                    하체
+                </FilterButton>
+                <FilterButton onClick={() => handleFilterClick("shoulder")}>
+                    어깨
+                </FilterButton>
+                <FilterButton onClick={() => handleFilterClick("core")}>
+                    코어
+                </FilterButton>
+                <FilterButton
+                    onClick={() => handleFilterClick("AerobicExercise")}
+                >
+                    유산소
+                </FilterButton>
+                <FilterButton onClick={() => handleFilterClick("scrap")}>
+                    즐겨찾기 보기
+                </FilterButton>
             </div>
             {filteredExercises.map((exercise) => (
                 <ExerciseButton

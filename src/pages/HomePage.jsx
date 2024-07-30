@@ -6,12 +6,13 @@ import ThreeModel from "../components/ThreeModel";
 const Container = styled.div`
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    background-color: #ffe4e1;
+    background-color: #ffeeae;
     position: relative;
     overflow: hidden;
-    height: 90vh; // Full height of the viewport
+    height: 98vh;
+    width: 100%;
 `;
 
 const ModelContainer = styled.div`
@@ -29,16 +30,17 @@ const SlideUpContainer = styled.div`
     flex-direction: column;
     align-items: center;
     width: 100%;
-    height: ${(props) =>
-        props.isOpen ? "20vh" : "2vh"}; // Adjust height for open/closed state
-    background-color: #fff;
+    background-color: #5ddebe;
     transition: height 0.3s ease-in-out;
     border-top-left-radius: 50% 20%;
     border-top-right-radius: 50% 20%;
-    padding: 20px;
+    padding-bottom: 30px;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-    position: absolute; // Change to absolute
-    bottom: 0; // Position at the bottom
+    height: ${(props) => (props.isOpen ? "30vh" : "10vh")}; // 높이 조정
+    position: fixed; // absolute에서 fixed로 변경
+    bottom: 0;
+    left: 0;
+    right: 0;
 `;
 
 const MenuButton = styled.button`
@@ -56,17 +58,21 @@ const AddButton = styled.button`
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background-color: #4caf50;
-    color: white;
-    font-size: 30px;
+    background-color: #ffcb5b;
+    color: #fc6a03;
+    font-size: 50px;
     border: none;
     cursor: pointer;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     position: absolute;
-    top: -30px; // Adjust the position to make it float above the container
+    top: -45px; // Adjust the position to make it float above the container
     left: 50%;
     transform: translateX(-50%);
     z-index: 3;
+`;
+
+const PCon = styled.p`
+    color: #b53a14;
 `;
 
 const Header = styled.div`
@@ -124,13 +130,11 @@ export default function HomePage() {
                 <AddButton onClick={toggleMenu}>
                     {isMenuOpen ? "-" : "+"}
                 </AddButton>
-                {/* When the menu is closed, show a message */}
                 {!isMenuOpen ? (
-                    <p>오늘 하루도 기록해보세요!</p>
+                    <PCon>오늘 하루도 기록해보세요!</PCon>
                 ) : (
-                    <p>무엇을 기록할까요?</p>
+                    <PCon>무엇을 기록할까요?</PCon>
                 )}
-                {/* When the menu is open, show buttons for navigation */}
                 {isMenuOpen && (
                     <>
                         <MenuButton

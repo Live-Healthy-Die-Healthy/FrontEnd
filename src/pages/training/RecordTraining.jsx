@@ -179,6 +179,13 @@ export default function RecordTraining() {
 
     return (
         <Container>
+            <button
+                onClick={() => {
+                    navigate(-1);
+                }}
+            >
+                뒤
+            </button>
             <h3>
                 {formattedDate} {exerciseName} 기록
             </h3>

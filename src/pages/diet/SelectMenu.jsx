@@ -9,6 +9,8 @@ const Container = styled.div`
     justify-content: center;
     align-items: center;
     text-align: center;
+    margin-top: 10vh;
+    margin-bottom: 10vh;
 `;
 
 const SearchInput = styled.input`
@@ -95,6 +97,13 @@ export default function SelectMenu() {
         <>
             <Container>
                 <h3>메뉴 선택</h3>
+                <button
+                    onClick={() => {
+                        navigate(-1);
+                    }}
+                >
+                    뒤
+                </button>
                 <SearchInput
                     type='text'
                     placeholder='메뉴 이름 검색'

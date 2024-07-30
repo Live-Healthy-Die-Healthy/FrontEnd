@@ -100,6 +100,13 @@ export default function RecordDiet() {
 
     return (
         <Container>
+            <button
+                onClick={() => {
+                    navigate(-1);
+                }}
+            >
+                뒤로
+            </button>
             <h3>
                 {formattedDate} {dietType} 기록
             </h3>

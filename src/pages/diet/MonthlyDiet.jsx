@@ -10,7 +10,8 @@ const Container = styled.div`
     justify-content: center;
     align-items: center;
     text-align: center;
-    background-color: #f0f0f0;
+    background-color: #ffffff;
+    margin-top: 40px;
 `;
 
 const TabContainer = styled.div`

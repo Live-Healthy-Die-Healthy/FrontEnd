@@ -11,18 +11,21 @@ const Container = styled.div`
     display: flex;
     justify-content: space-around;
     width: 100%;
-    max-width: 480px;
     position: fixed;
     bottom: 0;
-    background-color: #ffffff;
+    background-color: #5ddebe;
     padding: 10px 0;
+`;
+
+const MenuName = styled.span`
+    font-size: 13px;
 `;
 
 const NavItem = styled(NavLink)`
     display: flex;
     align-items: center;
     text-decoration: none;
-    color: #000000;
+    color: #b53a14;
     padding: 5px 10px;
     border-radius: 20px;
     transition: all 0.3s ease;
@@ -44,7 +47,7 @@ const NavItem = styled(NavLink)`
 
     &:hover,
     &.active {
-        background-color: #7aa2ff;
+        background-color: #ffcb5b;
 
         span {
             max-width: 100px;
@@ -53,24 +56,28 @@ const NavItem = styled(NavLink)`
     }
 `;
 
+const NavCon = styled.div`
+    width: 25%;
+`;
+
 export default function Footer() {
     return (
         <Container>
             <NavItem to='/dietmonth' activeClassName='active'>
                 <FaRegCalendarAlt />
-                <span>캘린더</span>
+                <MenuName>캘린더</MenuName>
             </NavItem>
             <NavItem to='/report' activeClassName='active'>
                 <HiDocumentReport />
-                <span>레포트</span>
+                <MenuName>레포트</MenuName>
             </NavItem>
             <NavItem to='/friends' activeClassName='active'>
                 <FaUserFriends />
-                <span>친구</span>
+                <MenuName>친구</MenuName>
             </NavItem>
             <NavItem to='/profile' activeClassName='active'>
                 <BsPersonCircle />
-                <span>내정보</span>
+                <MenuName>내정보</MenuName>
             </NavItem>
         </Container>
     );

@@ -51,7 +51,7 @@ function Model({ animationName }) {
     }, [animationName, animations]);
 
     if (!model) return null;
-    return <primitive object={model} />;
+    return <primitive object={model} scale={[1.5, 1.5, 1.5]} />; // 모델 크기를 유지하기 위해 scale 추가
 }
 
 function Camera() {
@@ -72,8 +72,8 @@ export default function ThreeModel() {
             <Canvas
                 style={{
                     width: "100%",
-                    height: "60vh",
-                    background: "#ffbbb4", //#ffe4e1
+                    height: "43vh", // Canvas 크기를 줄임
+                    background: "#FFEEAE", //#ffbbb4
                 }}
             >
                 <Camera />

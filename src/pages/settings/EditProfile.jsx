@@ -12,7 +12,8 @@ const Container = styled.div`
     justify-content: center;
     align-items: center;
     height: 85vh;
-    margin-top: 5vh;
+    margin-top: 20vh;
+    margin-bottom: 25vh;
     text-align: center;
 `;
 

@@ -252,8 +252,17 @@ export default function DietDetail() {
         setShowImageModal(false);
     };
 
+    const hasRecords = dietData.length > 0;
+
     return (
         <Container>
+            <button
+                onClick={() => {
+                    navigate(-1);
+                }}
+            >
+                뒤
+            </button>
             <HeaderContainer>
                 <h3>
                     {formattedDate} {getMealTypeText(dietType)}
@@ -261,19 +270,26 @@ export default function DietDetail() {
                 <AddButton onClick={handleAddClick}>메뉴 추가하기</AddButton>
             </HeaderContainer>
 
-            <TotalCalories>
-                총 칼로리: {nutritionInfo.calories.toFixed(2)} kcal
-            </TotalCalories>
+            {hasRecords && (
+                <>
+                    <TotalCalories>
+                        총 칼로리: {nutritionInfo.calories.toFixed(2)} kcal
+                    </TotalCalories>
 
-            <ChartContainer>
-                <Pie data={chartData} options={chartOptions} />
-            </ChartContainer>
+                    <ChartContainer>
+                        <Pie data={chartData} options={chartOptions} />
+                    </ChartContainer>
+                </>
+            )}
 
             {dietData.dietImage && (
-                <img src={dietData.dietImage} alt='식단 사진' />
+                <img
+                    src={`data:image/jpeg;base64,${dietData.dietImage}`}
+                    alt='식단 사진'
+                />
             )}
             <RecordContainer>
-                {dietData.length > 0 ? (
+                {hasRecords ? (
                     dietData.map((item) => (
                         <DietItem key={item.dietLogDetailId}>
                             <DietText>
