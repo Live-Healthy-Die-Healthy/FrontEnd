@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { animated, useSpring } from "react-spring";
+import axios from "axios";
 import ThreeModel from "../components/ThreeModel";
+import { UserContext } from "../context/LoginContext";
+import CheatDayModal from "../components/CheatDayModal";
 
 const Container = styled.div`
     display: flex;
@@ -76,39 +80,158 @@ const PCon = styled.p`
 `;
 
 const Header = styled.div`
-    width: 100%;
-    padding: 20px;
+    position: absolute;
+    top: 20px;
+    left: 20px;
     text-align: left;
+    margin-top: 5vh;
+    transition: filter 0.3s ease-in-out;
+    filter: ${(props) => (props.isBlurred ? "blur(5px)" : "none")};
 `;
 
-const DayInfo = styled.div`
-    font-size: 24px;
-    font-weight: bold;
+const DateInfo = styled.div`
+    font-size: 14px;
 `;
 
-const CalorieInfo = styled.div`
-    background-color: rgba(255, 255, 255, 0.5);
+const CalorieContainer = styled.div`
+    display: flex;
+    justify-content: flex-start;
+`;
+
+const MessageContainer = styled.div`
+    position: absolute;
+    bottom: 150px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(255, 255, 255, 0.8);
     padding: 10px 20px;
     border-radius: 20px;
-    margin-top: 10px;
-    display: inline-block;
+    text-align: center;
+    transition: filter 0.3s ease-in-out;
+    filter: ${(props) => (props.isBlurred ? "blur(5px)" : "none")};
 `;
 
-const Overlay = styled.div`
-    display: ${(props) => (props.isOpen ? "block" : "none")};
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
+const CalorieGraph = styled(animated.div)`
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 30px;
+    background-color: #49406f;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: filter 0.3s ease-in-out;
+    filter: ${(props) => (props.isBlurred ? "blur(5px)" : "none")};
+`;
+
+const CalorieFill = styled(animated.div)`
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1;
+    background-color: #fc6a03;
+    width: ${(props) => `${props.width}%`};
+`;
+
+const CalorieText = styled.div`
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffffff;
+    font-weight: bold;
 `;
 
 export default function HomePage() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [cheatDayInfo, setCheatDayInfo] = useState(null);
+    const [showCheatDayModal, setShowCheatDayModal] = useState(false);
+    const [selectedCheatDay, setSelectedCheatDay] = useState(null);
+    const [DDay, setDDay] = useState(null);
     const navigate = useNavigate();
     const today = new Date().toISOString().split("T")[0];
+    const { userId } = useContext(UserContext);
+    const [isConfirming, setIsConfirming] = useState(false);
+
+    const modalAnimation = useSpring({
+        transform: showCheatDayModal
+            ? `translate(-50%, -50%)`
+            : `translate(-50%, 100%)`,
+        opacity: showCheatDayModal ? 1 : 0,
+        config: { tension: 220, friction: 20 },
+    });
+
+    const handleDateSelection = (date) => {
+        setSelectedCheatDay(date);
+        setIsConfirming(true);
+    };
+
+    const handleConfirmCheatDay = () => {
+        handleSetCheatDay();
+        setIsConfirming(false);
+    };
+
+    const handleReSelectDate = () => {
+        setIsConfirming(false);
+    };
+
+    const formatDate = (date) => {
+        return date.toLocaleDateString("ko-KR", {
+            month: "long",
+            day: "numeric",
+        });
+    };
+
+    const calorieProps = useSpring({
+        width: cheatDayInfo
+            ? `${
+                  (cheatDayInfo.currentCalories /
+                      cheatDayInfo.totalRecommendedCalories) *
+                  100
+              }%`
+            : "0%",
+        from: { width: "0%" },
+    });
+
+    useEffect(() => {
+        fetchCheatDayInfo();
+    }, []);
+
+    const fetchCheatDayInfo = async () => {
+        try {
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_PORT}/getCheatDay`,
+                { userId }
+            );
+            setCheatDayInfo(response.data);
+            if (response.data.needsCheatDaySetup) {
+                setShowCheatDayModal(true);
+            }
+            calculateDDay(response.data); // cheatDayInfo가 설정된 후 calculateDDay 호출
+        } catch (error) {
+            console.error("Error fetching cheat day info:", error);
+        }
+    };
+
+    const handleSetCheatDay = async () => {
+        try {
+            await axios.post(`${process.env.REACT_APP_API_PORT}/setCheatDay`, {
+                userId,
+                cheatDayDate: selectedCheatDay,
+            });
+            setShowCheatDayModal(false);
+            fetchCheatDayInfo();
+        } catch (error) {
+            console.error("Error setting cheat day:", error);
+        }
+    };
+
+    const calculateDDay = (cheatDayInfo) => {
+        if (!cheatDayInfo || !cheatDayInfo.cheatDay) return "";
+        const diff = Math.ceil(
+            (new Date(cheatDayInfo.cheatDay) - new Date()) /
+                (1000 * 60 * 60 * 24)
+        );
+        setDDay(diff);
+    };
 
     const handleMenuClick = (route) => {
         navigate(route, {
@@ -126,6 +249,28 @@ export default function HomePage() {
             <ModelContainer isBlurred={isMenuOpen}>
                 <ThreeModel />
             </ModelContainer>
+
+            <Header isBlurred={isMenuOpen}>
+                <DateInfo>D-{DDay}</DateInfo>
+                <DateInfo>{new Date().toLocaleDateString()}</DateInfo>
+            </Header>
+
+            {cheatDayInfo && (
+                <CalorieContainer>
+                    <CalorieGraph isBlurred={isMenuOpen}>
+                        <CalorieFill style={calorieProps} />
+                        <CalorieText>
+                            {Math.round(cheatDayInfo.currentCalories)} /{" "}
+                            {Math.round(cheatDayInfo.totalRecommendedCalories)}{" "}
+                            kcal
+                        </CalorieText>
+                    </CalorieGraph>
+                    <MessageContainer isBlurred={isMenuOpen}>
+                        {cheatDayInfo.message}
+                    </MessageContainer>
+                </CalorieContainer>
+            )}
+
             <SlideUpContainer isOpen={isMenuOpen}>
                 <AddButton onClick={toggleMenu}>
                     {isMenuOpen ? "-" : "+"}
@@ -154,6 +299,18 @@ export default function HomePage() {
                     </>
                 )}
             </SlideUpContainer>
+
+            {showCheatDayModal && (
+                <CheatDayModal
+                    isConfirming={isConfirming}
+                    selectedCheatDay={selectedCheatDay}
+                    handleDateSelection={handleDateSelection}
+                    handleConfirmCheatDay={handleConfirmCheatDay}
+                    handleReSelectDate={handleReSelectDate}
+                    formatDate={formatDate}
+                    modalAnimation={modalAnimation}
+                />
+            )}
         </Container>
     );
 }

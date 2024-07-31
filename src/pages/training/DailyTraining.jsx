@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { format } from "date-fns";
 import axios from "axios";
@@ -132,9 +132,8 @@ const BackButton = styled.button`
 `;
 
 export default function DailyTraining() {
-    const location = useLocation();
     const navigate = useNavigate();
-    const { date } = location.state || {};
+    const { date } = useParams();
     const formattedDate = format(new Date(date), "yyyy-MM-dd");
     const { accessToken, userId } = useContext(UserContext);
     const [exercises, setExercises] = useState([]);

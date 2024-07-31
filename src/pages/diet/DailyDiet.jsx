@@ -1,91 +1,153 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { format } from "date-fns";
+import { format, addDays, subDays } from "date-fns";
 import axios from "axios";
 import { UserContext } from "../../context/LoginContext";
 
 const Container = styled.div`
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    height: 100vh;
-    text-align: center;
+    margin-top: 10vh;
+    margin-bottom: 10vh;
 `;
 
-const RecordContainer = styled.div`
-    width: 80%;
+const Header = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
     max-width: 800px;
-    background-color: white;
-    padding: 20px;
+`;
+
+const ArrowButton = styled.button`
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #5ddebe;
+    cursor: pointer;
+    &::before {
+        content: "▶";
+        display: inline-block;
+        transform: ${(props) =>
+            props.direction === "left" ? "rotate(180deg)" : "none"};
+    }
+`;
+
+const DateText = styled.div`
+    background-color: #ffeeba;
+    color: #b53a14;
+    padding: 5px 10px;
     border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: bold;
 `;
 
 const MealContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: 95%;
+    width: 90%;
+`;
+
+const MealText = styled.h4`
+    margin: 10px 5px;
+    background-color: #ffeeae;
+    border-radius: 20px;
+    padding: 5px 20px;
+    display: inline-block;
+    width: fit-content;
 `;
 
 const MealBox = styled.div`
-    width: 100%;
+    width: 90%;
     height: 100px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 10px 0;
-    background: #f0f0f0;
+    margin-bottom: 20px;
+    background: ${(props) => (props.hasMeals ? "#FFCB5B" : "white")};
+    border: ${(props) => (props.hasMeals ? "none" : "2px dashed #FF8000")};
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     cursor: pointer;
-    padding: 0 20px;
     transition: background 0.3s;
+    position: relative;
+    padding: 0 20px;
 
     &:hover {
-        background: #e0e0e0;
+        background: ${(props) => (props.hasMeals ? "#E0A800" : "#FFF3E0")};
     }
 `;
 
-const MealText = styled.h4`
-    margin: 0;
+const PlusButton = styled.div`
+    width: 50px;
+    height: 50px;
+    background-color: #ff8000;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffcb5b;
+    font-size: 50px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 `;
 
 const MealDetails = styled.div`
     display: flex;
-    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
-    justify-content: flex-end;
-    gap: 5px;
+    width: 100%;
+`;
+
+const MenuNames = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+`;
+
+const MenuColumn = styled.div`
+    display: flex;
+    flex-direction: column;
 `;
 
 const MealDetailItem = styled.span`
     font-size: 14px;
-    &:not(:last-child)::after {
-        content: "|";
-        margin-left: 5px;
-    }
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+    margin: 3px 0px;
+`;
+
+const CaloriesInfo = styled.span`
+    font-size: 14px;
+    font-weight: bold;
+`;
+
+const Title = styled.div``;
+
+const TitleContainer = styled.div`
+    font-size: 30px;
+    margin: 10px 10px;
+    display: flex;
+    align-self: flex-start;
 `;
 
 const BackButton = styled.button`
-    margin: 20px;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
+    background: none;
     border: none;
-    border-radius: 4px;
+    font-size: 24px;
+    color: #333;
     cursor: pointer;
-    &:hover {
-        background-color: #0056b3;
-    }
+    padding: 5px;
 `;
 
 export default function DailyDiet() {
-    const location = useLocation();
     const navigate = useNavigate();
-    const { date } = location.state || {};
+    const { date } = useParams();
     const formattedDate = format(new Date(date), "yyyy-MM-dd");
     const { userId, accessToken } = useContext(UserContext);
     const [meals, setMeals] = useState({
@@ -128,6 +190,7 @@ export default function DailyDiet() {
                 };
 
                 setMeals(processedMeals);
+                console.log(meals);
             } catch (error) {
                 console.error("Error fetching meals:", error);
             }
@@ -142,49 +205,99 @@ export default function DailyDiet() {
         });
     };
 
-    const renderMealBox = (dietType, mealName) => (
-        <MealBox key={dietType} onClick={() => handleMealClick(dietType)}>
-            <MealText>{mealName}</MealText>
-            <MealDetails>
-                {meals[dietType].length > 0 ? (
-                    <>
-                        <MealDetailItem>{`총 칼로리: ${meals[dietType].reduce(
-                            (total, item) => total + item.calories,
-                            0
-                        )} kcal`}</MealDetailItem>
-                        {meals[dietType][0].menuNames &&
-                        Array.isArray(meals[dietType][0].menuNames) ? (
-                            meals[dietType][0].menuNames.map((menu, index) => (
-                                <MealDetailItem key={index}>
-                                    {menu}
-                                </MealDetailItem>
-                            ))
-                        ) : (
-                            <MealDetailItem>
-                                {meals[dietType][0].menuNames ||
-                                    "메뉴 정보 없음"}
-                            </MealDetailItem>
-                        )}
-                    </>
-                ) : (
-                    <MealDetailItem>기록이 없습니다.</MealDetailItem>
-                )}
-            </MealDetails>
-        </MealBox>
-    );
+    const handleDateChange = (increment) => {
+        const newDate = increment
+            ? addDays(new Date(date), 1)
+            : subDays(new Date(date), 1);
+        navigate(`/dietdaily/${format(newDate, "yyyy-MM-dd")}`);
+    };
+
+    const renderMealBox = (dietType, mealName) => {
+        const mealItems = meals[dietType];
+        const totalCalories = mealItems.reduce(
+            (total, item) => total + item.calories,
+            0
+        );
+        const hasMeals = totalCalories > 0;
+
+        return (
+            <React.Fragment key={dietType}>
+                <MealText>{mealName}</MealText>
+                <MealBox
+                    hasMeals={hasMeals}
+                    onClick={() => handleMealClick(dietType)}
+                >
+                    {hasMeals ? (
+                        <MealDetails>
+                            <MenuNames>
+                                {mealItems[0].menuNames &&
+                                Array.isArray(mealItems[0].menuNames) ? (
+                                    Array(
+                                        Math.ceil(
+                                            mealItems[0].menuNames.length / 3
+                                        )
+                                    )
+                                        .fill()
+                                        .map((_, columnIndex) => (
+                                            <MenuColumn key={columnIndex}>
+                                                {mealItems[0].menuNames
+                                                    .slice(
+                                                        columnIndex * 3,
+                                                        columnIndex * 3 + 3
+                                                    )
+                                                    .map((menu, index) => (
+                                                        <MealDetailItem
+                                                            key={index}
+                                                        >
+                                                            {menu}
+                                                        </MealDetailItem>
+                                                    ))}
+                                            </MenuColumn>
+                                        ))
+                                ) : (
+                                    <MealDetailItem>
+                                        {mealItems[0].menuNames ||
+                                            "메뉴 정보 없음"}
+                                    </MealDetailItem>
+                                )}
+                            </MenuNames>
+                            <CaloriesInfo>{`총 칼로리: ${totalCalories} kcal`}</CaloriesInfo>
+                        </MealDetails>
+                    ) : (
+                        <PlusButton>+</PlusButton>
+                    )}
+                </MealBox>
+            </React.Fragment>
+        );
+    };
 
     return (
         <Container>
-            <BackButton onClick={() => navigate(-1)}>뒤로가기</BackButton>
-            <h3>{formattedDate} 일간 식단 기록</h3>
-            <RecordContainer>
-                <MealContainer>
-                    {renderMealBox("breakfast", "아침")}
-                    {renderMealBox("lunch", "점심")}
-                    {renderMealBox("dinner", "저녁")}
-                    {renderMealBox("snack", "간식")}
-                </MealContainer>
-            </RecordContainer>
+            <TitleContainer>
+                <BackButton onClick={() => navigate(`/dietmonth`)}>
+                    {"<"}
+                </BackButton>
+                <Title>식단기록</Title>
+            </TitleContainer>
+            <Header>
+                <ArrowButton
+                    direction='left'
+                    onClick={() => handleDateChange(false)}
+                ></ArrowButton>
+                <DateText>
+                    {format(new Date(formattedDate), "yyyy.MM.dd")}
+                </DateText>
+                <ArrowButton
+                    direction='right'
+                    onClick={() => handleDateChange(true)}
+                ></ArrowButton>
+            </Header>
+            <MealContainer>
+                {renderMealBox("breakfast", "아침")}
+                {renderMealBox("lunch", "점심")}
+                {renderMealBox("dinner", "저녁")}
+                {renderMealBox("snack", "간식")}
+            </MealContainer>
         </Container>
     );
 }

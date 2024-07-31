@@ -11,9 +11,9 @@ const Container = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 85vh;
-    margin-top: 20vh;
-    margin-bottom: 25vh;
+    height: 100vh;
+    padding-top: 45vh;
+    padding-bottom: 40vh;
     text-align: center;
 `;
 

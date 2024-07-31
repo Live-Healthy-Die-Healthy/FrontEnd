@@ -87,7 +87,7 @@ export default function ThreeModel() {
                 <directionalLight color='yellow' position={[0, 1, 0]} />
                 <Model animationName={animationName} />
             </Canvas>
-            <div>
+            {/* <div>
                 <AnimationButton onClick={() => setAnimationName("Idle")}>
                     Idle
                 </AnimationButton>
@@ -100,7 +100,7 @@ export default function ThreeModel() {
                 <AnimationButton onClick={() => setAnimationName("Jump")}>
                     Jump
                 </AnimationButton>
-            </div>
+            </div> */}
         </Container>
     );
 }

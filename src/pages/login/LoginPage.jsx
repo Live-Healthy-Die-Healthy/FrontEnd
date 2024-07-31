@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import "./login.css"
+import "./login.css";
 import styled, { keyframes } from "styled-components";
 import kakaoLoginLogo from "../../image/kakao_login.png";
+import LOGO from "../../image/LOGO.png";
 
 const Button = styled.button`
-  display: inline-block;
-  opacity: ${(props) => (props.show ? 1 : 0)};
-  transform: ${(props) => (props.show ? "translateY(0)" : "translateY(-20px)")};
-  transition: opacity 0.5s ease, transform 0.5s ease;
+    display: inline-block;
+    opacity: ${(props) => (props.show ? 1 : 0)};
+    transform: ${(props) =>
+        props.show ? "translateY(0)" : "translateY(-20px)"};
+    transition: opacity 0.5s ease, transform 0.5s ease;
 `;
 
 const slideDown = keyframes`
@@ -22,43 +24,56 @@ const slideDown = keyframes`
 `;
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh; 
-  text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+    background-color: #fa803d;
+    color: #ffe396;
 
-  &.show-login-button {
-    button {
-      animation: ${slideDown} 0.5s forwards;
+    &.show-login-button {
+        button {
+            animation: ${slideDown} 0.5s forwards;
+        }
     }
-  }
+`;
+
+const LogoImage = styled.img`
+    width: 300px;
+    height: auto;
+    margin-bottom: 20px;
 `;
 
 export default function LoginPage() {
-  const [showLoginButton, setShowLoginButton] = useState(false);
+    const [showLoginButton, setShowLoginButton] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowLoginButton(true);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowLoginButton(true);
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, []);
 
-  const kakao = () => {
-    window.open(
-      `https://kauth.kakao.com/oauth/authorize?client_id=${process.env.REACT_APP_KAKAO_CLIENT_ID}&redirect_uri=https://live-healthy-die-healthy.github.io/FrontEnd/auth/callback/kakao&response_type=code`,
-      "_self"
+    const kakao = () => {
+        window.open(
+            `https://kauth.kakao.com/oauth/authorize?client_id=${process.env.REACT_APP_KAKAO_CLIENT_ID}&redirect_uri=https://live-healthy-die-healthy.github.io/FrontEnd/auth/callback/kakao&response_type=code`,
+            "_self"
+        );
+    };
+
+    return (
+        <Container className={showLoginButton ? "show-login-button" : ""}>
+            <LogoImage src={LOGO} alt='카카오 로그인' />
+            <h1>치팅데이</h1>
+            <Button
+                className='loginButton'
+                show={showLoginButton}
+                onClick={kakao}
+            >
+                <img src={kakaoLoginLogo} alt='카카오 로그인' />
+            </Button>
+        </Container>
     );
-  };
-
-  return (
-    <Container className={showLoginButton ? "show-login-button" : ""}>
-      <h1>로고</h1>
-      <Button className="loginButton" show={showLoginButton} onClick={kakao}>
-        <img src={kakaoLoginLogo} alt="카카오 로그인" />
-      </Button>
-    </Container>
-  );
 }

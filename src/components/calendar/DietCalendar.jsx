@@ -1,156 +1,405 @@
 import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { format, startOfToday } from "date-fns";
+import {
+    format,
+    startOfMonth,
+    endOfMonth,
+    eachDayOfInterval,
+    isSameMonth,
+    isSameDay,
+    isToday,
+    isBefore,
+    addDays,
+    subDays,
+} from "date-fns";
 import { UserContext } from "../../context/LoginContext";
+import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    background-color: #f0f0f0;
+    align-items: flex-start;
+    background-color: #ffffff;
     width: 100%;
-    height: 85vh;
+    height: 100vh;
 `;
 
-const StyledCalendarWrapper = styled.div`
+const CalendarHeader = styled.div`
+    display: flex;
+    align-items: center;
     width: 100%;
+    margin-right: auto;
+`;
+
+const MonthYear = styled.h2`
+    color: #ff8000;
+    font-size: 24px;
+`;
+
+const ArrowButton = styled.button`
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #ff8000;
+    cursor: pointer;
+    position: relative;
+`;
+
+const CalendarGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    width: 100%;
+    gap: 0;
+`;
+
+const DayCell = styled.div`
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: ${(props) => (props.isToday ? "#fff3e0" : "white")};
+    color: ${(props) => (props.isCurrentMonth ? "black" : "#ccc")};
+    border-bottom: ${(props) =>
+        props.isWeekDay ? "none" : "1px solid #FFCB5B"};
+    border-top: ${(props) => (props.isTopRow ? "2px solid #FFCB5B" : "none")};
+    font-size: 16px;
+    cursor: ${(props) => (props.isDisabled ? "default" : "pointer")};
+    opacity: ${(props) => (props.isDisabled ? 0.5 : 1)};
+    padding-top: 5px;
+`;
+
+const DayNumber = styled.span`
+    font-weight: ${(props) => (props.isToday ? "bold" : "normal")};
+    width: 30px;
+    height: 30px;
     display: flex;
     justify-content: center;
-    position: relative;
-
-    @media (max-width: 768px) {
-        width: 100%;
-        padding: 0 10px;
-    }
+    align-items: center;
+    border-radius: 50%;
+    background-color: ${(props) =>
+        props.isSelected ? "#FFCB5B" : "transparent"};
 `;
 
-const StyledCalendar = styled(Calendar)`
-    width: 100%;
-    height: 84vh;
+const RecordDots = styled.div`
+    display: flex;
+    margin-top: 4px;
+`;
 
+const Dot = styled.div`
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background-color: ${(props) => props.color};
+    margin: 0 2px;
+`;
+
+const Overlay = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const OverlayContent = styled.div`
+    background-color: #ffeeae;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+`;
+
+const Button = styled.button`
+    margin-top: 10px;
+    margin: 0px 10px;
+    padding: 10px 20px;
+    background-color: ${(props) => props.color};
+    color: white;
     border: none;
-
-    .react-calendar__tile {
-        height: calc(80vh / 6);
-        max-width: none;
-    }
-
-    .react-calendar__tile--now {
-        background: #fffae6;
-    }
-
-    .react-calendar__tile--active {
-        background: #a3d2ca;
-    }
-
-    @media (max-width: 768px) {
-        .react-calendar__tile {
-            height: calc(90vh / 6);
-        }
-    }
-
-    .react-calendar__tile--disabled {
-        background-color: #f0f0f0;
-        color: #ccc;
-    }
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
 `;
+
+const RecordSection = styled.div`
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-weight: 400;
+`;
+
+const LegendContainer = styled.div`
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 10px;
+`;
+
+const LegendItem = styled.div`
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+    border-radius: 30px;
+    padding: 5px;
+    background-color: ${(props) => props.color};
+`;
+
+const LegendDot = styled.div`
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: ${(props) => props.color};
+    margin-right: 5px;
+`;
+
+const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
 
 export default function DietCalendar() {
-    const { userId, accesstoken } = useContext(UserContext);
-    const today = startOfToday();
-    const [date, setDate] = useState(today);
-    const formattedDate = format(new Date(date), "yyyy-MM-dd");
-    const [dietRecords, setDietRecords] = useState({});
+    const { userId } = useContext(UserContext);
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [records, setRecords] = useState({});
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedDateInfo, setSelectedDateInfo] = useState(null);
     const navigate = useNavigate();
 
-    const fetchDietRecords = async (date) => {
-        try {
-            const response = await axios.post(
-                `${process.env.REACT_APP_API_PORT}/dietCalender`,
-                { userId, date }
-            );
-            const data = response.data.reduce((acc, record) => {
-                const formattedDate = record.date.split("T")[0];
-                if (!acc[formattedDate]) acc[formattedDate] = [];
-                const dietDetail = `${record.calories}`;
-                acc[formattedDate].push(dietDetail);
-                return acc;
-            }, {});
-            setDietRecords(data);
-        } catch (error) {
-            console.error("Error fetching diet records:", error);
-        }
-    };
-
     useEffect(() => {
-        fetchDietRecords(formattedDate);
-    }, [formattedDate]);
+        const fetchMonthRecords = async () => {
+            try {
+                const [dietResponse, exerciseResponse] = await Promise.all([
+                    axios.post(
+                        `${process.env.REACT_APP_API_PORT}/dietCalender`,
+                        {
+                            userId,
+                            date: format(currentDate, "yyyy-MM"),
+                        }
+                    ),
+                    axios.post(
+                        `${process.env.REACT_APP_API_PORT}/exerciseCalendar`,
+                        {
+                            userId,
+                            date: format(currentDate, "yyyy-MM"),
+                        }
+                    ),
+                ]);
 
-    const handleDateChange = (selectedDate) => {
-        if (selectedDate <= today) {
-            setDate(selectedDate);
-            navigate(`/dietdaily/${format(selectedDate, "yyyy-MM-dd")}`, {
-                state: { date: selectedDate },
-            });
+                const combinedRecords = {};
+                dietResponse.data.forEach((record) => {
+                    const date = record.date.split("T")[0];
+                    if (!combinedRecords[date]) combinedRecords[date] = {};
+                    combinedRecords[date].diet = true;
+                });
+                exerciseResponse.data.forEach((record) => {
+                    const date = record.exerciseDate.split("T")[0];
+                    if (!combinedRecords[date]) combinedRecords[date] = {};
+                    combinedRecords[date].exercise = true;
+                });
+
+                setRecords(combinedRecords);
+            } catch (error) {
+                console.error("Error fetching month records:", error);
+            }
+        };
+
+        fetchMonthRecords();
+    }, [currentDate, userId]);
+
+    const handleDateClick = async (date) => {
+        if (isBefore(date, new Date()) || isSameDay(date, new Date())) {
+            setSelectedDate(date);
+            try {
+                const [dietResponse, exerciseResponse] = await Promise.all([
+                    axios.post(
+                        `${process.env.REACT_APP_API_PORT}/dietCalender`,
+                        {
+                            userId,
+                            date: format(date, "yyyy-MM-dd"),
+                        }
+                    ),
+                    axios.post(
+                        `${process.env.REACT_APP_API_PORT}/exerciseCalendar`,
+                        {
+                            userId,
+                            date: format(date, "yyyy-MM-dd"),
+                        }
+                    ),
+                ]);
+
+                const selectedDietRecords = dietResponse.data.filter(
+                    (record) => record.date === format(date, "yyyy-MM-dd")
+                );
+                const selectedExerciseRecords = exerciseResponse.data.filter(
+                    (record) =>
+                        record.exerciseDate.split("T")[0] ===
+                        format(date, "yyyy-MM-dd")
+                );
+
+                setSelectedDateInfo({
+                    diet: selectedDietRecords,
+                    exercise: selectedExerciseRecords,
+                });
+            } catch (error) {
+                console.error("Error fetching date info:", error);
+            }
         }
     };
 
-    const handleActiveMonthChange = ({ activeStartDate }) => {
-        const newMonth = activeStartDate.getMonth() + 1;
-        const newDate = new Date(
-            activeStartDate.getFullYear(),
-            newMonth - 1,
-            1
-        );
-        setDate(newDate); // 업데이트된 달의 첫 번째 날로 설정
-        fetchDietRecords(format(newDate, "yyyy-MM-dd")); // 새 날짜에 대한 기록을 가져옴
-    };
-
-    const tileContent = ({ date, view }) => {
-        const formattedDate = format(date, "yyyy-MM-dd");
-        if (dietRecords[formattedDate]) {
-            return (
-                <div
-                    style={{
-                        marginTop: "1px",
-                        fontSize: "12px",
-                        color: "#1179db",
-                    }}
-                >
-                    {dietRecords[formattedDate]} kcal
-                </div>
+    const changeMonth = (increment) => {
+        setCurrentDate((prevDate) => {
+            const newDate = new Date(
+                prevDate.getFullYear(),
+                prevDate.getMonth() + increment,
+                1
             );
-        }
-        return null;
+            return newDate;
+        });
     };
 
-    const tileDisabled = ({ date }) => {
-        return date > today;
-    };
+    const monthStart = startOfMonth(currentDate);
+    const monthEnd = endOfMonth(currentDate);
+    const monthDays = eachDayOfInterval({
+        start: subDays(monthStart, monthStart.getDay()),
+        end: addDays(monthEnd, 6 - monthEnd.getDay()),
+    });
 
     return (
         <Container>
-            <StyledCalendarWrapper>
-                <StyledCalendar
-                    value={date}
-                    onChange={handleDateChange}
-                    onActiveStartDateChange={handleActiveMonthChange}
-                    calendarType='gregory'
-                    showNeighboringMonth={false}
-                    next2Label={null}
-                    prev2Label={null}
-                    minDetail='year'
-                    tileContent={tileContent}
-                    tileDisabled={tileDisabled}
-                    maxDate={today}
-                />
-            </StyledCalendarWrapper>
+            <CalendarHeader>
+                <ArrowButton onClick={() => changeMonth(-1)}>&lt;</ArrowButton>
+                <MonthYear>{format(currentDate, "yyyy년 M월")}</MonthYear>
+                {!isSameMonth(new Date(), currentDate) && (
+                    <ArrowButton onClick={() => changeMonth(1)}>
+                        &gt;
+                    </ArrowButton>
+                )}
+            </CalendarHeader>
+            <LegendContainer>
+                <LegendItem color='#FFCB5B'>
+                    <LegendDot color='#FC6A03' />
+                    <span>식단</span>
+                </LegendItem>
+                <LegendItem color='#CBF9EE'>
+                    <LegendDot color='#5DDEBE' />
+                    <span>운동</span>
+                </LegendItem>
+            </LegendContainer>
+            <CalendarGrid>
+                {weekDays.map((day) => (
+                    <DayCell key={day} isWeekDay style={{ color: "black" }}>
+                        {day}
+                    </DayCell>
+                ))}
+                {monthDays.map((day, index) => {
+                    const formattedDate = format(day, "yyyy-MM-dd");
+                    const isCurrentMonth = isSameMonth(day, currentDate);
+                    const isDisabled =
+                        isBefore(new Date(), day) && !isToday(day);
+                    const dayRecords = records[formattedDate] || {};
+                    const isTopRow = index < 7;
+                    const isLeftColumn = index % 7 === 0;
+                    const isRightColumn = index % 7 === 6;
+
+                    return (
+                        <DayCell
+                            key={day}
+                            isToday={isToday(day)}
+                            isCurrentMonth={isCurrentMonth}
+                            isDisabled={isDisabled}
+                            onClick={() => !isDisabled && handleDateClick(day)}
+                            isTopRow={isTopRow}
+                            isLeftColumn={isLeftColumn}
+                            isRightColumn={isRightColumn}
+                        >
+                            <DayNumber
+                                isToday={isToday(day)}
+                                isSelected={isSameDay(day, selectedDate)}
+                            >
+                                {format(day, "d")}
+                            </DayNumber>
+                            <RecordDots>
+                                {dayRecords.diet && <Dot color='#FC6A03' />}
+                                {dayRecords.exercise && <Dot color='#5DDEBE' />}
+                            </RecordDots>
+                        </DayCell>
+                    );
+                })}
+            </CalendarGrid>
+            {selectedDate && selectedDateInfo && (
+                <Overlay onClick={() => setSelectedDate(null)}>
+                    <OverlayContent onClick={(e) => e.stopPropagation()}>
+                        <h3>{format(selectedDate, "yyyy년 M월 d일")}</h3>
+                        <RecordSection color='#FFF3E0'>
+                            <h4>식단 기록</h4>
+                            {selectedDateInfo.diet.length > 0 ? (
+                                selectedDateInfo.diet.map((item, index) => (
+                                    <p key={index}>
+                                        총 칼로리 : {item.calories}kcal
+                                    </p>
+                                ))
+                            ) : (
+                                <p>식단 기록이 없습니다.</p>
+                            )}
+                        </RecordSection>
+                        <RecordSection color='#E0F2F1'>
+                            <h4>운동 기록</h4>
+                            {selectedDateInfo.exercise.length > 0 ? (
+                                selectedDateInfo.exercise.map((item, index) =>
+                                    item.exerciseType ===
+                                    "AnaerobicExercise" ? (
+                                        <p key={index}>
+                                            {item.exerciseName}- {item.set}세트
+                                        </p>
+                                    ) : (
+                                        <p key={index}>
+                                            {item.exerciseName}- {item.distance}
+                                            km
+                                        </p>
+                                    )
+                                )
+                            ) : (
+                                <p>운동 기록이 없습니다.</p>
+                            )}
+                        </RecordSection>
+                        <Button
+                            color='#FF8000'
+                            onClick={() =>
+                                navigate(
+                                    `/dietdaily/${format(
+                                        selectedDate,
+                                        "yyyy-MM-dd"
+                                    )}`,
+                                    {
+                                        state: { date: selectedDate },
+                                    }
+                                )
+                            }
+                        >
+                            식단 기록하기
+                        </Button>
+                        <Button
+                            color='#A3D2CA'
+                            onClick={() =>
+                                navigate(
+                                    `/traindaily/${format(
+                                        selectedDate,
+                                        "yyyy-MM-dd"
+                                    )}`,
+                                    {
+                                        state: { date: selectedDate },
+                                    }
+                                )
+                            }
+                        >
+                            운동 기록하기
+                        </Button>
+                    </OverlayContent>
+                </Overlay>
+            )}
         </Container>
     );
 }

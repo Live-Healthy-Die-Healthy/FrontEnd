@@ -4,16 +4,16 @@ import axios from "axios";
 import { UserContext } from "../context/LoginContext";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import imageCompression from "browser-image-compression";
 
 import default_image from "../image/default-profile.png";
 
 const Container = styled.div`
+    padding-top: 50vh;
+    padding-bottom: 30vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     text-align: center;
 `;
 
@@ -216,7 +216,7 @@ const ProfileSetting = () => {
                     onChange={(e) => setUserMuscleMass(e.target.value)}
                     placeholder='골격근량 (kg)'
                 />
-                
+
                 <label>체지방률 (%)</label>
                 <Input
                     type='number'
@@ -224,7 +224,7 @@ const ProfileSetting = () => {
                     onChange={(e) => setUserBodyFatPercentage(e.target.value)}
                     placeholder='체지방률 (%)'
                 />
-                
+
                 <label>기초대사량 (kcal)</label>
                 <Input
                     type='number'

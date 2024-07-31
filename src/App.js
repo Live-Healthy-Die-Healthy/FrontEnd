@@ -39,6 +39,8 @@ import FriendPage from './pages/friend/FriendPage';
 import CompareFriendPage from './pages/friend/CompareFriendPage';
 
 import styled from 'styled-components';
+import ProtectedRoute from './pages/route/ProtectedRoute';
+
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -108,34 +110,43 @@ function AppContent() {
           <Route path="/" element={<LoginPage />} />
           <Route path="/auth/callback/kakao" element={<Kakao />} />
           
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/profilesetting" element={<ProfileSetting />} />
-          <Route path="/traindaily/:date" element={<DailyTraining />} />
-          <Route path="/selecttraining" element={<SelectTraining />} />
-          <Route path="/recordtraining" element={<RecordTraining />} />
-          <Route path="/edittraining" element={<EditTrain />} />
+          <Route
+            path="*"
+            element={
+              <ProtectedRoute>
+                <Routes>
+                  <Route path="/home" element={<HomePage />} />
+                  <Route path="/profilesetting" element={<ProfileSetting />} />
+                  <Route path="/traindaily/:date" element={<DailyTraining />} />
+                  <Route path="/selecttraining" element={<SelectTraining />} />
+                  <Route path="/recordtraining" element={<RecordTraining />} />
+                  <Route path="/edittraining" element={<EditTrain />} />
 
-          <Route path="/dietmonth" element={<MonthlyDiet />} />
-          <Route path="/dietdaily/:date" element={<DailyDiet />} />
-          <Route path="/dietdetail/:formattedDate/:dietType" element={<DietDetail />} />
-          <Route path="/editdiet/:formattedDate/:dietType/:dietLogDetailId" element={<EditDiet />} />
-          <Route path="/selectmenu/:formattedDate/:dietType" element={<SelectMenu />} />
-          <Route path="/recorddiet/:dietType" element={<RecordDiet />} />
-          <Route path="/analyzing/:formattedDate/:dietType" element={<AnalyzingPage />} />
-          <Route path="/confirmDiet/:formattedDate/:dietType" element={<ConfirmDietPage />} />
+                  <Route path="/dietmonth" element={<MonthlyDiet />} />
+                  <Route path="/dietdaily/:date" element={<DailyDiet />} />
+                  <Route path="/dietdetail/:formattedDate/:dietType" element={<DietDetail />} />
+                  <Route path="/editdiet/:formattedDate/:dietType/:dietLogDetailId" element={<EditDiet />} />
+                  <Route path="/selectmenu/:formattedDate/:dietType" element={<SelectMenu />} />
+                  <Route path="/recorddiet/:dietType" element={<RecordDiet />} />
+                  <Route path="/analyzing/:formattedDate/:dietType" element={<AnalyzingPage />} />
+                  <Route path="/confirmDiet/:formattedDate/:dietType" element={<ConfirmDietPage />} />
 
-          <Route path="/report" element={<ReportPage />} />
-          <Route path="/dailyreport" element={<DailyReportPage />} />
-          <Route path="/weeklyreport" element={<WeeklyReportPage />} />
-          <Route path="/monthlyreport" element={<MonthlyReportPage />} />
-          <Route path="/yearlyreport" element={<YearlyReportPage />} />
+                  <Route path="/report" element={<ReportPage />} />
+                  <Route path="/dailyreport" element={<DailyReportPage />} />
+                  <Route path="/weeklyreport" element={<WeeklyReportPage />} />
+                  <Route path="/monthlyreport" element={<MonthlyReportPage />} />
+                  <Route path="/yearlyreport" element={<YearlyReportPage />} />
 
-          <Route path="/settings" element={<SettingPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/editprofile" element={<EditProfile />} />
-          
-          <Route path="/friends" element={<FriendPage />} />
-          <Route path="/comparefriend/:formattedDate" element={<CompareFriendPage />} />
+                  <Route path="/settings" element={<SettingPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/editprofile" element={<EditProfile />} />
+                  
+                  <Route path="/friends" element={<FriendPage />} />
+                  <Route path="/comparefriend/:formattedDate" element={<CompareFriendPage />} />
+                </Routes>
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </ContentContainer>
       {shouldShowHeaderFooter && <Footer />}

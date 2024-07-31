@@ -8,27 +8,9 @@ const Container = styled.div`
     margin: 0 auto;
     padding: 20px;
     background-color: #ffcb5b;
-    border-top-left-radius: 300px;
-    border-top-right-radius: 300px;
-    position: relative;
-    margin-top: 8vh;
-`;
-
-const InfoContainer = styled.div`
-    margin-bottom: 15vh;
-`;
-
-const ImageContainer = styled.div`
-    background-color: #ffffff;
-    margin-bottom: 20px;
-    margin-top: 8vh;
-`;
-
-const DietImage = styled.img`
-    width: 100%;
-    height: 200px;
-    object-fit: contain;
-    border-radius: 10px;
+    border-top-left-radius: 50px;
+    border-top-right-radius: 50px;
+    margin-bottom: 6vh;
 `;
 
 const TotalCalories = styled.div`
@@ -40,95 +22,112 @@ const TotalCalories = styled.div`
     font-size: 18px;
     font-weight: bold;
     margin-bottom: 20px;
-    position: absolute;
-    top: -30px; // TotalCalories의 위치를 Container의 중앙에 맞추기 위해 조정
-    left: 50%;
-    transform: translateX(-50%);
-    width: 200px; // TotalCalories의 넓이를 지정
 `;
 
 const NutritionRatio = styled.div`
-    display: flex;
-    justify-content: space-between;
+    background-color: #ffeeae;
+    padding: 15px;
+    border-radius: 15px;
     margin-bottom: 20px;
 `;
 
 const NutritionItem = styled.div`
-    background-color: #ffeeae;
-    color: #30012f;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: center;
-    flex: 1;
-    margin: 0 5px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0px 50px;
+    font-weight: 600;
+    font-size: 20px;
+    margin-bottom: 5px;
 `;
 
 const FoodList = styled.div`
-    background-color: #ffeeae;
-    border-radius: 10px;
-    padding: 15px;
     margin-bottom: 20px;
+    background-color: #ffcb5b;
+    border-radius: 15px;
+    padding: 0px 10px;
 `;
 
 const FoodItem = styled.div`
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 0.5fr;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border-bottom: 1px solid #ffffff33;
+    position: relative;
+    background-color: #5c4f82;
+    border-radius: 10px;
+    margin-bottom: 15px;
+`;
+
+const FoodHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    padding: 10px 0;
-    background-color: #673ab7;
-    color: white;
     margin-bottom: 5px;
-    border-radius: 5px;
 `;
-
-const FoodListHeader = styled(FoodItem)`
-    background-color: #4caf50;
-    font-weight: bold;
-    margin-bottom: 10px;
-`;
-
-const FoodListContainer = styled.div``;
 
 const FoodName = styled.span`
+    margin-top: 10px;
     font-weight: bold;
-    padding-left: 10px;
+    color: #ffffff;
 `;
 
-const FoodInput = styled.input`
+const FoodQuantity = styled.input`
     width: 50px;
-    text-align: center;
-    background-color: transparent;
+    background-color: #ffffff22;
     border: none;
-    border-bottom: 1px solid white;
-    color: white;
+    border-radius: 3px;
+    color: #ffeaea;
+    text-align: center;
+    padding: 2px;
 `;
 
-const FoodValue = styled.span`
-    text-align: center;
+const FoodCalories = styled.span`
+    color: #ffeaea;
     font-size: 0.9em;
 `;
 
-const DeleteButton = styled.button`
-    background-color: #f44336;
-    color: white;
-    border: none;
-    padding: 5px;
-    border-radius: 5px;
-    cursor: pointer;
+const GramCalorie = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    color: #ffffff;
     font-size: 0.8em;
+    margin-left: 10px;
+`;
+
+const NutritionInfo = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    color: #ffffff;
+    font-size: 0.8em;
+    margin-left: 20px;
+`;
+
+const DeleteButton = styled.button`
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background-color: #ffffff;
+    color: #01931e;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 25px;
+    cursor: pointer;
+    margin-bottom: 30px;
 `;
 
 const Section = styled.div`
     background-color: #ffeeae;
     color: #30012f;
-    border-radius: 10px;
+    border-radius: 15px;
     padding: 15px;
     margin-bottom: 20px;
-`;
-
-const SectionTitle = styled.h3`
-    margin-top: 0;
-    color: #30012f;
 `;
 
 const Button = styled.button`
@@ -140,6 +139,26 @@ const Button = styled.button`
     font-size: 16px;
     cursor: pointer;
     width: 100%;
+`;
+
+const ImageContainer = styled.div`
+    background-color: #ffffff;
+    margin-bottom: 20px;
+    margin-top: 12vh;
+`;
+
+const DietImage = styled.img`
+    width: 100%;
+    height: 200px;
+    object-fit: contain;
+    border-radius: 10px;
+`;
+
+const Description = styled.div`
+    font-size: 25px;
+    font-weight: 800;
+    color: #787878;
+    margin-bottom: 5px;
 `;
 
 const ConfirmDietPage = () => {
@@ -248,95 +267,85 @@ const ConfirmDietPage = () => {
                 <DietImage src={dietImage} alt='식단 사진' />
             </ImageContainer>
             <Container>
-                <InfoContainer>
-                    <TotalCalories>
-                        총 칼로리: {dietInfo.총칼로리}kcal
-                    </TotalCalories>
-                    <NutritionRatio>
-                        <NutritionItem>
-                            탄수화물
-                            <br />
-                            {dietInfo.영양소비율.탄수화물}%
-                        </NutritionItem>
-                        <NutritionItem>
-                            단백질
-                            <br />
-                            {dietInfo.영양소비율.단백질}%
-                        </NutritionItem>
-                        <NutritionItem>
-                            지방
-                            <br />
-                            {dietInfo.영양소비율.지방}%
-                        </NutritionItem>
-                    </NutritionRatio>
+                <TotalCalories>
+                    총 칼로리: {dietInfo.총칼로리}kcal
+                </TotalCalories>
 
-                    <FoodList>
-                        <SectionTitle>음식 상세</SectionTitle>
-                        <FoodListHeader>
-                            <FoodName>음식명</FoodName>
-                            <FoodValue>예상양(g)</FoodValue>
-                            <FoodValue>탄수화물</FoodValue>
-                            <FoodValue>단백질</FoodValue>
-                            <FoodValue>지방</FoodValue>
-                            <FoodValue>GI지수</FoodValue>
-                            <FoodValue>칼로리</FoodValue>
-                            <FoodValue></FoodValue>
-                        </FoodListHeader>
-                        {dietInfo.음식상세.map((item, index) => (
-                            <FoodItem key={index}>
+                <NutritionRatio>
+                    <NutritionItem>
+                        <span>탄수화물</span>
+                        <span>{dietInfo.영양소비율.탄수화물}%</span>
+                    </NutritionItem>
+                    <NutritionItem>
+                        <span>단백질</span>
+                        <span>{dietInfo.영양소비율.단백질}%</span>
+                    </NutritionItem>
+                    <NutritionItem>
+                        <span>지방</span>
+                        <span>{dietInfo.영양소비율.지방}%</span>
+                    </NutritionItem>
+                </NutritionRatio>
+                <Description>음식상세</Description>
+                <FoodList>
+                    {dietInfo.음식상세.map((item, index) => (
+                        <FoodItem key={index}>
+                            <DeleteButton
+                                onClick={() => handleRemoveItem(index)}
+                            >
+                                -
+                            </DeleteButton>
+                            <FoodHeader>
                                 <FoodName>{item.음식명}</FoodName>
-                                <FoodInput
-                                    type='number'
-                                    value={item.예상양}
-                                    onChange={(e) =>
-                                        handleQuantityChange(
-                                            index,
-                                            e.target.value
-                                        )
-                                    }
-                                />
-                                <FoodValue>{item.영양정보.탄수화물}g</FoodValue>
-                                <FoodValue>{item.영양정보.단백질}g</FoodValue>
-                                <FoodValue>{item.영양정보.지방}g</FoodValue>
-                                <FoodValue>{item.영양정보.GI지수}</FoodValue>
-                                <FoodValue>{item.칼로리}kcal</FoodValue>
-                                <DeleteButton
-                                    onClick={() => handleRemoveItem(index)}
-                                >
-                                    삭제
-                                </DeleteButton>
-                            </FoodItem>
+                                <GramCalorie>
+                                    <div>
+                                        <FoodQuantity
+                                            type='number'
+                                            value={item.예상양}
+                                            onChange={(e) =>
+                                                handleQuantityChange(
+                                                    index,
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                        g
+                                    </div>
+                                    <FoodCalories>
+                                        {item.칼로리}kcal
+                                    </FoodCalories>
+                                </GramCalorie>
+                                <NutritionInfo>
+                                    <span>
+                                        탄수화물: {item.영양정보.탄수화물}g
+                                    </span>
+                                    <span>단백질: {item.영양정보.단백질}g</span>
+                                    <span>지방: {item.영양정보.지방}g</span>
+                                </NutritionInfo>
+                            </FoodHeader>
+                        </FoodItem>
+                    ))}
+                </FoodList>
+                <Description>영양 분석</Description>
+                <Section>
+                    <p>장점: {dietInfo.영양분석.장점.join(", ")}</p>
+                    <p>개선점: {dietInfo.영양분석.개선점.join(", ")}</p>
+                </Section>
+
+                <Description>권장사항</Description>
+                <Section>
+                    <ul>
+                        {dietInfo.권장사항.map((item, index) => (
+                            <li key={index}>{item}</li>
                         ))}
-                    </FoodList>
+                    </ul>
+                </Section>
 
-                    <Section>
-                        <SectionTitle>영양 분석</SectionTitle>
-                        <p>장점: {dietInfo.영양분석.장점.join(", ")}</p>
-                        <p>개선점: {dietInfo.영양분석.개선점.join(", ")}</p>
-                    </Section>
+                <Description>주의사항</Description>
+                <Section>
+                    <p>{dietInfo.주의사항}</p>
+                </Section>
 
-                    <Section>
-                        <SectionTitle>권장사항</SectionTitle>
-                        <ul>
-                            {dietInfo.권장사항.map((item, index) => (
-                                <li key={index}>{item}</li>
-                            ))}
-                        </ul>
-                    </Section>
-
-                    <Section>
-                        <SectionTitle>식사 시간</SectionTitle>
-                        <p>적합한 시간: {dietInfo.식사시간.적합한시간}</p>
-                        <p>조언: {dietInfo.식사시간.조언}</p>
-                    </Section>
-
-                    <Section>
-                        <SectionTitle>주의사항</SectionTitle>
-                        <p>{dietInfo.주의사항}</p>
-                    </Section>
-
-                    <Button onClick={handleConfirm}>확인</Button>
-                </InfoContainer>
+                <Button onClick={handleConfirm}>확인</Button>
             </Container>
         </>
     );
