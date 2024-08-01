@@ -21,6 +21,7 @@ const Container = styled.div`
     align-items: center;
     height: 100vh;
     text-align: center;
+    padding-bottom: 50vh;
 `;
 
 const ReportList = styled.div`
@@ -289,6 +290,7 @@ const WeeklyReportPage = () => {
                 }
             );
 
+            console.log("response : ", response);
             setIsValid(response.data.isValid);
             setIsFilled(response.data.isFilled);
             if (response.data.isValid) {
@@ -327,6 +329,7 @@ const WeeklyReportPage = () => {
                 }
             );
 
+            console.log("response : ", response);
             setWeeklyReport(response.data);
             setIsValid(true);
 
@@ -364,7 +367,7 @@ const WeeklyReportPage = () => {
             <>
                 <Section>
                     <SectionTitle>주간 식단 레포트</SectionTitle>
-                    {weekDays.map((day, index) => (
+                    {weekDays && weekDays.map((day, index) => (
                         <DailyCalories key={day}>
                             <span>{day}요일:</span>
                             <span>{weeklyReport.weeklyCal[index]} kcal</span>
@@ -376,6 +379,26 @@ const WeeklyReportPage = () => {
                             {Math.round(weeklyReport.meanCalories)} kcal
                         </strong>
                     </DailyCalories>
+                    
+                    <DailyCalories>
+                        <strong>평균 섭취 탄수화물:</strong>
+                        <strong>
+                            {Math.round(weeklyReport.meanCarbo)} kcal
+                        </strong></DailyCalories>
+                        
+                    <DailyCalories>
+                        
+                        <strong>평균 섭취 단백질:</strong>
+                        <strong>
+                            {Math.round(weeklyReport.meanProtein)} kcal
+                        </strong></DailyCalories>
+                    
+                    <DailyCalories>
+                        <strong>평균 섭취 지방:</strong>
+                        <strong>
+                            {Math.round(weeklyReport.meanFat)} kcal
+                        </strong></DailyCalories>
+                    
                     <p>피드백: {weeklyReport.dietFeedback}</p>
                 </Section>
 
@@ -387,6 +410,13 @@ const WeeklyReportPage = () => {
                     </div>
                     <div>
                         운동 비율:
+                        <div>
+                            유산소 : {Math.round(weeklyReport.aerobicRatio)}%
+                        </div>
+                
+                        <div>
+                            무산소
+                        </div>
                         <ul>
                             <li>
                                 가슴:{" "}
@@ -394,7 +424,7 @@ const WeeklyReportPage = () => {
                             </li>
                             <li>
                                 팔:{" "}
-                                {Math.round(weeklyReport.anaerobicRatio.arms)}%
+                                {Math.round(weeklyReport.anaerobicRatio.arm)}%
                             </li>
                             <li>
                                 복근:{" "}
@@ -403,7 +433,7 @@ const WeeklyReportPage = () => {
                             <li>
                                 어깨:{" "}
                                 {Math.round(
-                                    weeklyReport.anaerobicRatio.shoulders
+                                    weeklyReport.anaerobicRatio.shoulder
                                 )}
                                 %
                             </li>
@@ -413,7 +443,7 @@ const WeeklyReportPage = () => {
                             </li>
                             <li>
                                 하체:{" "}
-                                {Math.round(weeklyReport.anaerobicRatio.legs)}%
+                                {Math.round(weeklyReport.anaerobicRatio.leg)}%
                             </li>
                         </ul>
                     </div>

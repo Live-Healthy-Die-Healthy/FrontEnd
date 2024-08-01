@@ -158,6 +158,20 @@ const LegendDot = styled.div`
     margin-right: 5px;
 `;
 
+const DateContainer = styled.div`
+    display: inline-block;
+    background-color: #49406F;
+    color: #ffffff;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+`;
+
+
 const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
 
 export default function DietCalendar() {
@@ -332,7 +346,7 @@ export default function DietCalendar() {
             {selectedDate && selectedDateInfo && (
                 <Overlay onClick={() => setSelectedDate(null)}>
                     <OverlayContent onClick={(e) => e.stopPropagation()}>
-                        <h3>{format(selectedDate, "yyyy년 M월 d일")}</h3>
+                        <DateContainer>{format(selectedDate, "M/d")}</DateContainer>
                         <RecordSection color='#FFF3E0'>
                             <h4>식단 기록</h4>
                             {selectedDateInfo.diet.length > 0 ? (

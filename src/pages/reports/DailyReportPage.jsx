@@ -11,8 +11,9 @@ const Container = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     text-align: center;
+    padding-top: 10vh;
+    padding-bottom: 10vh;
 `;
 
 const ReportList = styled.div`
@@ -140,6 +141,13 @@ const MealInfo = styled.div`
 const ExerciseInfo = styled.div`
     margin-bottom: 10px;
 `;
+
+const ExerciseTitle = styled.div`
+  margin: 10px 0px;  
+  font-size: 20px;
+  font-weight: 600;
+`;
+
 
 export default function DailyReportPage() {
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -274,6 +282,10 @@ export default function DailyReportPage() {
         if (!dailyReport) return null;
 
         const {
+            breakfastLog,
+            lunchLog,
+            dinnerLog,
+            snackLog,
             breakfastCal,
             lunchCal,
             dinnerCal,
@@ -289,15 +301,39 @@ export default function DailyReportPage() {
         return (
             <Section>
                 <SectionTitle>식단 정보</SectionTitle>
-                <MealInfo>아침: {breakfastCal} kcal</MealInfo>
-                <MealInfo>점심: {lunchCal} kcal</MealInfo>
-                <MealInfo>저녁: {dinnerCal} kcal</MealInfo>
-                <MealInfo>간식: {snackCal} kcal</MealInfo>
-                <MealInfo>오늘 총 섭취 탄수화물: {totalCarbo} kcal</MealInfo>
-                <MealInfo>오늘 총 섭취 단백질: {totalProtein} kcal</MealInfo>
-                <MealInfo>오늘 총 섭취 지방: {totalFat} kcal</MealInfo>
-                <MealInfo>오늘 총 섭취 칼로리: {totalCalories} kcal</MealInfo>
-                <MealInfo>권장 섭취 칼로리: {recommendedCal} kcal</MealInfo>
+                <MealInfo>
+                아침 로그: 
+                    {breakfastLog && breakfastLog.map((item, index) => (
+                        <div key={index}>{item}&nbsp;</div>
+                    ))}
+                </MealInfo>
+                <MealInfo>아침 총 칼로리: {Math.round(breakfastCal)} kcal</MealInfo>
+                <MealInfo>
+                점심 로그: 
+                    {lunchLog && lunchLog.map((item, index) => (
+                        <div key={index}>{item}&nbsp;</div>
+                    ))}
+                </MealInfo>
+                <MealInfo>점심 총 칼로리: {Math.round(lunchCal)} kcal</MealInfo>
+                <MealInfo>
+                저녁 로그: 
+                    {dinnerLog && dinnerLog.map((item, index) => (
+                        <div key={index}>{item}&nbsp;</div>
+                    ))}
+                </MealInfo>
+                <MealInfo>저녁 총 칼로리: {Math.round(dinnerCal)} kcal</MealInfo>
+                <MealInfo>
+                간식 로그: 
+                    {snackLog && snackLog.map((item, index) => (
+                        <div key={index}>{item}&nbsp;</div>
+                    ))}
+                </MealInfo>
+                <MealInfo>간식 총 칼로리: {Math.round(snackCal)} kcal</MealInfo>
+                <MealInfo>오늘 총 섭취 탄수화물: {Math.round(totalCarbo)} kcal</MealInfo>
+                <MealInfo>오늘 총 섭취 단백질: {Math.round(totalProtein)} kcal</MealInfo>
+                <MealInfo>오늘 총 섭취 지방: {Math.round(totalFat)} kcal</MealInfo>
+                <MealInfo>오늘 총 섭취 칼로리: {Math.round(totalCalories)} kcal</MealInfo>
+                <MealInfo>권장 섭취 칼로리: {Math.round(recommendedCal)} kcal</MealInfo>
                 <p>피드백: {dietFeedback}</p>
             </Section>
         );
@@ -312,22 +348,32 @@ export default function DailyReportPage() {
             <Section>
                 <SectionTitle>운동 정보</SectionTitle>
                 <ExerciseInfo>
-                    <strong>유산소 운동:</strong>
-                    {aeroInfo.map((exercise, index) => (
-                        <div key={index}>
-                            {exercise.exerciseName}: {exercise.distance}km,{" "}
-                            {exercise.exerciseTime}분
-                        </div>
-                    ))}
+                    <ExerciseTitle>유산소 운동</ExerciseTitle>
+                        {aeroInfo && aeroInfo.length > 0 ? (
+                            aeroInfo.map((exercise, index) => (
+                    <div key={index}>
+                        {exercise.exerciseName}: {exercise.distance}km, {exercise.exerciseTime}분
+                    </div>
+                ))
+                ) : (
+                    <div>유산소 운동 정보가 없습니다!</div>
+                )}
                 </ExerciseInfo>
                 <ExerciseInfo>
-                    <strong>무산소 운동:</strong>
-                    {anAeroInfo.map((exercise, index) => (
+                    <ExerciseTitle>무산소 운동</ExerciseTitle>
+                    {anAeroInfo && aeroInfo.length > 0 ? (
+                         anAeroInfo.map((exercise, index) => (
                         <div key={index}>
                             {exercise.exerciseName}: {exercise.weight}kg,{" "}
                             {exercise.repetitions}회
                         </div>
-                    ))}
+                    ))
+                ):
+                (
+                    
+                    <div>무산소 운동 정보가 없습니다!</div>
+                )
+                }
                 </ExerciseInfo>
                 <p>피드백: {exerciseFeedback}</p>
             </Section>

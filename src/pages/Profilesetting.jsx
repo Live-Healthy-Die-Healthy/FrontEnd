@@ -67,11 +67,11 @@ const HiddenInput = styled.input`
 const ProfileSetting = () => {
     const location = useLocation();
     const { userEmail, userNickname } = location.state;
-    const { userId } = useContext(UserContext);
+    const { userId,accessToken } = useContext(UserContext);
     const [userBirth, setUserBirth] = useState("");
     const [userHeight, setUserHeight] = useState("");
     const [userWeight, setUserWeight] = useState("");
-    const [userGender, setUserGender] = useState("남성");
+    const [userGender, setUserGender] = useState("Male");
     const [userImage, setUserImage] = useState(default_image);
     const [userMuscleMass, setUserMuscleMass] = useState(null);
     const [userBmi, setUserBmi] = useState(null);
@@ -119,16 +119,24 @@ const ProfileSetting = () => {
                 userBodyFatPercentage,
                 userBmr,
             };
+            console.log("profileData  : ", profileData);
 
             const response = await axios.post(
                 `${process.env.REACT_APP_API_PORT}/newProfile`,
-                profileData
+                {profileData},
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${accessToken}`,
+                        // 필요한 경우 추가 헤더 설정
+                    }
+                }
             );
             alert("프로필이 성공적으로 업데이트되었습니다.");
             navigate("/home");
         } catch (error) {
             console.log(error);
-            alert("사용할 수 없는 이미지입니다.");
+            alert("프로필을 설정하는데 오류가 생겼습니다.");
         }
     };
 
@@ -197,8 +205,8 @@ const ProfileSetting = () => {
                     value={userGender}
                     onChange={(e) => setUserGender(e.target.value)}
                 >
-                    <option value='남성'>남성</option>
-                    <option value='여성'>여성</option>
+                    <option value='Male'>남성</option>
+                    <option value='Female'>여성</option>
                 </select>
 
                 <label>BMI</label>

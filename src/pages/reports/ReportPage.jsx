@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-
+import DailyReportCalendar from "../../components/calendar/DailyReportCalendar";
 const Container = styled.div`
     display: flex;
     flex-direction: column;
@@ -30,7 +30,7 @@ export default function ReportPage() {
 
     return (
         <Container>
-            <Button color='#FC6A03' onClick={() => navigate("/dailyreport")}>
+            {/* <Button color='#FC6A03' onClick={() => navigate("/dailyreport")}>
                 일간 레포트
             </Button>
             <Button color='#FFBB29' onClick={() => navigate("/weeklyreport")}>
@@ -38,7 +38,8 @@ export default function ReportPage() {
             </Button>
             <Button color='#D8CFFF' onClick={() => navigate("/monthlyreport")}>
                 월간 레포트
-            </Button>
+            </Button> */}
+            <DailyReportCalendar/>
         </Container>
     );
 }
