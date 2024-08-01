@@ -13,7 +13,7 @@ const HeaderContainer = styled.div`
     position: fixed;
     top: 0;
     z-index: 1000;
-    height: 30px; /* 고정된 높이 */
+    height: 30px;
 `;
 
 const SecondContainer = styled.div`
@@ -40,7 +40,7 @@ const LogoutButton = styled.button`
 `;
 
 export default function Header() {
-    const navigate = useNavigate(); // 페이지 이동을 위한 hook
+    const navigate = useNavigate();
     const { setAccessToken, setRefreshToken, setUserId } =
         useContext(UserContext);
 
@@ -54,7 +54,7 @@ export default function Header() {
                 </NotificationIcon>
                 <LogoutButton
                     onClick={() => {
-                        localStorage.removeItem("token");
+                        localStorage.removeItem("accessToken");
                         setAccessToken(null);
                         setRefreshToken(null);
                         setUserId(null);

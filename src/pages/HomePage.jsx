@@ -40,8 +40,8 @@ const SlideUpContainer = styled.div`
     border-top-right-radius: 50% 20%;
     padding-bottom: 30px;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-    height: ${(props) => (props.isOpen ? "30vh" : "10vh")}; // 높이 조정
-    position: fixed; // absolute에서 fixed로 변경
+    height: ${(props) => (props.isOpen ? "30vh" : "10vh")};
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
@@ -69,7 +69,7 @@ const AddButton = styled.button`
     cursor: pointer;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     position: absolute;
-    top: -45px; // Adjust the position to make it float above the container
+    top: -45px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 3;
@@ -80,22 +80,35 @@ const PCon = styled.p`
 `;
 
 const Header = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     position: absolute;
     top: 20px;
     left: 20px;
     text-align: left;
-    margin-top: 5vh;
+    margin-top: 8vh;
+    margin-left: 20px;
     transition: filter 0.3s ease-in-out;
     filter: ${(props) => (props.isBlurred ? "blur(5px)" : "none")};
 `;
 
+const DDayInfo = styled.div`
+    font-size: 24px;
+    color: #fc6a03;
+`;
+
 const DateInfo = styled.div`
-    font-size: 14px;
+    font-size: 16px;
+    color: #fc6a03;
+    margin-top: 5px;
 `;
 
 const CalorieContainer = styled.div`
     display: flex;
-    justify-content: flex-start;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 10px;
 `;
 
 const MessageContainer = styled.div`
@@ -112,15 +125,12 @@ const MessageContainer = styled.div`
 `;
 
 const CalorieGraph = styled(animated.div)`
-    position: absolute;
-    top: 100px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60%;
+    width: 400px;
     height: 30px;
     background-color: #49406f;
     border-radius: 15px;
     overflow: hidden;
+    margin-top: 10px;
     transition: filter 0.3s ease-in-out;
     filter: ${(props) => (props.isBlurred ? "blur(5px)" : "none")};
 `;
@@ -128,16 +138,20 @@ const CalorieGraph = styled(animated.div)`
 const CalorieFill = styled(animated.div)`
     height: 100%;
     background-color: #fc6a03;
-    width: ${(props) => `${props.width}%`};
 `;
 
 const CalorieText = styled.div`
     position: absolute;
-    top: 50%;
+    top: 80%;
     left: 50%;
     transform: translate(-50%, -50%);
     color: #ffffff;
     font-weight: bold;
+    z-index: 1;
+`;
+
+const DateContainer = styled.div`
+    display: flex;
 `;
 
 export default function HomePage() {
@@ -182,14 +196,13 @@ export default function HomePage() {
 
     const calorieProps = useSpring({
         width: cheatDayInfo
-            ? `${
-                  (cheatDayInfo.currentCalories /
-                      cheatDayInfo.totalRecommendedCalories) *
-                  100
-              }%`
-            : "0%",
-        from: { width: "0%" },
+            ? (cheatDayInfo.currentCalories /
+                  cheatDayInfo.totalRecommendedCalories) *
+              400
+            : 0,
+        from: { width: 0 },
     });
+    console.log(calorieProps);
 
     useEffect(() => {
         fetchCheatDayInfo();
@@ -201,11 +214,12 @@ export default function HomePage() {
                 `${process.env.REACT_APP_API_PORT}/getCheatDay`,
                 { userId }
             );
+            console.log("response.data : ", response.data);
             setCheatDayInfo(response.data);
             if (response.data.needsCheatDaySetup) {
                 setShowCheatDayModal(true);
             }
-            calculateDDay(response.data); // cheatDayInfo가 설정된 후 calculateDDay 호출
+            calculateDDay(response.data);
         } catch (error) {
             console.error("Error fetching cheat day info:", error);
         }
@@ -251,24 +265,29 @@ export default function HomePage() {
             </ModelContainer>
 
             <Header isBlurred={isMenuOpen}>
-                <DateInfo>D-{DDay}</DateInfo>
-                <DateInfo>{new Date().toLocaleDateString()}</DateInfo>
+                <DateContainer>
+                    <DDayInfo>D-{DDay} &nbsp;</DDayInfo>
+                    <DateInfo>{new Date().toLocaleDateString()}</DateInfo>
+                </DateContainer>
+                {cheatDayInfo && (
+                    <CalorieContainer>
+                        <CalorieGraph isBlurred={isMenuOpen}>
+                            <CalorieFill style={calorieProps} />
+                            <CalorieText>
+                                {Math.round(cheatDayInfo.currentCalories)} /{" "}
+                                {Math.round(
+                                    cheatDayInfo.totalRecommendedCalories
+                                )}{" "}
+                                kcal
+                            </CalorieText>
+                        </CalorieGraph>
+                    </CalorieContainer>
+                )}
             </Header>
-
             {cheatDayInfo && (
-                <CalorieContainer>
-                    <CalorieGraph isBlurred={isMenuOpen}>
-                        <CalorieFill style={calorieProps} />
-                        <CalorieText>
-                            {Math.round(cheatDayInfo.currentCalories)} /{" "}
-                            {Math.round(cheatDayInfo.totalRecommendedCalories)}{" "}
-                            kcal
-                        </CalorieText>
-                    </CalorieGraph>
-                    <MessageContainer isBlurred={isMenuOpen}>
-                        {cheatDayInfo.message}
-                    </MessageContainer>
-                </CalorieContainer>
+                <MessageContainer isBlurred={isMenuOpen}>
+                    {cheatDayInfo.message}
+                </MessageContainer>
             )}
 
             <SlideUpContainer isOpen={isMenuOpen}>

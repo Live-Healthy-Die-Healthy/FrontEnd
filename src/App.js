@@ -113,7 +113,7 @@ function AppContent() {
           <Route
             path="*"
             element={
-              <ProtectedRoute>
+              // <ProtectedRoute>
                 <Routes>
                   <Route path="/home" element={<HomePage />} />
                   <Route path="/profilesetting" element={<ProfileSetting />} />
@@ -144,7 +144,7 @@ function AppContent() {
                   <Route path="/friends" element={<FriendPage />} />
                   <Route path="/comparefriend/:formattedDate" element={<CompareFriendPage />} />
                 </Routes>
-              </ProtectedRoute>
+              // </ProtectedRoute>
             }
           />
         </Routes>

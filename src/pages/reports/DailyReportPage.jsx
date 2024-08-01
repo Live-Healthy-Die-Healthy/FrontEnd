@@ -121,6 +121,26 @@ const BackButton = styled(Button)`
     margin-top: 20px;
 `;
 
+const Section = styled.div`
+    margin-bottom: 20px;
+    background: #f0f0f0;
+    padding: 15px;
+    border-radius: 10px;
+`;
+
+const SectionTitle = styled.h4`
+    margin-top: 0;
+    margin-bottom: 10px;
+`;
+
+const MealInfo = styled.div`
+    margin-bottom: 10px;
+`;
+
+const ExerciseInfo = styled.div`
+    margin-bottom: 10px;
+`;
+
 export default function DailyReportPage() {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [dailyReport, setDailyReport] = useState(null);
@@ -250,6 +270,70 @@ export default function DailyReportPage() {
         }
     };
 
+    const renderDietSection = () => {
+        if (!dailyReport) return null;
+
+        const {
+            breakfastCal,
+            lunchCal,
+            dinnerCal,
+            snackCal,
+            totalCarbo,
+            totalProtein,
+            totalFat,
+            totalCalories,
+            recommendedCal,
+            dietFeedback,
+        } = dailyReport;
+
+        return (
+            <Section>
+                <SectionTitle>식단 정보</SectionTitle>
+                <MealInfo>아침: {breakfastCal} kcal</MealInfo>
+                <MealInfo>점심: {lunchCal} kcal</MealInfo>
+                <MealInfo>저녁: {dinnerCal} kcal</MealInfo>
+                <MealInfo>간식: {snackCal} kcal</MealInfo>
+                <MealInfo>오늘 총 섭취 탄수화물: {totalCarbo} kcal</MealInfo>
+                <MealInfo>오늘 총 섭취 단백질: {totalProtein} kcal</MealInfo>
+                <MealInfo>오늘 총 섭취 지방: {totalFat} kcal</MealInfo>
+                <MealInfo>오늘 총 섭취 칼로리: {totalCalories} kcal</MealInfo>
+                <MealInfo>권장 섭취 칼로리: {recommendedCal} kcal</MealInfo>
+                <p>피드백: {dietFeedback}</p>
+            </Section>
+        );
+    };
+
+    const renderExerciseSection = () => {
+        if (!dailyReport) return null;
+
+        const { aeroInfo, anAeroInfo, exerciseFeedback } = dailyReport;
+
+        return (
+            <Section>
+                <SectionTitle>운동 정보</SectionTitle>
+                <ExerciseInfo>
+                    <strong>유산소 운동:</strong>
+                    {aeroInfo.map((exercise, index) => (
+                        <div key={index}>
+                            {exercise.exerciseName}: {exercise.distance}km,{" "}
+                            {exercise.exerciseTime}분
+                        </div>
+                    ))}
+                </ExerciseInfo>
+                <ExerciseInfo>
+                    <strong>무산소 운동:</strong>
+                    {anAeroInfo.map((exercise, index) => (
+                        <div key={index}>
+                            {exercise.exerciseName}: {exercise.weight}kg,{" "}
+                            {exercise.repetitions}회
+                        </div>
+                    ))}
+                </ExerciseInfo>
+                <p>피드백: {exerciseFeedback}</p>
+            </Section>
+        );
+    };
+
     return (
         <Container>
             <h3>일간 레포트 리스트 페이지</h3>
@@ -278,22 +362,8 @@ export default function DailyReportPage() {
                         <ReportList>
                             {isValid && dailyReport ? (
                                 <>
-                                    <ReportItem>
-                                        totalCalories :{" "}
-                                        {dailyReport.totalCalories}
-                                    </ReportItem>
-                                    <ReportItem>
-                                        totalTraning :{" "}
-                                        {dailyReport.totalTraining}
-                                    </ReportItem>
-                                    <ReportItem>
-                                        dietFeedback :{" "}
-                                        {dailyReport.dietFeedback}
-                                    </ReportItem>
-                                    <ReportItem>
-                                        execiseFeedback :{" "}
-                                        {dailyReport.exerciseFeedback}
-                                    </ReportItem>
+                                    {renderDietSection()}
+                                    {renderExerciseSection()}
                                 </>
                             ) : (
                                 <>

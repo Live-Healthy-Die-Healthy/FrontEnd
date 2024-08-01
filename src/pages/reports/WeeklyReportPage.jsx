@@ -114,6 +114,24 @@ const LoadingSpinner = styled.div`
     }
 `;
 
+const Section = styled.div`
+    margin-bottom: 20px;
+    background: #f0f0f0;
+    padding: 15px;
+    border-radius: 10px;
+`;
+
+const SectionTitle = styled.h4`
+    margin-top: 0;
+    margin-bottom: 10px;
+`;
+
+const DailyCalories = styled.div`
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+`;
+
 const WeeklyReportPage = () => {
     const [selectedYear, setSelectedYear] = useState(null);
     const [selectedMonth, setSelectedMonth] = useState(null);
@@ -189,7 +207,10 @@ const WeeklyReportPage = () => {
 
     const updateWeekOptions = () => {
         if (selectedYear && selectedMonth) {
-            const newWeekOptions = getWeekOptions(selectedYear.value, selectedMonth.value);
+            const newWeekOptions = getWeekOptions(
+                selectedYear.value,
+                selectedMonth.value
+            );
             setWeekOptions(newWeekOptions);
         }
     };
@@ -308,9 +329,12 @@ const WeeklyReportPage = () => {
 
             setWeeklyReport(response.data);
             setIsValid(true);
-            
+
             // 새 레포트가 생성되었으므로 highlightedDates 업데이트
-            const newHighlightedDates = [...highlightedDates, format(startOfWeek, "yyyy-MM-dd")];
+            const newHighlightedDates = [
+                ...highlightedDates,
+                format(startOfWeek, "yyyy-MM-dd"),
+            ];
             setHighlightedDates(newHighlightedDates);
         } catch (error) {
             console.error("Error creating report:", error);
@@ -322,6 +346,82 @@ const WeeklyReportPage = () => {
 
     const yearOptions = getYearOptions();
     const monthOptions = selectedYear ? getMonthOptions() : [];
+
+    const formatTime = (minutes) => {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return `${hours}시간 ${mins}분`;
+    };
+
+    const renderWeeklyReport = () => {
+        if (!weeklyReport) return null;
+
+        const weekDays = ["월", "화", "수", "목", "금", "토", "일"];
+        const totalExerciseMinutes = weeklyReport.totalTraining;
+        const avgExerciseMinutes = Math.round(totalExerciseMinutes / 7);
+
+        return (
+            <>
+                <Section>
+                    <SectionTitle>주간 식단 레포트</SectionTitle>
+                    {weekDays.map((day, index) => (
+                        <DailyCalories key={day}>
+                            <span>{day}요일:</span>
+                            <span>{weeklyReport.weeklyCal[index]} kcal</span>
+                        </DailyCalories>
+                    ))}
+                    <DailyCalories>
+                        <strong>평균 섭취 칼로리:</strong>
+                        <strong>
+                            {Math.round(weeklyReport.meanCalories)} kcal
+                        </strong>
+                    </DailyCalories>
+                    <p>피드백: {weeklyReport.dietFeedback}</p>
+                </Section>
+
+                <Section>
+                    <SectionTitle>주간 운동 레포트</SectionTitle>
+                    <div>총 운동 시간: {formatTime(totalExerciseMinutes)}</div>
+                    <div>
+                        일 평균 운동 시간: {formatTime(avgExerciseMinutes)}
+                    </div>
+                    <div>
+                        운동 비율:
+                        <ul>
+                            <li>
+                                가슴:{" "}
+                                {Math.round(weeklyReport.anaerobicRatio.chest)}%
+                            </li>
+                            <li>
+                                팔:{" "}
+                                {Math.round(weeklyReport.anaerobicRatio.arms)}%
+                            </li>
+                            <li>
+                                복근:{" "}
+                                {Math.round(weeklyReport.anaerobicRatio.core)}%
+                            </li>
+                            <li>
+                                어깨:{" "}
+                                {Math.round(
+                                    weeklyReport.anaerobicRatio.shoulders
+                                )}
+                                %
+                            </li>
+                            <li>
+                                등:{" "}
+                                {Math.round(weeklyReport.anaerobicRatio.back)}%
+                            </li>
+                            <li>
+                                하체:{" "}
+                                {Math.round(weeklyReport.anaerobicRatio.legs)}%
+                            </li>
+                        </ul>
+                    </div>
+                    <p>피드백: {weeklyReport.exerciseFeedback}</p>
+                </Section>
+            </>
+        );
+    };
 
     return (
         <Container>
@@ -364,26 +464,15 @@ const WeeklyReportPage = () => {
                 selectedWeek && (
                     <ReportList>
                         {isValid ? (
-                            <>
-                                <ReportItem>
-                                    meanCalories : {weeklyReport.meanCalories}
-                                </ReportItem>
-                                <ReportItem>
-                                    meanExercise : {weeklyReport.meanExercise}
-                                </ReportItem>
-                                <ReportItem>
-                                    dietFeedback : {weeklyReport.dietFeedback}
-                                </ReportItem>
-                                <ReportItem>
-                                    execiseFeedback : {weeklyReport.exerciseFeedback}
-                                </ReportItem>
-                            </>
+                            renderWeeklyReport()
                         ) : (
                             <>
                                 <ReportItem>
                                     <div>레포트가 존재하지 않습니다.</div>
                                 </ReportItem>
-                                <CreateReportButton onClick={handleCreateReport}>
+                                <CreateReportButton
+                                    onClick={handleCreateReport}
+                                >
                                     레포트 생성하기
                                 </CreateReportButton>
                             </>

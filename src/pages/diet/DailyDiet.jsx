@@ -190,7 +190,6 @@ export default function DailyDiet() {
                 };
 
                 setMeals(processedMeals);
-                console.log(meals);
             } catch (error) {
                 console.error("Error fetching meals:", error);
             }

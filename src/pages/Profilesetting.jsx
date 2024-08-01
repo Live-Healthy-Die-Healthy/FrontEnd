@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import default_image from "../image/default-profile.png";
 
 const Container = styled.div`
-    padding-top: 50vh;
+    padding-top: 30vh;
     padding-bottom: 30vh;
     display: flex;
     flex-direction: column;

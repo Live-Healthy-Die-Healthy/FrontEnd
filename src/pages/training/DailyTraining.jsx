@@ -1,55 +1,55 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { format } from "date-fns";
+import { format, addDays, subDays } from "date-fns";
 import axios from "axios";
 import { UserContext } from "../../context/LoginContext";
 
 const Container = styled.div`
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    height: 100vh;
-    text-align: center;
-    background-color: #f0f0f0;
-    padding: 20px;
+    margin-top: 10vh;
+    margin-bottom: 10vh;
 `;
 
 const Header = styled.div`
-    width: 80%;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 10px;
-    background-color: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
-
-const Title = styled.h1`
-    margin: 0;
-    font-size: 20px;
-`;
-
-const AddButton = styled.button`
-    background-color: #a3d2ca;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 24px;
-    cursor: pointer;
-`;
-
-const RecordContainer = styled.div`
+    justify-content: center;
     width: 100%;
     max-width: 800px;
-    background-color: white;
-    padding: 20px;
+`;
+
+const ArrowButton = styled.button`
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #5ddebe;
+    cursor: pointer;
+    &::before {
+        content: "▶";
+        display: inline-block;
+        transform: ${(props) =>
+            props.direction === "left" ? "rotate(180deg)" : "none"};
+    }
+`;
+
+const DateText = styled.div`
+    background-color: #ffeeba;
+    color: #b53a14;
+    padding: 5px 10px;
     border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 18px;
+    font-weight: bold;
+`;
+
+const ExerciseContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    max-width: 800px;
     margin-top: 20px;
-    overflow-y: auto;
 `;
 
 const ExerciseItem = styled.div`
@@ -57,6 +57,8 @@ const ExerciseItem = styled.div`
     border-radius: 10px;
     margin-bottom: 20px;
     padding: 10px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const ExerciseHeader = styled.div`
@@ -114,21 +116,45 @@ const Button = styled.button`
     }
 `;
 
-const ExerciseDetailItem = styled.div`
+const Title = styled.div`
+    font-size: 30px;
+    margin: 10px 10px;
+`;
+
+const TitleContainer = styled.div`
+    font-size: 30px;
+    margin: 10px 10px;
     display: flex;
+    align-self: flex-start;
+    width: 100%;
+    justify-content: space-between; // 추가된 부분
 `;
 
 const BackButton = styled.button`
-    margin: 20px;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
+    background: none;
     border: none;
-    border-radius: 4px;
+    font-size: 24px;
+    color: #333;
     cursor: pointer;
-    &:hover {
-        background-color: #0056b3;
-    }
+    padding: 5px;
+`;
+
+const AddButton = styled.button`
+    background-color: #a3d2ca;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    cursor: pointer;
+    margin-left: 20px;
+`;
+
+const ButtonCon = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    flex-grow: 1;
+    margin-right: 60px;
 `;
 
 export default function DailyTraining() {
@@ -139,7 +165,6 @@ export default function DailyTraining() {
     const [exercises, setExercises] = useState([]);
 
     useEffect(() => {
-        // 실제 서버 요청 부분
         const fetchExercises = async () => {
             try {
                 const response = await axios.post(
@@ -155,25 +180,28 @@ export default function DailyTraining() {
                     }
                 );
 
-                // 데이터 변환 후 설정
                 const data = response.data.map((record) => ({
                     exerciseLogId: record.exerciseLogId,
                     exerciseName: record.exerciseName,
                     exerciseType: record.exerciseType,
-                    exerciseImage: record.exerciseImage, // 이미지 URL 추가
+                    exerciseImage: record.exerciseImage,
                     set: record.set,
                     weight: record.weight,
                     repetition: record.repetition,
                     distance: record.distance,
                     exerciseTime: record.exerciseTime,
                 }));
-                setExercises(data); // ✨ 수정된 부분: data 사용
+                setExercises(data);
             } catch (error) {
                 console.error("Error fetching exercises:", error);
             }
         };
 
         fetchExercises();
+
+        return () => {
+            setExercises([]);
+        };
     }, [formattedDate, userId, accessToken]);
 
     const addExercise = () => {
@@ -184,7 +212,6 @@ export default function DailyTraining() {
         const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
         if (!confirmDelete) return;
 
-        // 실제 삭제 요청 부분
         try {
             const response = await axios.delete(
                 `${process.env.REACT_APP_API_PORT}/exerciseLog`,
@@ -209,11 +236,6 @@ export default function DailyTraining() {
             console.error("Error deleting exercise:", error);
             alert("운동 기록 삭제 중 오류가 발생했습니다.");
         }
-
-        // 더미 데이터에서 필터링
-        setExercises(
-            exercises.filter((exercise) => exercise.exerciseLogId !== id)
-        );
     };
 
     const editExercise = (exerciseLogId, exerciseName) => {
@@ -222,35 +244,58 @@ export default function DailyTraining() {
         });
     };
 
+    const handleDateChange = (increment) => {
+        const newDate = increment
+            ? addDays(new Date(date), 1)
+            : subDays(new Date(date), 1);
+        navigate(`/traindaily/${format(newDate, "yyyy-MM-dd")}`);
+    };
+
     return (
         <Container>
-            <BackButton onClick={() => navigate(-1)}>뒤로가기</BackButton>
+            <TitleContainer>
+                <BackButton onClick={() => navigate(`/dietmonth`)}>
+                    {"<"}
+                </BackButton>
+                <Title>운동 기록</Title>
+                <ButtonCon>
+                    <AddButton onClick={addExercise}>+</AddButton>
+                </ButtonCon>
+            </TitleContainer>
             <Header>
-                <Title>{formattedDate} 운동 기록</Title>
-                <AddButton onClick={addExercise}>+</AddButton>
+                <ArrowButton
+                    direction='left'
+                    onClick={() => handleDateChange(false)}
+                ></ArrowButton>
+                <DateText>
+                    {format(new Date(formattedDate), "yyyy.MM.dd")}
+                </DateText>
+                <ArrowButton
+                    direction='right'
+                    onClick={() => handleDateChange(true)}
+                ></ArrowButton>
             </Header>
-            <RecordContainer>
+            <ExerciseContainer>
                 {exercises.length === 0 ? (
                     <h2>운동 기록이 없습니다.</h2>
                 ) : (
                     exercises.map((exercise) => (
                         <ExerciseItem key={exercise.exerciseLogId}>
                             <ExerciseHeader>
-                                <ExerciseDetailItem>
-                                    <ExerciseName>
-                                        {exercise.exerciseName}
-                                    </ExerciseName>
-                                    <div>{exercise.exerciseTime}분</div>
-                                </ExerciseDetailItem>
+                                <ExerciseName>
+                                    {exercise.exerciseName}
+                                </ExerciseName>
                                 <ExerciseImage
                                     src={`data:image/jpeg;base64,${exercise.exerciseImage}`}
                                     alt={exercise.exerciseName}
                                 />
                             </ExerciseHeader>
-
                             {exercise.exerciseType === "AerobicExercise" ? (
                                 <SetContainer>
                                     <span>거리 : {exercise.distance}km</span>
+                                    <span>
+                                        시간 : {exercise.exerciseTime}분
+                                    </span>
                                 </SetContainer>
                             ) : (
                                 <SetContainer>
@@ -294,7 +339,7 @@ export default function DailyTraining() {
                         </ExerciseItem>
                     ))
                 )}
-            </RecordContainer>
+            </ExerciseContainer>
         </Container>
     );
 }
