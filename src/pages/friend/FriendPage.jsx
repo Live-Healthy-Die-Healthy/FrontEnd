@@ -47,11 +47,12 @@ const TabContainer = styled.div`
     justify-content: space-between;
     margin-top: 40px;
     width: 100%;
+    max-width: 1000px;
     font-size: 30px;
 `;
 
 const CloseButton = styled.button`
-    background-color: #a1d9ff;
+    background-color: #96ceb3;
     border: none;
     color: white;
     font-size: 24px;
@@ -78,7 +79,7 @@ const IconButton = styled.button`
     cursor: pointer;
     padding: 0 10px;
     margin: 0 5px;
-    color: rgb(196, 196, 196);
+    color: rgb(24, 24, 24);
     display: flex;
     align-items: center;
 `;

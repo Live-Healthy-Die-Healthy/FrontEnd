@@ -1,7 +1,15 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { format, addDays, subDays } from "date-fns";
+import {
+    format,
+    addDays,
+    subDays,
+    isAfter,
+    startOfDay,
+    isSameDay,
+    parseISO,
+} from "date-fns";
 import axios from "axios";
 import { UserContext } from "../../context/LoginContext";
 
@@ -148,7 +156,7 @@ const BackButton = styled.button`
 export default function DailyDiet() {
     const navigate = useNavigate();
     const { date } = useParams();
-    const formattedDate = format(new Date(date), "yyyy-MM-dd");
+    const formattedDate = format(parseISO(date), "yyyy-MM-dd");
     const { userId, accessToken } = useContext(UserContext);
     const [meals, setMeals] = useState({
         breakfast: [],
@@ -156,6 +164,16 @@ export default function DailyDiet() {
         dinner: [],
         snack: [],
     });
+
+    const today = startOfDay(new Date());
+    const pageDate = parseISO(formattedDate);
+
+    useEffect(() => {
+        if (isAfter(pageDate, today)) {
+            // 오늘 이후의 날짜인 경우 오늘 날짜로 리다이렉트
+            navigate(`/dietdaily/${format(today, "yyyy-MM-dd")}`);
+        }
+    }, [formattedDate, navigate, pageDate, today]);
 
     useEffect(() => {
         const fetchMeals = async () => {
@@ -205,9 +223,13 @@ export default function DailyDiet() {
     };
 
     const handleDateChange = (increment) => {
-        const newDate = increment
-            ? addDays(new Date(date), 1)
-            : subDays(new Date(date), 1);
+        const newDate = increment ? addDays(pageDate, 1) : subDays(pageDate, 1);
+
+        if (isAfter(newDate, today)) {
+            // 오늘 이후의 날짜로는 이동하지 않음
+            return;
+        }
+
         navigate(`/dietdaily/${format(newDate, "yyyy-MM-dd")}`);
     };
 
@@ -279,17 +301,23 @@ export default function DailyDiet() {
                 <Title>식단기록</Title>
             </TitleContainer>
             <Header>
-                <ArrowButton
-                    direction='left'
-                    onClick={() => handleDateChange(false)}
-                ></ArrowButton>
-                <DateText>
-                    {format(new Date(formattedDate), "yyyy.MM.dd")}
-                </DateText>
-                <ArrowButton
-                    direction='right'
-                    onClick={() => handleDateChange(true)}
-                ></ArrowButton>
+                {!isSameDay(pageDate, today) && (
+                    <ArrowButton
+                        direction='left'
+                        onClick={() => handleDateChange(false)}
+                    ></ArrowButton>
+                )}
+                <DateText>{format(pageDate, "yyyy.MM.dd")}</DateText>
+                {isSameDay(pageDate, today) ? (
+                    <ArrowButton style={{ visibility: "hidden" }}></ArrowButton>
+                ) : (
+                    !isSameDay(addDays(pageDate, 1), today) && (
+                        <ArrowButton
+                            direction='right'
+                            onClick={() => handleDateChange(true)}
+                        ></ArrowButton>
+                    )
+                )}
             </Header>
             <MealContainer>
                 {renderMealBox("breakfast", "아침")}

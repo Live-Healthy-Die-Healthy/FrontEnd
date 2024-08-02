@@ -23,6 +23,7 @@ const Container = styled.div`
     align-items: center;
     background-color: #ffffff;
     width: 100%;
+    min-height: 100vh;
     padding: 20px;
 `;
 
@@ -37,6 +38,21 @@ const WeekList = styled.ul`
     width: 100%;
     max-width: 400px;
     padding-bottom: 20px;
+`;
+
+const WeekItem = styled.li`
+    background-color: ${(props) => (props.hasReport ? "#FFECB3" : "#fff")};
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:hover {
+        background-color: ${(props) =>
+            props.hasReport ? "#FFE082" : "#f0f0f0"};
+    }
 `;
 
 const WeekNumber = styled.h3`
@@ -55,6 +71,7 @@ const MonthNavigation = styled.div`
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    max-width: 600px;
 `;
 
 const NavButton = styled.button`
@@ -69,19 +86,90 @@ const NavButton = styled.button`
     }
 `;
 
-const WeekItem = styled.li`
-    background-color: ${(props) => (props.hasReport ? "#FFECB3" : "#fff")};
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    padding: 15px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+const ReportContainer = styled.div`
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+`;
 
-    &:hover {
-        background-color: ${(props) =>
-            props.hasReport ? "#FFE082" : "#f0f0f0"};
+const ReportHeader = styled.div`
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+`;
+
+const BackButton = styled.button`
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+`;
+
+const MessageContainer = styled.div`
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+`;
+
+const InfoContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+`;
+
+const MessageBubble = styled.div`
+    background-color: #ffeeae;
+    border-radius: 30px;
+    padding: 10px 15px;
+    margin: 10px 0;
+    max-width: 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+
+    &::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 30px;
+        width: 0;
+        height: 0;
+        border: 10px solid transparent;
+        border-top-color: #ffeeae;
+        border-bottom: 0;
+        border-left: 0;
+        margin-left: -5px;
+        margin-bottom: -10px;
     }
+`;
+
+const InfoBubble = styled.div`
+    background-color: rgb(150, 206, 179, 0.3);
+    border-radius: 20px;
+    padding: 10px 15px;
+    margin: 10px 0;
+    max-width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+`;
+
+const UserImage = styled.img`
+    display: flex;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 20px 10px;
+`;
+
+const Title = styled.div`
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
 `;
 
 const Overlay = styled.div`
@@ -115,19 +203,6 @@ const Button = styled.button`
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
-`;
-
-const DateContainer = styled.div`
-    display: inline-block;
-    background-color: #49406f;
-    color: #ffffff;
-    border-radius: 50%;
-    width: 45px;
-    height: 45px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
 `;
 
 const LoadingMessage = styled.div`
@@ -170,7 +245,7 @@ const ModalButton = styled(Button)`
     margin: 10px;
 `;
 
-export default function WeeklyReportList() {
+export default function WeeklyReportCalendar() {
     const { userId, accessToken } = useContext(UserContext);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [weeks, setWeeks] = useState([]);
@@ -181,6 +256,7 @@ export default function WeeklyReportList() {
     const [isValid, setIsValid] = useState(false);
     const [isFilled, setIsFilled] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
+    const [userImage, setUserImage] = useState(null);
 
     const fetchMonthReports = async () => {
         try {
@@ -206,7 +282,7 @@ export default function WeeklyReportList() {
 
     useEffect(() => {
         fetchMonthReports();
-    }, [currentDate, userId, accessToken]);
+    }, [currentDate, userId, accessToken, selectedWeek]);
 
     useEffect(() => {
         const monthStart = startOfMonth(currentDate);
@@ -270,10 +346,10 @@ export default function WeeklyReportList() {
                     }
                 );
 
-                console.log(" /report/weekly response : ", response);
                 setSelectedWeekInfo(response.data.weeklyReport || null);
                 setIsValid(response.data.isValid);
                 setIsFilled(response.data.isFilled);
+                setUserImage(response.data.userImage);
             } catch (error) {
                 console.error("Error fetching week info:", error);
                 setSelectedWeekInfo(null);
@@ -305,11 +381,11 @@ export default function WeeklyReportList() {
                     timeout: 120000,
                 }
             );
-            console.log(" /report/newWeekly response : ", response);
 
             setIsValid(true);
             setIsFilled(true);
             setSelectedWeekInfo(response.data);
+            setUserImage(response.data.userImage);
         } catch (error) {
             console.error("Error creating report:", error);
             alert("레포트 생성에 실패했습니다.");
@@ -342,106 +418,151 @@ export default function WeeklyReportList() {
         const weekDays = ["월", "화", "수", "목", "금", "토", "일"];
 
         return (
-            <>
-                <h3>주간 식단 레포트</h3>
-                {weekDays.map((day, index) => (
-                    <div key={day}>
-                        <span>{day}요일: </span>
-                        {weeklyCal && <span>{weeklyCal[index]} kcal</span>}
-                    </div>
-                ))}
-                <div>평균 섭취 칼로리: {Math.round(meanCalories)} kcal</div>
-                <div>평균 섭취 탄수화물: {Math.round(meanCarbo)} g</div>
-                <div>평균 섭취 단백질: {Math.round(meanProtein)} g</div>
-                <div>평균 섭취 지방: {Math.round(meanFat)} g</div>
-                <p>피드백: {dietFeedback}</p>
-
-                <h3>주간 운동 레포트</h3>
-                <div>총 운동 시간: {totalTraining}분</div>
-                <div>유산소 운동 비율: {Math.round(aerobicRatio)}%</div>
-                <div>무산소 운동 비율:</div>
-                {anaerobicRatio && (
-                    <ul>
-                        <li>가슴: {Math.round(anaerobicRatio.chest)}%</li>
-                        <li>팔: {Math.round(anaerobicRatio.arm)}%</li>
-                        <li>복근: {Math.round(anaerobicRatio.core)}%</li>
-                        <li>어깨: {Math.round(anaerobicRatio.shoulder)}%</li>
-                        <li>등: {Math.round(anaerobicRatio.back)}%</li>
-                        <li>하체: {Math.round(anaerobicRatio.leg)}%</li>
-                    </ul>
-                )}
-                <p>피드백: {exerciseFeedback}</p>
-
-                <Button color='#3846ff' onClick={closeOverlay}>
-                    확인
-                </Button>
-            </>
+            <ReportContainer>
+                <ReportHeader>
+                    <BackButton onClick={() => setSelectedWeek(null)}>
+                        &lt;
+                    </BackButton>
+                    <h2>{selectedWeek.dateRange} 주간 레포트</h2>
+                </ReportHeader>
+                <Title>주간 식단 정보</Title>
+                <InfoContainer>
+                    <InfoBubble>
+                        {weekDays.map((day, index) => (
+                            <div key={day}>
+                                <span>{day}요일: </span>
+                                {weeklyCal && (
+                                    <span>{weeklyCal[index]} kcal</span>
+                                )}
+                            </div>
+                        ))}
+                        <br />
+                        <div>
+                            평균 섭취 칼로리: {Math.round(meanCalories)} kcal
+                        </div>
+                        <div>평균 섭취 탄수화물: {Math.round(meanCarbo)} g</div>
+                        <div>평균 섭취 단백질: {Math.round(meanProtein)} g</div>
+                        <div>평균 섭취 지방: {Math.round(meanFat)} g</div>
+                    </InfoBubble>
+                </InfoContainer>
+                <Title>식단 피드백</Title>
+                <MessageContainer>
+                    <MessageBubble>{dietFeedback}</MessageBubble>
+                </MessageContainer>
+                <UserImage
+                    src={`data:image/jpeg;base64,${userImage}`}
+                    alt='User'
+                />
+                <Title>주간 운동 정보</Title>
+                <InfoContainer>
+                    <InfoBubble>
+                        <div>총 운동 시간: {totalTraining}분</div>
+                        <div>유산소 운동 비율: {Math.round(aerobicRatio)}%</div>
+                        <div>무산소 운동 비율:</div>
+                        {anaerobicRatio && (
+                            <ul>
+                                <li>
+                                    가슴: {Math.round(anaerobicRatio.chest)}%
+                                </li>
+                                <li>팔: {Math.round(anaerobicRatio.arm)}%</li>
+                                <li>
+                                    복근: {Math.round(anaerobicRatio.core)}%
+                                </li>
+                                <li>
+                                    어깨: {Math.round(anaerobicRatio.shoulder)}%
+                                </li>
+                                <li>등: {Math.round(anaerobicRatio.back)}%</li>
+                                <li>하체: {Math.round(anaerobicRatio.leg)}%</li>
+                            </ul>
+                        )}
+                    </InfoBubble>
+                </InfoContainer>
+                <Title>운동 피드백</Title>
+                <MessageContainer>
+                    <MessageBubble>{exerciseFeedback}</MessageBubble>
+                </MessageContainer>
+                <UserImage
+                    src={`data:image/jpeg;base64,${userImage}`}
+                    alt='User'
+                />
+            </ReportContainer>
         );
     };
 
     return (
         <Container>
-            <MonthNavigation>
-                <NavButton onClick={() => changeMonth(false)}>&lt;</NavButton>
-                <Header>{format(currentDate, "yyyy년 M월")} 주간 레포트</Header>
-                <NavButton
-                    onClick={() => changeMonth(true)}
-                    disabled={
-                        isSameMonth(new Date(), currentDate) ||
-                        isBefore(new Date(), currentDate)
-                    }
-                >
-                    &gt;
-                </NavButton>
-            </MonthNavigation>
-            <WeekList>
-                {weeks.map((week) => (
-                    <WeekItem
-                        key={week.weekNumber}
-                        onClick={() => handleWeekClick(week)}
-                        hasReport={week.hasReport}
-                        isSelectable={week.isSelectable}
-                        style={{
-                            opacity: week.isSelectable ? 1 : 0.5,
-                            cursor: week.isSelectable
-                                ? "pointer"
-                                : "not-allowed",
-                        }}
-                    >
-                        <WeekNumber>{week.weekNumber}주차</WeekNumber>
-                        <DateRange>{week.dateRange}</DateRange>
-                    </WeekItem>
-                ))}
-            </WeekList>
-            {selectedWeek && (
-                <Overlay onClick={closeOverlay}>
-                    <OverlayContent onClick={(e) => e.stopPropagation()}>
-                        <DateContainer>{selectedWeek.dateRange}</DateContainer>
-                        {isLoading ? (
-                            <>
-                                <LoadingSpinner />
-                                <LoadingMessage>
-                                    레포트를 생성 중입니다...
-                                </LoadingMessage>
-                            </>
-                        ) : selectedWeekInfo ? (
-                            renderWeeklyReport()
-                        ) : (
-                            <>
-                                <p>레포트가 존재하지 않습니다.</p>
-                                <Button
-                                    color='#3846ff'
-                                    onClick={handleCreateReport}
-                                >
-                                    레포트 생성하기
-                                </Button>
-                                <Button color='#3846ff' onClick={closeOverlay}>
-                                    닫기
-                                </Button>
-                            </>
-                        )}
-                    </OverlayContent>
-                </Overlay>
+            {selectedWeek ? (
+                selectedWeekInfo ? (
+                    renderWeeklyReport()
+                ) : (
+                    <Overlay onClick={closeOverlay}>
+                        <OverlayContent onClick={(e) => e.stopPropagation()}>
+                            {isLoading ? (
+                                <>
+                                    <LoadingSpinner />
+                                    <LoadingMessage>
+                                        레포트를 생성 중입니다...
+                                    </LoadingMessage>
+                                </>
+                            ) : (
+                                <>
+                                    <p>레포트가 존재하지 않습니다.</p>
+                                    <Button
+                                        color='#FF8000'
+                                        onClick={handleCreateReport}
+                                    >
+                                        레포트 생성하기
+                                    </Button>
+                                    <Button
+                                        color='#5ddebe'
+                                        onClick={closeOverlay}
+                                    >
+                                        닫기
+                                    </Button>
+                                </>
+                            )}
+                        </OverlayContent>
+                    </Overlay>
+                )
+            ) : (
+                <>
+                    <MonthNavigation>
+                        <NavButton onClick={() => changeMonth(false)}>
+                            &lt;
+                        </NavButton>
+                        <Header>
+                            {format(currentDate, "yyyy년 M월")} 주간 레포트
+                        </Header>
+                        <NavButton
+                            onClick={() => changeMonth(true)}
+                            disabled={
+                                isSameMonth(new Date(), currentDate) ||
+                                isBefore(new Date(), currentDate)
+                            }
+                        >
+                            &gt;
+                        </NavButton>
+                    </MonthNavigation>
+                    <WeekList>
+                        {weeks.map((week) => (
+                            <WeekItem
+                                key={week.weekNumber}
+                                onClick={() => handleWeekClick(week)}
+                                hasReport={week.hasReport}
+                                isSelectable={week.isSelectable}
+                                style={{
+                                    opacity: week.isSelectable ? 1 : 0.5,
+                                    cursor: week.isSelectable
+                                        ? "pointer"
+                                        : "not-allowed",
+                                }}
+                            >
+                                <WeekNumber>{week.weekNumber}주차</WeekNumber>
+                                <DateRange>{week.dateRange}</DateRange>
+                            </WeekItem>
+                        ))}
+                    </WeekList>
+                </>
             )}
             {showConfirmation && (
                 <ConfirmationModal>

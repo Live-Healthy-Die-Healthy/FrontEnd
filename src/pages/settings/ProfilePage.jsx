@@ -18,63 +18,64 @@ const Container = styled.div`
 
 const ProfileContainer = styled.div`
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 80%;
-    max-width: 1000px;
-    background-color: #f8f8f8;
+    max-width: 500px;
+    background-color: #ffffff;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
 `;
 
 const ProfileImage = styled.img`
-    width: 150px;
-    height: 150px;
-    border-radius: 0%;
-    margin-right: 20px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
 `;
 
-const InfoContainer = styled.div`
-    display: flex;
-    width: 80%;
-    flex-direction: column;
-    align-items: flex-start;
-`;
-
-const InfoRow = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+const InfoSection = styled.div`
+    background-color: #ffeeae;
     width: 100%;
+    padding: 15px;
+    border-radius: 10px;
     margin-bottom: 10px;
+`;
 
-    & > div {
-        flex: 1;
-        margin-right: 10px;
-    }
-
-    & > div:last-child {
-        margin-right: 0;
-    }
+const InfoTitle = styled.h3`
+    margin: 0 0 10px 0;
+    color: #49406f;
+    font-size: 16px;
+    text-align: left;
 `;
 
 const InfoItem = styled.div`
-    background-color: #ffffff;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #333;
+`;
+
+const InfoLabel = styled.span`
+    font-weight: bold;
+`;
+
+const InfoValue = styled.span`
+    color: #555;
 `;
 
 const EditButton = styled.button`
-    background: #a3d2ca;
+    background: #ff8000;
+    color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 8px 20px;
     margin-top: 20px;
     cursor: pointer;
     font-size: 16px;
-    border-radius: 5px;
+    border-radius: 20px;
 `;
 
 const TabContainer = styled.div`
@@ -83,10 +84,11 @@ const TabContainer = styled.div`
     margin-top: 40px;
     width: 100%;
     font-size: 30px;
+    max-width: 1000px;
 `;
 
 const CloseButton = styled.button`
-    background-color: #a1d9ff;
+    background-color: #96ceb3;
     border: none;
     color: white;
     font-size: 24px;
@@ -98,15 +100,85 @@ const CloseButton = styled.button`
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    margin: 0px 10px;
+    margin-right: 10px;
+`;
+
+const LogoutButton = styled.button`
+    margin-top: 20px;
+    background-color: #5ddebe;
+    color: #49406f;
+    border: none;
+    padding: 6px 9px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 20px;
+`;
+
+const LogoutConfirmModal = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const LogoutConfirmContent = styled.div`
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+`;
+
+const LogoutConfirmButton = styled.button`
+    background-color: #ff8000;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+`;
+
+const LogoutCancelButton = styled.button`
+    background-color: #5ddebe;
+    color: #49406f;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+`;
+
+const IDLabel = styled.span`
+    font-size: 20px;
+    font-weight: bold;
 `;
 
 const ProfilePage = () => {
-    const { userId, accessToken } = useContext(UserContext);
     const [profile, setProfile] = useState(null);
     const [date, setDate] = useState(null);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const { userId, accessToken, setAccessToken, setRefreshToken, setUserId } =
+        useContext(UserContext);
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+    const handleLogoutClick = () => {
+        setShowLogoutConfirm(true);
+    };
+    const handleLogoutConfirm = () => {
+        localStorage.removeItem("accessToken");
+        setAccessToken(null);
+        setRefreshToken(null);
+        setUserId(null);
+        navigate("/");
+    };
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -124,7 +196,7 @@ const ProfilePage = () => {
             } catch (error) {
                 console.error("Error fetching profile:", error);
             } finally {
-                setLoading(false); // 데이터를 가져온 후 로딩 상태를 false로 변경합니다.
+                setLoading(false);
             }
         };
 
@@ -132,7 +204,7 @@ const ProfilePage = () => {
     }, [userId]);
 
     if (loading) {
-        return <Container>Loading...</Container>; // 로딩 중일 때 표시할 텍스트
+        return <Container>Loading...</Container>;
     }
 
     const profileImageSrc = profile?.userImage
@@ -147,81 +219,107 @@ const ProfilePage = () => {
             </TabContainer>
             {profile ? (
                 <>
+                    <ProfileImage src={profileImageSrc} alt='프로필 이미지' />
+                    <InfoItem>
+                        <IDLabel>아이디 : {profile.userId}</IDLabel>
+                    </InfoItem>
                     <ProfileContainer>
-                        <ProfileImage
-                            src={profileImageSrc}
-                            alt='프로필 이미지'
-                        />
-                        <InfoContainer>
-                            <InfoRow>
-                                <InfoItem>아이디: {profile.userId}</InfoItem>
-                            </InfoRow>
-                            <InfoRow>
-                                <InfoItem>이메일: {profile.userEmail}</InfoItem>
-                            </InfoRow>
-                            <InfoRow>
-                                <InfoItem>
-                                    닉네임: {profile.userNickname}
-                                </InfoItem>
-                            </InfoRow>
-                            <InfoRow>
-                                <InfoItem>생년월일: {date}</InfoItem>
-                            </InfoRow>
-                            <InfoRow>
-                                <InfoItem>성별: {profile.userGender}</InfoItem>
-                            </InfoRow>
-
-                            <InfoRow>
-                                <InfoItem>키: {profile.userHeight} cm</InfoItem>
-                            </InfoRow>
-
-                            <InfoRow>
-                                <InfoItem>
-                                    몸무게: {profile.userWeight} kg
-                                </InfoItem>
-                            </InfoRow>
-
-                            <InfoRow>
+                        <InfoSection>
+                            <InfoTitle>기본 정보</InfoTitle>
+                            <InfoItem>
+                                <InfoLabel>이메일</InfoLabel>
+                                <InfoValue>{profile.userEmail}</InfoValue>
+                            </InfoItem>
+                            <InfoItem>
+                                <InfoLabel>닉네임</InfoLabel>
+                                <InfoValue>{profile.userNickname}</InfoValue>
+                            </InfoItem>
+                            <InfoItem>
+                                <InfoLabel>생년월일</InfoLabel>
+                                <InfoValue>{date}</InfoValue>
+                            </InfoItem>
+                        </InfoSection>
+                        <InfoSection>
+                            <InfoTitle>신체 정보</InfoTitle>
+                            <InfoItem>
+                                <InfoLabel>성별</InfoLabel>
+                                <InfoValue>{profile.userGender}</InfoValue>
+                            </InfoItem>
+                            <InfoItem>
+                                <InfoLabel>키</InfoLabel>
+                                <InfoValue>{profile.userHeight} cm</InfoValue>
+                            </InfoItem>
+                            <InfoItem>
+                                <InfoLabel>몸무게</InfoLabel>
+                                <InfoValue>{profile.userWeight} kg</InfoValue>
+                            </InfoItem>
+                            <InfoItem>
                                 {profile.userBmi ? (
-                                    <InfoItem>
-                                        BMI: {profile.userBmi} kg/m^2
-                                    </InfoItem>
+                                    <>
+                                        <InfoLabel>BMI: </InfoLabel>
+                                        <InfoValue>
+                                            {profile.userBmi} kg/m²
+                                        </InfoValue>
+                                    </>
                                 ) : (
-                                    <InfoItem>BMI: 정보 없음 </InfoItem>
+                                    <>
+                                        <InfoLabel>BMI: </InfoLabel>
+                                        <InfoValue>정보 없음</InfoValue>
+                                    </>
                                 )}
-                            </InfoRow>
+                            </InfoItem>
+                            <InfoItem>
+                                {profile.userMuscleMass ? (
+                                    <>
+                                        <InfoLabel>골격근량:</InfoLabel>
 
-                            <InfoRow>
-                                {profile.userBmi ? (
-                                    <InfoItem>
-                                        골격근량: {profile.userMuscleMass} kg
-                                    </InfoItem>
+                                        <InfoValue>
+                                            {profile.userMuscleMass} kg
+                                        </InfoValue>
+                                    </>
                                 ) : (
-                                    <InfoItem>골격근량: 정보 없음 </InfoItem>
-                                )}
-                            </InfoRow>
+                                    <>
+                                        <InfoLabel>골격근량:</InfoLabel>
 
-                            <InfoRow>
+                                        <InfoValue>정보 없음</InfoValue>
+                                    </>
+                                )}
+                            </InfoItem>
+                            <InfoItem>
                                 {profile.userBodyFatPercentage ? (
-                                    <InfoItem>
-                                        체지방률:{" "}
-                                        {profile.userBodyFatPercentage} %
-                                    </InfoItem>
-                                ) : (
-                                    <InfoItem>체지방률: 정보 없음 </InfoItem>
-                                )}
-                            </InfoRow>
+                                    <>
+                                        <InfoLabel>체지방률:</InfoLabel>
 
-                            <InfoRow>
-                                {profile.userBmr ? (
-                                    <InfoItem>
-                                        기초대사량: {profile.userBmr} kcal
-                                    </InfoItem>
+                                        <InfoValue>
+                                            {profile.userBodyFatPercentage} %
+                                        </InfoValue>
+                                    </>
                                 ) : (
-                                    <InfoItem>기초대사량: 정보 없음 </InfoItem>
+                                    <>
+                                        <InfoLabel>체지방률:</InfoLabel>
+
+                                        <InfoValue>정보 없음</InfoValue>
+                                    </>
                                 )}
-                            </InfoRow>
-                        </InfoContainer>
+                            </InfoItem>
+                            <InfoItem>
+                                {profile.userBmr ? (
+                                    <>
+                                        <InfoLabel>기초대사량:</InfoLabel>
+
+                                        <InfoValue>
+                                            {profile.userBmr} kcal
+                                        </InfoValue>
+                                    </>
+                                ) : (
+                                    <>
+                                        <InfoLabel>기초대사량: </InfoLabel>
+
+                                        <InfoValue>정보 없음</InfoValue>
+                                    </>
+                                )}
+                            </InfoItem>
+                        </InfoSection>
                     </ProfileContainer>
                     <EditButton
                         onClick={() =>
@@ -230,9 +328,28 @@ const ProfilePage = () => {
                     >
                         프로필 수정하기
                     </EditButton>
+                    <LogoutButton onClick={handleLogoutClick}>
+                        로그아웃
+                    </LogoutButton>
                 </>
             ) : (
                 <p>프로필 정보를 불러오지 못했습니다.</p>
+            )}
+
+            {showLogoutConfirm && (
+                <LogoutConfirmModal>
+                    <LogoutConfirmContent>
+                        <p>로그아웃 하시겠습니까?</p>
+                        <LogoutConfirmButton onClick={handleLogoutConfirm}>
+                            확인
+                        </LogoutConfirmButton>
+                        <LogoutCancelButton
+                            onClick={() => setShowLogoutConfirm(false)}
+                        >
+                            취소
+                        </LogoutCancelButton>
+                    </LogoutConfirmContent>
+                </LogoutConfirmModal>
             )}
         </Container>
     );

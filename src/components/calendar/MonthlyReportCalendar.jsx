@@ -6,33 +6,11 @@ import {
     startOfYear,
     endOfYear,
     eachMonthOfInterval,
-    isSameMonth,
     isBefore,
     isAfter,
+    isSameMonth,
 } from "date-fns";
 import { UserContext } from "../../context/LoginContext";
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: #ffffff;
-    width: 100%;
-    padding: 20px;
-`;
-
-const Header = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    margin-bottom: 20px;
-`;
-
-const YearDisplay = styled.h2`
-    color: #ff8000;
-    font-size: 24px;
-`;
 
 const ArrowButton = styled.button`
     background: none;
@@ -76,27 +54,138 @@ const MonthCell = styled.div`
     `}
 `;
 
-const ReportList = styled.div`
-    margin-top: 20px;
+const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #ffffff;
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px;
+`;
+
+const Header = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     width: 100%;
     max-width: 400px;
+    margin-bottom: 20px;
 `;
 
-const ReportItem = styled.div`
-    padding: 10px;
-    margin: 10px 0;
-    background: #f0f0f0;
-    border-radius: 10px;
+const YearDisplay = styled.h2`
+    color: #ff8000;
+    font-size: 24px;
+    margin: 0;
 `;
 
-const Button = styled.button`
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
+const WeekList = styled.ul`
+    list-style-type: none;
+    padding: 0;
+    width: 100%;
+    max-width: 400px;
+    padding-bottom: 20px;
+`;
+
+const WeekItem = styled.li`
+    background-color: ${(props) => (props.hasReport ? "#FFECB3" : "#fff")};
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 15px;
     cursor: pointer;
-    margin-top: 10px;
+    transition: background-color 0.3s;
+
+    &:hover {
+        background-color: ${(props) =>
+            props.hasReport ? "#FFE082" : "#f0f0f0"};
+    }
+`;
+
+const ReportContainer = styled.div`
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+`;
+
+const ReportHeader = styled.div`
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+`;
+
+const BackButton = styled.button`
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+`;
+
+const MessageContainer = styled.div`
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+`;
+
+const InfoContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+`;
+
+const MessageBubble = styled.div`
+    background-color: #ffeeae;
+    border-radius: 30px;
+    padding: 10px 15px;
+    margin: 10px 0;
+    max-width: 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+
+    &::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 30px;
+        width: 0;
+        height: 0;
+        border: 10px solid transparent;
+        border-top-color: #ffeeae;
+        border-bottom: 0;
+        border-left: 0;
+        margin-left: -5px;
+        margin-bottom: -10px;
+    }
+`;
+
+const InfoBubble = styled.div`
+    background-color: rgb(150, 206, 179, 0.3);
+    border-radius: 20px;
+    padding: 10px 15px;
+    margin: 10px 0;
+    max-width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+`;
+
+const UserImage = styled.img`
+    display: flex;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 20px 10px;
+`;
+
+const Title = styled.div`
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
 `;
 
 const Overlay = styled.div`
@@ -120,8 +209,16 @@ const OverlayContent = styled.div`
     overflow-y: auto;
 `;
 
-const CloseButton = styled(Button)`
-    background-color: #ff4136;
+const Button = styled.button`
+    margin-top: 10px;
+    margin: 0px 10px;
+    padding: 10px 20px;
+    background-color: ${(props) => props.color};
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
 `;
 
 const LoadingMessage = styled.div`
@@ -149,14 +246,19 @@ const LoadingSpinner = styled.div`
     }
 `;
 
-const ItemTitle = styled.div`
-    font-size: 20px;
-    margin-bottom: 10px;
+const ConfirmationModal = styled(Overlay)`
+    z-index: 1000;
 `;
 
-const FeedbackContainer = styled.div`
-    background-color: #ffe873;
-    padding: 10px;
+const ModalContent = styled.div`
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+`;
+
+const ModalButton = styled(Button)`
+    margin: 10px;
 `;
 
 export default function MonthlyReportCalendar() {
@@ -167,6 +269,8 @@ export default function MonthlyReportCalendar() {
     const [monthlyReport, setMonthlyReport] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [showOverlay, setShowOverlay] = useState(false);
+    const [userImage, setUserImage] = useState(null);
+    const [showConfirmation, setShowConfirmation] = useState(false);
 
     useEffect(() => {
         fetchReportMonths(currentYear);
@@ -221,6 +325,7 @@ export default function MonthlyReportCalendar() {
 
             if (response.data.isValid) {
                 setMonthlyReport(response.data.monthlyReport);
+                setUserImage(response.data.userImage);
             } else {
                 setMonthlyReport(null);
             }
@@ -232,12 +337,12 @@ export default function MonthlyReportCalendar() {
         }
     };
 
-    const months = eachMonthOfInterval({
-        start: startOfYear(new Date(currentYear, 0, 1)),
-        end: endOfYear(new Date(currentYear, 0, 1)),
-    });
+    const handleCreateReport = () => {
+        setShowConfirmation(true);
+    };
 
     const handleConfirmCreateReport = async () => {
+        setShowConfirmation(false);
         setIsLoading(true);
 
         try {
@@ -256,10 +361,11 @@ export default function MonthlyReportCalendar() {
             );
 
             setMonthlyReport(response.data);
-            // 레포트 생성 후 즉시 reportMonths 업데이트
+            setUserImage(response.data.userImage);
             await fetchReportMonths(currentYear);
         } catch (error) {
             console.error("Error creating report:", error);
+            alert("레포트 생성에 실패했습니다.");
         } finally {
             setIsLoading(false);
         }
@@ -272,178 +378,177 @@ export default function MonthlyReportCalendar() {
         await fetchReportMonths(currentYear);
     };
 
+    const renderMonthlyReport = () => {
+        if (!monthlyReport) return null;
+
+        const {
+            meanCalories,
+            totalExerciseTime,
+            weightChangeRate,
+            meanCarbo,
+            meanProtein,
+            meanFat,
+            bodyFatChangeRate,
+            muscleMassChangeRate,
+            bmiChangeRate,
+            dietFeedback,
+            exerciseFeedback,
+        } = monthlyReport;
+
+        return (
+            <ReportContainer>
+                <ReportHeader>
+                    <BackButton onClick={() => setSelectedMonth(null)}>
+                        &lt;
+                    </BackButton>
+                    <h2>{format(selectedMonth, "yyyy년 M월")} 월간 레포트</h2>
+                </ReportHeader>
+                <Title>월간 요약</Title>
+                <InfoContainer>
+                    <InfoBubble>
+                        <div>평균 일일 칼로리: {meanCalories}kcal</div>
+                        <div>총 운동 시간: {totalExerciseTime}</div>
+                        <div>체중 변화: {weightChangeRate}kg</div>
+                    </InfoBubble>
+                </InfoContainer>
+                <Title>섭취 영양소</Title>
+                <InfoContainer>
+                    <InfoBubble>
+                        <div>평균 일일 탄수화물: {meanCarbo}g</div>
+                        <div>평균 일일 단백질: {meanProtein}g</div>
+                        <div>평균 일일 지방: {meanFat}g</div>
+                    </InfoBubble>
+                </InfoContainer>
+                <Title>체성분 변화</Title>
+                <InfoContainer>
+                    <InfoBubble>
+                        <div>체중: {weightChangeRate}g</div>
+                        <div>체지방: {bodyFatChangeRate}g</div>
+                        <div>근육량: {muscleMassChangeRate}g</div>
+                        <div>BMI: {bmiChangeRate}g</div>
+                    </InfoBubble>
+                </InfoContainer>
+                <Title>식단 피드백</Title>
+                <MessageContainer>
+                    <MessageBubble>{dietFeedback}</MessageBubble>
+                </MessageContainer>
+                <UserImage
+                    src={`data:image/jpeg;base64,${userImage}`}
+                    alt='User'
+                />
+                <Title>운동</Title>
+                <InfoContainer>
+                    <InfoBubble>
+                        <div>총 운동 시간: {totalExerciseTime}</div>
+                    </InfoBubble>
+                </InfoContainer>
+                <Title>운동 피드백</Title>
+                <MessageContainer>
+                    <MessageBubble>{exerciseFeedback}</MessageBubble>
+                </MessageContainer>
+                <UserImage
+                    src={`data:image/jpeg;base64,${userImage}`}
+                    alt='User'
+                />
+            </ReportContainer>
+        );
+    };
+
+    const months = eachMonthOfInterval({
+        start: startOfYear(new Date(currentYear, 0, 1)),
+        end: endOfYear(new Date(currentYear, 0, 1)),
+    });
+
     return (
         <Container>
-            <Header>
-                <ArrowButton
-                    onClick={() => handleYearChange(false)}
-                    disabled={currentYear <= 2020}
-                >
-                    &lt;
-                </ArrowButton>
-                <YearDisplay>{currentYear}년</YearDisplay>
-                <ArrowButton
-                    onClick={() => handleYearChange(true)}
-                    disabled={isBefore(
-                        new Date(),
-                        startOfYear(new Date(currentYear + 1, 0, 1))
-                    )}
-                >
-                    &gt;
-                </ArrowButton>
-            </Header>
-            <MonthGrid>
-                {months.map((month) => {
-                    const isDisabled = isAfter(month, new Date());
-                    return (
-                        <MonthCell
-                            key={month.getTime()}
-                            onClick={() =>
-                                !isDisabled && handleMonthClick(month)
-                            }
-                            hasReport={reportMonths.includes(
-                                format(month, "yyyy-MM")
-                            )}
-                            isDisabled={isDisabled}
-                        >
-                            {format(month, "M")}월
-                        </MonthCell>
-                    );
-                })}
-            </MonthGrid>
-            {showOverlay && (
-                <Overlay onClick={closeOverlay}>
-                    <OverlayContent onClick={(e) => e.stopPropagation()}>
-                        {isLoading ? (
-                            <>
-                                <LoadingSpinner />
-                                <LoadingMessage>
-                                    레포트를 생성 중입니다...
-                                </LoadingMessage>
-                            </>
-                        ) : (
-                            selectedMonth && (
+            {selectedMonth ? (
+                monthlyReport ? (
+                    renderMonthlyReport()
+                ) : (
+                    <Overlay onClick={closeOverlay}>
+                        <OverlayContent onClick={(e) => e.stopPropagation()}>
+                            {isLoading ? (
                                 <>
-                                    <h3>
-                                        {format(selectedMonth, "yyyy년 M월")}{" "}
-                                        레포트
-                                    </h3>
-                                    {monthlyReport ? (
-                                        <>
-                                            <ReportItem>
-                                                <ItemTitle>월간 요약</ItemTitle>
-                                                <div>
-                                                    평균 일일 칼로리:{" "}
-                                                    {monthlyReport.meanCalories}
-                                                    kcal
-                                                </div>
-                                                <div>
-                                                    총 운동 시간:{" "}
-                                                    {
-                                                        monthlyReport.totalExerciseTime
-                                                    }
-                                                </div>
-                                                <div>
-                                                    체중 변화:{" "}
-                                                    {
-                                                        monthlyReport.weightChangeRate
-                                                    }
-                                                    kg
-                                                </div>
-                                            </ReportItem>
-                                            <ReportItem>
-                                                <ItemTitle>
-                                                    섭취 영양소
-                                                </ItemTitle>
-                                                <div>
-                                                    평균 일일 탄수화물:{" "}
-                                                    {monthlyReport.meanCarbo}g
-                                                </div>
-                                                <div>
-                                                    평균 일일 단백질:{" "}
-                                                    {monthlyReport.meanProtein}g
-                                                </div>
-                                                <div>
-                                                    평균 일일 지방:{" "}
-                                                    {monthlyReport.meanFat}g
-                                                </div>
-
-                                                <ItemTitle>
-                                                    체성분 변화
-                                                </ItemTitle>
-
-                                                <div>
-                                                    체중:{" "}
-                                                    {
-                                                        monthlyReport.weightChangeRate
-                                                    }
-                                                    g
-                                                </div>
-                                                <div>
-                                                    체지방:{" "}
-                                                    {
-                                                        monthlyReport.bodyFatChangeRate
-                                                    }
-                                                    g
-                                                </div>
-                                                <div>
-                                                    근육량:{" "}
-                                                    {
-                                                        monthlyReport.muscleMassChangeRate
-                                                    }
-                                                    g
-                                                </div>
-                                                <div>
-                                                    BMI:{" "}
-                                                    {
-                                                        monthlyReport.bmiChangeRate
-                                                    }
-                                                    g
-                                                </div>
-
-                                                <FeedbackContainer>
-                                                    식단 피드백:{" "}
-                                                    {monthlyReport.dietFeedback}
-                                                </FeedbackContainer>
-                                            </ReportItem>
-                                            <ReportItem>
-                                                <ItemTitle>운동</ItemTitle>
-                                                <div>
-                                                    총 운동 시간:{" "}
-                                                    {
-                                                        monthlyReport.totalExerciseTime
-                                                    }
-                                                </div>
-                                                <FeedbackContainer>
-                                                    운동 피드백:{" "}
-                                                    {
-                                                        monthlyReport.exerciseFeedback
-                                                    }
-                                                </FeedbackContainer>
-                                            </ReportItem>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div>
-                                                레포트가 존재하지 않습니다.
-                                            </div>
-                                            <Button
-                                                onClick={
-                                                    handleConfirmCreateReport
-                                                }
-                                            >
-                                                레포트 생성하기
-                                            </Button>
-                                        </>
-                                    )}
-                                    <CloseButton onClick={closeOverlay}>
-                                        닫기
-                                    </CloseButton>
+                                    <LoadingSpinner />
+                                    <LoadingMessage>
+                                        레포트를 생성 중입니다...
+                                    </LoadingMessage>
                                 </>
-                            )
-                        )}
-                    </OverlayContent>
-                </Overlay>
+                            ) : (
+                                <>
+                                    <p>레포트가 존재하지 않습니다.</p>
+                                    <Button
+                                        color='#FF8000'
+                                        onClick={handleCreateReport}
+                                    >
+                                        레포트 생성하기
+                                    </Button>
+                                    <Button
+                                        color='#5ddebe'
+                                        onClick={closeOverlay}
+                                    >
+                                        닫기
+                                    </Button>
+                                </>
+                            )}
+                        </OverlayContent>
+                    </Overlay>
+                )
+            ) : (
+                <>
+                    <Header>
+                        <ArrowButton
+                            onClick={() => handleYearChange(false)}
+                            disabled={currentYear <= 2020}
+                        >
+                            &lt;
+                        </ArrowButton>
+                        <YearDisplay>{currentYear}년</YearDisplay>
+                        <ArrowButton
+                            onClick={() => handleYearChange(true)}
+                            disabled={isBefore(
+                                new Date(),
+                                startOfYear(new Date(currentYear + 1, 0, 1))
+                            )}
+                        >
+                            &gt;
+                        </ArrowButton>
+                    </Header>
+                    <MonthGrid>
+                        {months.map((month) => {
+                            const isDisabled =
+                                isSameMonth(month, new Date()) ||
+                                isAfter(month, new Date());
+                            return (
+                                <MonthCell
+                                    key={month.getTime()}
+                                    onClick={() =>
+                                        !isDisabled && handleMonthClick(month)
+                                    }
+                                    hasReport={reportMonths.includes(
+                                        format(month, "yyyy-MM")
+                                    )}
+                                    isDisabled={isDisabled}
+                                >
+                                    {format(month, "M")}월
+                                </MonthCell>
+                            );
+                        })}
+                    </MonthGrid>
+                </>
+            )}
+            {showConfirmation && (
+                <ConfirmationModal>
+                    <ModalContent>
+                        <p>레포트를 생성하시겠습니까?</p>
+                        <ModalButton onClick={handleConfirmCreateReport}>
+                            확인
+                        </ModalButton>
+                        <ModalButton onClick={() => setShowConfirmation(false)}>
+                            취소
+                        </ModalButton>
+                    </ModalContent>
+                </ConfirmationModal>
             )}
         </Container>
     );

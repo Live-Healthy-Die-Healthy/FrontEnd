@@ -13,7 +13,7 @@ const Container = styled.div`
     width: 100%;
     position: fixed;
     bottom: 0;
-    background-color: #5ddebe;
+    background-color: #ff9b26;
     padding: 10px 0;
 `;
 
@@ -25,7 +25,7 @@ const NavItem = styled(NavLink)`
     display: flex;
     align-items: center;
     text-decoration: none;
-    color: #b53a14;
+    color: #30012f;
     padding: 5px 10px;
     border-radius: 20px;
     transition: all 0.3s ease;
@@ -33,7 +33,7 @@ const NavItem = styled(NavLink)`
     justify-content: center;
 
     svg {
-        font-size: 20px;
+        font-size: 24px;
         margin-right: 5px;
     }
 
@@ -47,17 +47,13 @@ const NavItem = styled(NavLink)`
 
     &:hover,
     &.active {
-        background-color: #ffcb5b;
+        background-color: #96ceb3;
 
         span {
             max-width: 100px;
             opacity: 1;
         }
     }
-`;
-
-const NavCon = styled.div`
-    width: 25%;
 `;
 
 export default function Footer() {

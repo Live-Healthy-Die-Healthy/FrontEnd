@@ -7,13 +7,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 const Container = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     background-color: #ffffff;
     padding: 0 20px;
+    align-items: center;
 `;
 
 const CalendarContainer = styled.div`
     width: 100%;
+    max-width: 1000px;
 `;
 
 const TabContainer = styled.div`
@@ -21,11 +22,12 @@ const TabContainer = styled.div`
     align-items: center;
     margin-top: 40px;
     width: 100%;
+    max-width: 1000px;
     font-size: 30px;
 `;
 
 const CloseButton = styled.button`
-    background-color: #a1d9ff;
+    background-color: #96ceb3;
     border: none;
     color: white;
     font-size: 24px;
@@ -65,7 +67,7 @@ export default function MonthlyDiet() {
                 <span>캘린더</span>
             </TabContainer>
             <CalendarContainer>
-                <DietCalendar />
+                {activeTab === "diet" ? <DietCalendar /> : <TrainingCalendar />}
             </CalendarContainer>
         </Container>
     );

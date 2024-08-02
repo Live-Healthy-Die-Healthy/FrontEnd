@@ -44,10 +44,11 @@ const TabContainer = styled.div`
     margin-top: 40px;
     width: 100%;
     font-size: 30px;
+    max-width: 1000px;
 `;
 
 const CloseButton = styled.button`
-    background-color: #a1d9ff;
+    background-color: #96ceb3;
     border: none;
     color: white;
     font-size: 24px;

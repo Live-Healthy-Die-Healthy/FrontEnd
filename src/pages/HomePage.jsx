@@ -34,7 +34,7 @@ const SlideUpContainer = styled.div`
     flex-direction: column;
     align-items: center;
     width: 100%;
-    background-color: #5ddebe;
+    background-color: #ff9b26;
     transition: height 0.3s ease-in-out;
     border-top-left-radius: 50% 20%;
     border-top-right-radius: 50% 20%;
@@ -76,7 +76,7 @@ const AddButton = styled.button`
 `;
 
 const PCon = styled.p`
-    color: #b53a14;
+    color: #30012f;
 `;
 
 const Header = styled.div`

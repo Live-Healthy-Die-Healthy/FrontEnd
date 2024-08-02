@@ -19,9 +19,25 @@ import { useNavigate } from "react-router-dom";
 const Container = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     background-color: #ffffff;
     width: 100%;
+    min-height: 100vh;
+    padding: 20px;
+`;
+
+const CalendarContainer = styled.div`
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+`;
+
+const CalendarGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    width: 100%;
+    gap: 0;
+    aspect-ratio: 7/6;
 `;
 
 const CalendarHeader = styled.div`
@@ -43,13 +59,6 @@ const ArrowButton = styled.button`
     color: #ff8000;
     cursor: pointer;
     position: relative;
-`;
-
-const CalendarGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    width: 100%;
-    gap: 0;
 `;
 
 const DayCell = styled.div`
@@ -209,6 +218,91 @@ const ModalContent = styled.div`
 const ModalButton = styled(Button)`
     margin: 10px;
 `;
+const ReportContainer = styled.div`
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+`;
+
+const ReportHeader = styled.div`
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+`;
+
+const BackButton = styled.button`
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+`;
+
+const MessageContainer = styled.div`
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+`;
+
+const MessageBubble = styled.div`
+    background-color: #ffeeae;
+    border-radius: 30px;
+    padding: 10px 15px;
+    margin: 10px 0;
+    max-width: 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+
+    &::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 30px;
+        width: 0;
+        height: 0;
+        border: 10px solid transparent;
+        border-top-color: #ffeeae;
+        border-bottom: 0;
+        border-left: 0;
+        margin-left: -5px;
+        margin-bottom: -10px;
+    }
+`;
+
+const InfoBubble = styled.div`
+    background-color: rgb(150, 206, 179, 0.3);
+    border-radius: 20px;
+    padding: 10px 15px;
+    margin: 10px 0;
+    max-width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* 요소들을 왼쪽에 정렬 */
+`;
+
+const InfoContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+`;
+
+const UserImage = styled.img`
+    display: flex;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 20px 10px;
+`;
+
+const Title = styled.div`
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+`;
 
 const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -222,6 +316,7 @@ export default function DailyReportCalendar() {
     const [isValid, setIsValid] = useState(false);
     const [isFilled, setIsFilled] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
+    const [userImage, setUserImage] = useState(null);
     const navigate = useNavigate();
 
     const fetchMonthRecords = async () => {
@@ -254,7 +349,7 @@ export default function DailyReportCalendar() {
 
     useEffect(() => {
         fetchMonthRecords();
-    }, [currentDate, userId, accessToken]);
+    }, [currentDate, userId, accessToken, selectedDate]);
 
     const handleDateClick = async (date) => {
         if (isBefore(date, new Date()) || isSameDay(date, new Date())) {
@@ -272,10 +367,10 @@ export default function DailyReportCalendar() {
                         },
                     }
                 );
-                console.log("response : ", response);
                 setSelectedDateInfo(response.data.dailyReport || null);
                 setIsValid(response.data.isValid);
                 setIsFilled(response.data.isFilled);
+                setUserImage(response.data.userImage);
             } catch (error) {
                 console.error("Error fetching date info:", error);
                 setSelectedDateInfo(null);
@@ -309,6 +404,7 @@ export default function DailyReportCalendar() {
             setIsValid(true);
             setIsFilled(true);
             setSelectedDateInfo(response.data);
+            setUserImage(response.data.userImage);
         } catch (error) {
             console.error("Error creating report:", error);
             alert("레포트 생성에 실패했습니다.");
@@ -335,7 +431,12 @@ export default function DailyReportCalendar() {
         end: addDays(monthEnd, 6 - monthEnd.getDay()),
     });
 
-    const renderDietSection = () => {
+    const closeOverlay = () => {
+        setSelectedDate(null);
+        fetchMonthRecords();
+    };
+
+    const renderReportContent = () => {
         if (!selectedDateInfo) return null;
 
         const {
@@ -353,114 +454,146 @@ export default function DailyReportCalendar() {
             totalCalories,
             recommendedCal,
             dietFeedback,
+            aeroInfo,
+            anAeroInfo,
+            exerciseFeedback,
         } = selectedDateInfo;
 
         return (
-            <RecordSection>
-                <h4>식단 정보</h4>
-                <div>아침 로그: {breakfastLog.join(", ")}</div>
-                <div>아침 총 칼로리: {Math.round(breakfastCal)} kcal</div>
-                <div>점심 로그: {lunchLog.join(", ")}</div>
-                <div>점심 총 칼로리: {Math.round(lunchCal)} kcal</div>
-                <div>저녁 로그: {dinnerLog.join(", ")}</div>
-                <div>저녁 총 칼로리: {Math.round(dinnerCal)} kcal</div>
-                <div>간식 로그: {snackLog.join(", ")}</div>
-                <div>간식 총 칼로리: {Math.round(snackCal)} kcal</div>
-                <div>오늘 총 섭취 탄수화물: {Math.round(totalCarbo)} g</div>
-                <div>오늘 총 섭취 단백질: {Math.round(totalProtein)} g</div>
-                <div>오늘 총 섭취 지방: {Math.round(totalFat)} g</div>
-                <div>오늘 총 섭취 칼로리: {Math.round(totalCalories)} kcal</div>
-                <div>권장 섭취 칼로리: {Math.round(recommendedCal)} kcal</div>
-                <p>피드백: {dietFeedback}</p>
-            </RecordSection>
+            <ReportContainer>
+                <ReportHeader>
+                    <BackButton onClick={() => setSelectedDate(null)}>
+                        &lt;
+                    </BackButton>
+                    <h2>{format(selectedDate, "yyyy.MM.dd")} 레포트</h2>
+                </ReportHeader>
+                <Title>식단 정보</Title>
+                <InfoContainer>
+                    <InfoBubble>
+                        <div>오늘 먹은 아침: {breakfastLog.join(", ")}</div>
+                        <div>
+                            <br />
+                            오늘 먹은 점심: {lunchLog.join(", ")}
+                        </div>
+                        <div>
+                            <br />
+                            오늘 먹은 저녁: {dinnerLog.join(", ")}
+                        </div>
+                        <div>
+                            <br />
+                            오늘 먹은 간식: {snackLog.join(", ")}
+                        </div>
+                        <br />
+                        <div>아침: 총 {breakfastCal}kcal</div>
+                        <br />
+                        <div>점심: 총 {lunchCal}kcal</div>
+                        <br />
+                        <div>저녁: 총 {dinnerCal}kcal</div>
+                        <br />
+                        <div>간식: 총 {snackCal}kcal</div>
+                        <br />
+                        ----------------------
+                        <br />
+                        <div>
+                            오늘 총 섭취 탄수화물: {totalCarbo}g<br />
+                        </div>
+                        <div>
+                            오늘 총 섭취 단백질: {totalProtein}g<br />
+                        </div>
+                        <div>오늘 총 섭취 지방: {totalFat}g</div>
+                        <div>오늘 총 섭취 칼로리: {totalCalories}kcal </div>
+                        <br />
+                        <div>권장 섭취 칼로리: {recommendedCal}kcal</div>
+                    </InfoBubble>
+                </InfoContainer>
+                <Title>식단 피드백</Title>
+                <MessageContainer>
+                    <MessageBubble isUser>{dietFeedback}</MessageBubble>
+                </MessageContainer>
+                <UserImage
+                    src={`data:image/jpeg;base64,${userImage}`}
+                    alt='User'
+                />
+                <Title>운동 정보</Title>
+                <InfoContainer>
+                    <InfoBubble>
+                        <h5>유산소 운동</h5>
+                        {aeroInfo && aeroInfo.length > 0 ? (
+                            aeroInfo.map((exercise, index) => (
+                                <div key={index}>
+                                    {exercise.exerciseName}: {exercise.distance}
+                                    km, {exercise.exerciseTime}분
+                                </div>
+                            ))
+                        ) : (
+                            <div>유산소 운동 정보가 없습니다!</div>
+                        )}
+                        <br />
+                        <h5>무산소 운동</h5>
+                        {anAeroInfo && anAeroInfo.length > 0 ? (
+                            anAeroInfo.map((exercise, index) => (
+                                <div key={index}>
+                                    {exercise.exerciseName}: {exercise.weight}
+                                    kg, {exercise.repetitions}회
+                                </div>
+                            ))
+                        ) : (
+                            <div>무산소 운동 정보가 없습니다!</div>
+                        )}
+                    </InfoBubble>
+                </InfoContainer>
+                <Title>운동 피드백</Title>
+                <MessageContainer>
+                    <MessageBubble isUser>{exerciseFeedback}</MessageBubble>
+                </MessageContainer>
+                <UserImage
+                    src={`data:image/jpeg;base64,${userImage}`}
+                    alt='User'
+                />
+            </ReportContainer>
         );
-    };
-
-    const renderExerciseSection = () => {
-        if (!selectedDateInfo) return null;
-
-        const { aeroInfo, anAeroInfo, exerciseFeedback } = selectedDateInfo;
-
-        return (
-            <RecordSection>
-                <h4>운동 정보</h4>
-                <div>
-                    <h5>유산소 운동</h5>
-                    {aeroInfo && aeroInfo.length > 0 ? (
-                        aeroInfo.map((exercise, index) => (
-                            <div key={index}>
-                                {exercise.exerciseName}: {exercise.distance}km,{" "}
-                                {exercise.exerciseTime}분
-                            </div>
-                        ))
-                    ) : (
-                        <div>유산소 운동 정보가 없습니다!</div>
-                    )}
-                </div>
-                <div>
-                    <h5>무산소 운동</h5>
-                    {anAeroInfo && anAeroInfo.length > 0 ? (
-                        anAeroInfo.map((exercise, index) => (
-                            <div key={index}>
-                                {exercise.exerciseName}: {exercise.weight}kg,{" "}
-                                {exercise.repetitions}회
-                            </div>
-                        ))
-                    ) : (
-                        <div>무산소 운동 정보가 없습니다!</div>
-                    )}
-                </div>
-                <p>피드백: {exerciseFeedback}</p>
-                <Button color='#3846ff' onClick={closeOverlay}>
-                    확인
-                </Button>
-            </RecordSection>
-        );
-    };
-
-    const closeOverlay = () => {
-        setSelectedDate(null);
-        fetchMonthRecords();
     };
 
     return (
         <Container>
             {selectedDate ? (
-                <Overlay onClick={() => setSelectedDate(null)}>
-                    <OverlayContent onClick={(e) => e.stopPropagation()}>
-                        <DateContainer>
-                            {format(selectedDate, "M/d")}
-                        </DateContainer>
-                        {isLoading ? (
-                            <>
-                                <LoadingSpinner />
-                                <LoadingMessage>
-                                    레포트를 생성 중입니다...
-                                </LoadingMessage>
-                            </>
-                        ) : selectedDateInfo ? (
-                            <>
-                                {renderDietSection()}
-                                {renderExerciseSection()}
-                            </>
-                        ) : (
-                            <>
-                                <p>레포트가 존재하지 않습니다.</p>
-                                <Button
-                                    color='#3846ff'
-                                    onClick={handleCreateReport}
-                                >
-                                    레포트 생성하기
-                                </Button>
-                                <Button color='#3846ff' onClick={closeOverlay}>
-                                    닫기
-                                </Button>
-                            </>
-                        )}
-                    </OverlayContent>
-                </Overlay>
+                selectedDateInfo ? (
+                    renderReportContent()
+                ) : (
+                    <Overlay onClick={() => setSelectedDate(null)}>
+                        <OverlayContent onClick={(e) => e.stopPropagation()}>
+                            <DateContainer>
+                                {format(selectedDate, "M/d")}
+                            </DateContainer>
+                            {isLoading ? (
+                                <>
+                                    <LoadingSpinner />
+                                    <LoadingMessage>
+                                        레포트를 생성 중입니다...
+                                    </LoadingMessage>
+                                </>
+                            ) : (
+                                <>
+                                    <p>레포트가 존재하지 않습니다.</p>
+                                    <Button
+                                        color='#FF8000'
+                                        onClick={handleCreateReport}
+                                    >
+                                        레포트 생성하기
+                                    </Button>
+                                    <Button
+                                        color='#5DDEBE'
+                                        onClick={closeOverlay}
+                                    >
+                                        닫기
+                                    </Button>
+                                </>
+                            )}
+                        </OverlayContent>
+                    </Overlay>
+                )
             ) : (
-                <>
+                <CalendarContainer>
                     <CalendarHeader>
                         <ArrowButton onClick={() => changeMonth(-1)}>
                             &lt;
@@ -527,14 +660,14 @@ export default function DailyReportCalendar() {
                                     </DayNumber>
                                     <RecordDots>
                                         {dayRecords.report && (
-                                            <Dot color='#3846ff' />
+                                            <Dot color='#15b18a' />
                                         )}
                                     </RecordDots>
                                 </DayCell>
                             );
                         })}
                     </CalendarGrid>
-                </>
+                </CalendarContainer>
             )}
             {showConfirmation && (
                 <ConfirmationModal>

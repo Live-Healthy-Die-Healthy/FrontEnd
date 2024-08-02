@@ -22,9 +22,8 @@ function Model({ animationName }) {
     const [animations, setAnimations] = useState({});
 
     useEffect(() => {
-        new GLTFLoader().load("./models/scene.gltf", (gltf) => {
+        new GLTFLoader().load("./toon_cat_free/scene.gltf", (gltf) => {
             const newModel = gltf.scene;
-            //   newModel.rotation.y = Math.PI ; // 모델을 180도 회전하여 정면을 보도록 함
             newModel.position.set(0, -0.8, 0); // 모델의 위치를 약간 아래로 조정
             setModel(newModel);
 
@@ -51,21 +50,21 @@ function Model({ animationName }) {
     }, [animationName, animations]);
 
     if (!model) return null;
-    return <primitive object={model} scale={[1.5, 1.5, 1.5]} />; // 모델 크기를 유지하기 위해 scale 추가
+    return <primitive object={model} scale={[0.009, 0.009, 0.009]} />; // 모델 크기를 줄이기 위해 scale 변경
 }
 
 function Camera() {
     const { camera } = useThree();
 
     useEffect(() => {
-        camera.position.set(0, 0.5, 2); // 고정된 카메라 위치
+        camera.position.set(0, 1, 5); // 카메라 위치를 멀리 설정
     }, [camera]);
 
     return null;
 }
 
 export default function ThreeModel() {
-    const [animationName, setAnimationName] = useState("Idle");
+    const [animationName, setAnimationName] = useState("Scene");
 
     return (
         <Container>
@@ -79,7 +78,7 @@ export default function ThreeModel() {
                 <Camera />
                 <OrbitControls
                     enablePan={false}
-                    enableZoom={false}
+                    enableZoom={true}
                     minPolarAngle={Math.PI / 6}
                     maxPolarAngle={Math.PI / 2}
                 />
