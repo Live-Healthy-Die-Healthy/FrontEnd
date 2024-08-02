@@ -1,9 +1,18 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { format, addDays, subDays } from "date-fns";
+import {
+    format,
+    addDays,
+    subDays,
+    isAfter,
+    startOfDay,
+    isSameDay,
+    parseISO,
+} from "date-fns";
 import axios from "axios";
 import { UserContext } from "../../context/LoginContext";
+import EditTrainingOverlay from "../../components/RecordOverlay/EditTrainingOverlay";
 
 const Container = styled.div`
     display: flex;
@@ -127,7 +136,7 @@ const TitleContainer = styled.div`
     display: flex;
     align-self: flex-start;
     width: 100%;
-    justify-content: space-between; // 추가된 부분
+    justify-content: space-between;
 `;
 
 const BackButton = styled.button`
@@ -160,9 +169,19 @@ const ButtonCon = styled.div`
 export default function DailyTraining() {
     const navigate = useNavigate();
     const { date } = useParams();
-    const formattedDate = format(new Date(date), "yyyy-MM-dd");
+    const formattedDate = format(parseISO(date), "yyyy-MM-dd");
     const { accessToken, userId } = useContext(UserContext);
     const [exercises, setExercises] = useState([]);
+    const [editExerciseData, setEditExerciseData] = useState(null);
+
+    const today = startOfDay(new Date());
+    const pageDate = parseISO(formattedDate);
+
+    useEffect(() => {
+        if (isAfter(pageDate, today)) {
+            navigate(`/traindaily/${format(today, "yyyy-MM-dd")}`);
+        }
+    }, [formattedDate, navigate, pageDate, today]);
 
     useEffect(() => {
         const fetchExercises = async () => {
@@ -239,16 +258,53 @@ export default function DailyTraining() {
     };
 
     const editExercise = (exerciseLogId, exerciseName) => {
-        navigate("/edittraining", {
-            state: { date, exerciseLogId, exerciseName },
-        });
+        setEditExerciseData({ exerciseLogId, exerciseName });
     };
 
     const handleDateChange = (increment) => {
-        const newDate = increment
-            ? addDays(new Date(date), 1)
-            : subDays(new Date(date), 1);
+        const newDate = increment ? addDays(pageDate, 1) : subDays(pageDate, 1);
+
+        if (isAfter(newDate, today)) {
+            return;
+        }
+
         navigate(`/traindaily/${format(newDate, "yyyy-MM-dd")}`);
+    };
+
+    const handleEditSave = () => {
+        const fetchExercises = async () => {
+            try {
+                const response = await axios.post(
+                    `${process.env.REACT_APP_API_PORT}/exerciseLog`,
+                    {
+                        exerciseDate: formattedDate,
+                        userId: userId,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }
+                );
+
+                const data = response.data.map((record) => ({
+                    exerciseLogId: record.exerciseLogId,
+                    exerciseName: record.exerciseName,
+                    exerciseType: record.exerciseType,
+                    exerciseImage: record.exerciseImage,
+                    set: record.set,
+                    weight: record.weight,
+                    repetition: record.repetition,
+                    distance: record.distance,
+                    exerciseTime: record.exerciseTime,
+                }));
+                setExercises(data);
+            } catch (error) {
+                console.error("Error fetching exercises:", error);
+            }
+        };
+
+        fetchExercises();
     };
 
     return (
@@ -263,21 +319,29 @@ export default function DailyTraining() {
                 </ButtonCon>
             </TitleContainer>
             <Header>
-                <ArrowButton
-                    direction='left'
-                    onClick={() => handleDateChange(false)}
-                ></ArrowButton>
-                <DateText>
-                    {format(new Date(formattedDate), "yyyy.MM.dd")}
-                </DateText>
-                <ArrowButton
-                    direction='right'
-                    onClick={() => handleDateChange(true)}
-                ></ArrowButton>
+                {!isSameDay(pageDate, today) && (
+                    <ArrowButton
+                        direction='left'
+                        onClick={() => handleDateChange(false)}
+                    ></ArrowButton>
+                )}
+                <DateText>{format(pageDate, "yyyy.MM.dd")}</DateText>
+                {isSameDay(pageDate, today) ? (
+                    <ArrowButton style={{ visibility: "hidden" }}></ArrowButton>
+                ) : (
+                    !isSameDay(addDays(pageDate, 1), today) && (
+                        <ArrowButton
+                            direction='right'
+                            onClick={() => handleDateChange(true)}
+                        ></ArrowButton>
+                    )
+                )}
             </Header>
             <ExerciseContainer>
                 {exercises.length === 0 ? (
-                    <h2>운동 기록이 없습니다.</h2>
+                    <ExerciseItem>
+                        <h2>운동 기록이 없습니다.</h2>
+                    </ExerciseItem>
                 ) : (
                     exercises.map((exercise) => (
                         <ExerciseItem key={exercise.exerciseLogId}>
@@ -340,6 +404,15 @@ export default function DailyTraining() {
                     ))
                 )}
             </ExerciseContainer>
+            {editExerciseData && (
+                <EditTrainingOverlay
+                    exerciseLogId={editExerciseData.exerciseLogId}
+                    exerciseName={editExerciseData.exerciseName}
+                    date={date}
+                    onClose={() => setEditExerciseData(null)}
+                    onSave={handleEditSave}
+                />
+            )}
         </Container>
     );
 }

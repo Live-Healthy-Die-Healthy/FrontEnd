@@ -151,26 +151,14 @@ const GenderButton = styled.button`
 `;
 
 const ProfileSetting = () => {
-    // const location = useLocation();
-    // const { userEmail, userNickname } = location.state;
+    const location = useLocation();
+    const { userEmail, userNickname } = location.state;
     const { userId, accessToken } = useContext(UserContext);
     const [userBirth, setUserBirth] = useState("");
     const [userHeight, setUserHeight] = useState("");
     const [userWeight, setUserWeight] = useState("");
     const [userGender, setUserGender] = useState("Male");
-    const [userImage, setUserImage] = useState();
-
-    useEffect(() => {
-        fetch(profile1)
-            .then((res) => res.blob())
-            .then((blob) => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    setUserImage(reader.result);
-                };
-                reader.readAsDataURL(blob);
-            }); //초기 이미지 1번
-    }, []);
+    const [userImage, setUserImage] = useState(null);
 
     const [userMuscleMass, setUserMuscleMass] = useState(null);
     const [userBmi, setUserBmi] = useState(null);
@@ -180,6 +168,20 @@ const ProfileSetting = () => {
     const navigate = useNavigate();
 
     const profileOptions = [profile1, profile2, profile3, profile4, profile5];
+
+    useEffect(() => {
+        if (!userImage) {
+            fetch(profile1)
+                .then((res) => res.blob())
+                .then((blob) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        setUserImage(reader.result);
+                    };
+                    reader.readAsDataURL(blob);
+                }); //초기 이미지 1번
+        }
+    }, []);
 
     const handleImageSelect = (image) => {
         fetch(image)
@@ -204,8 +206,8 @@ const ProfileSetting = () => {
         try {
             const profileData = {
                 userId,
-                // userEmail,
-                // userNickname,
+                userEmail,
+                userNickname,
                 userBirth,
                 userHeight,
                 userWeight,
@@ -251,11 +253,11 @@ const ProfileSetting = () => {
                     <InfoTitle>기본 정보</InfoTitle>
                     <InfoItem>
                         <InfoLabel>이메일</InfoLabel>
-                        <InfoValue>이메일</InfoValue>
+                        <InfoValue>{userEmail}</InfoValue>
                     </InfoItem>
                     <InfoItem>
                         <InfoLabel>닉네임</InfoLabel>
-                        <InfoValue>닉네임</InfoValue>
+                        <InfoValue>{userNickname}</InfoValue>
                     </InfoItem>
                     <InfoItem>
                         <InfoLabel>생년월일</InfoLabel>

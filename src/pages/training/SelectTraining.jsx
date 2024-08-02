@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
 import { UserContext } from "../../context/LoginContext";
+import RecordTrainingOverlay from "../../components/RecordOverlay/RecordTrainingOverlay";
 
 const Container = styled.div`
     display: flex;
@@ -15,24 +16,86 @@ const Container = styled.div`
 `;
 
 const SearchInput = styled.input`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
     margin: 20px 0;
     padding: 10px;
     width: 80%;
-    font-size: 16px;
+    font-size: 2vw;
+    background-color: rgba(150, 206, 179, 0.25);
+    color: black;
+    border-radius: 30px;
+
+    &::placeholder {
+        color: #7ebc9e;
+    }
+
+    @media (max-width: 768px) {
+        font-size: 4vw;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 5vw;
+    }
 `;
 
-const FilterButton = styled.button`
-    background: #a3d2ca;
+const FilterContainer = styled.div`
+    display: flex;
+    overflow-x: scroll;
+    white-space: nowrap;
+    width: 100%;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 10px 0;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    scrollbar-width: none; /* Firefox */
+    cursor: grab;
+
+    &::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+    }
+
+    & > * {
+        scroll-snap-align: start;
+        flex-shrink: 0; /* Prevents the items from shrinking */
+    }
+`;
+
+const Header = styled.div`
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 100%;
+    padding-left: 20px; /* Optional: Add some padding to the left */
+`;
+
+const MenuSelect = styled.div`
+    font-size: 4vw;
+`;
+
+const BackButton = styled.button`
+    background: none;
     border: none;
-    padding: 10px 20px;
-    margin: 10px;
+    font-size: 4vw; /* Responsive font size */
     cursor: pointer;
-    font-size: 16px;
-    border-radius: 5px;
+    align-self: flex-start;
+    margin: 0px 5px;
+    font-weight: bold;
+    color: #fc6a03;
+
+    @media (max-width: 768px) {
+        font-size: 4vw;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 5vw;
+    }
 `;
 
 const ExerciseButton = styled.button`
-    background: #a3d2ca;
+    background: #ffeeae;
     border: none;
     padding: 10px 20px;
     margin: 10px;
@@ -65,6 +128,27 @@ const StarButton = styled.button`
     margin-left: auto;
 `;
 
+const ExerciseList = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-height: 50vh;
+    overflow-y: auto;
+`;
+
+const FilterButton = styled.button`
+    background: #ffffff;
+    border: 2px solid #a3d2ca;
+    border-radius: 15px;
+    padding: 5px 10px;
+    margin: 0 10px;
+    cursor: pointer;
+    font-size: 16px;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+`;
+
 export default function SelectTraining() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -76,6 +160,13 @@ export default function SelectTraining() {
     const [filteredExercises, setFilteredExercises] = useState([]);
     const [selectedPart, setSelectedPart] = useState("");
     const [localScrapIds, setLocalScrapIds] = useState([]);
+    const [isDragging, setIsDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollLeft, setScrollLeft] = useState(0);
+
+    // 새로 추가된 상태
+    const [showOverlay, setShowOverlay] = useState(false);
+    const [selectedExercise, setSelectedExercise] = useState(null);
 
     useEffect(() => {
         fetchExercises();
@@ -136,21 +227,20 @@ export default function SelectTraining() {
         filterExercises(searchTerm, selectedPart);
     }, [filterExercises, searchTerm, selectedPart]);
 
-    const handleExerciseClick = (
-        exerciseId,
-        exerciseName,
-        exerciseType,
-        exercisePart
-    ) => {
-        navigate("/recordtraining", {
-            state: {
-                date,
-                exerciseId,
-                exerciseName,
-                exerciseType,
-                exercisePart,
-            },
-        });
+    const handleExerciseClick = (exercise) => {
+        setSelectedExercise(exercise);
+        setShowOverlay(true);
+    };
+
+    const handleCloseOverlay = () => {
+        setShowOverlay(false);
+        setSelectedExercise(null);
+    };
+
+    const handleSaveExercise = () => {
+        // 운동 저장 후 필요한 작업 수행
+        // 예: 운동 목록 새로고침
+        fetchExercises();
     };
 
     const handleScrapClick = useCallback(
@@ -205,23 +295,42 @@ export default function SelectTraining() {
         }
     };
 
+    const startDragging = (e) => {
+        setIsDragging(true);
+        setStartX(e.pageX - e.currentTarget.offsetLeft);
+        setScrollLeft(e.currentTarget.scrollLeft);
+    };
+
+    const stopDragging = () => {
+        setIsDragging(false);
+    };
+
+    const onDragging = (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const x = e.pageX - e.currentTarget.offsetLeft;
+        const walk = (x - startX) * 1.5; //scroll-fast
+        e.currentTarget.scrollLeft = scrollLeft - walk;
+    };
+
     return (
         <Container>
-            <h3>운동 선택</h3>
-            <button
-                onClick={() => {
-                    navigate(-1);
-                }}
-            >
-                뒤
-            </button>
+            <Header>
+                <BackButton onClick={() => navigate(-1)}>&lt; </BackButton>
+                <MenuSelect>운동선택</MenuSelect>
+            </Header>
             <SearchInput
                 type='text'
                 placeholder='운동 이름 검색'
                 value={searchTerm}
                 onChange={handleSearchChange}
             />
-            <div>
+            <FilterContainer
+                onMouseDown={startDragging}
+                onMouseLeave={stopDragging}
+                onMouseUp={stopDragging}
+                onMouseMove={onDragging}
+            >
                 <FilterButton onClick={() => handleFilterClick("all")}>
                     전체
                 </FilterButton>
@@ -251,18 +360,11 @@ export default function SelectTraining() {
                 <FilterButton onClick={() => handleFilterClick("scrap")}>
                     즐겨찾기 보기
                 </FilterButton>
-            </div>
+            </FilterContainer>
             {filteredExercises.map((exercise) => (
                 <ExerciseButton
                     key={exercise.exerciseId}
-                    onClick={() =>
-                        handleExerciseClick(
-                            exercise.exerciseId,
-                            exercise.exerciseName,
-                            exercise.exerciseType,
-                            exercise.exercisePart
-                        )
-                    }
+                    onClick={() => handleExerciseClick(exercise)}
                 >
                     <ExerciseContainer>
                         <ExerciseImage
@@ -285,6 +387,14 @@ export default function SelectTraining() {
                     </ExerciseContainer>
                 </ExerciseButton>
             ))}
+            {showOverlay && selectedExercise && (
+                <RecordTrainingOverlay
+                    date={date}
+                    exercise={selectedExercise}
+                    onClose={handleCloseOverlay}
+                    onSave={handleSaveExercise}
+                />
+            )}
         </Container>
     );
 }

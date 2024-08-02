@@ -160,7 +160,9 @@ export default function FriendPage() {
                                 </FriendItem>
                             ))
                         ) : (
-                            <h2>친구가 없습니다</h2>
+                            <h2>
+                                친구들과 아이디를 공유해 친구를 추가해보세요 !
+                            </h2>
                         )}
                     </FriendList>
 

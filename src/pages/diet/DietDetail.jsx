@@ -5,6 +5,7 @@ import axios from "axios";
 import { UserContext } from "../../context/LoginContext";
 import { format } from "date-fns";
 import ImageUploadModal from "../../components/ImageUploadModal";
+import EditDietOverlay from "../../components/RecordOverlay/EditDietOverlay";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip } from "chart.js";
 
@@ -140,7 +141,7 @@ const RemoveButton = styled(ActionButton)`
 
 const ChartContainer = styled.div`
     width: 300px;
-    height: 300px;
+    height: 150px;
     margin: 20px auto;
 `;
 
@@ -166,6 +167,31 @@ const PhotoButton = styled(AddButton)`
     }
 `;
 
+const LegendContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 10px 0px;
+`;
+
+const LegendItem = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 5px;
+`;
+
+const LegendColorBox = styled.div`
+    width: 15px;
+    height: 15px;
+    background-color: ${(props) => props.color};
+    border-radius: 3px;
+`;
+
+const LegendLabel = styled.span`
+    font-size: 14px;
+    color: #333;
+`;
+
 export default function DietDetail() {
     const location = useLocation();
     const { date } = location.state || {};
@@ -175,6 +201,7 @@ export default function DietDetail() {
     const navigate = useNavigate();
     const [dietData, setDietData] = useState([]);
     const [showImageModal, setShowImageModal] = useState(false);
+    const [editDietData, setEditDietData] = useState(null);
 
     const fetchDietData = async () => {
         try {
@@ -218,8 +245,8 @@ export default function DietDetail() {
                     nutritionInfo.protein,
                     nutritionInfo.fat,
                 ],
-                backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
-                hoverBackgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+                backgroundColor: ["#FFD700", "#FF6384", "#36A2EB"],
+                hoverBackgroundColor: ["#FFD700", "#FF6384", "#36A2EB"],
             },
         ],
     };
@@ -240,6 +267,8 @@ export default function DietDetail() {
             },
         },
         maintainAspectRatio: false,
+        rotation: -90,
+        circumference: 180,
     };
 
     useEffect(() => {
@@ -262,10 +291,7 @@ export default function DietDetail() {
     };
 
     const handleEditClick = (dietData) => {
-        navigate(
-            `/editdiet/${formattedDate}/${dietType}/${dietData.dietLogDetailId}`,
-            { state: { dietData } }
-        );
+        setEditDietData(dietData);
     };
 
     const handleDeleteClick = async (dietDetailLogId) => {
@@ -305,6 +331,10 @@ export default function DietDetail() {
         setShowImageModal(false);
     };
 
+    const handleEditSave = () => {
+        fetchDietData();
+    };
+
     const hasRecords = dietData.length > 0;
 
     return (
@@ -330,6 +360,20 @@ export default function DietDetail() {
                     </TotalCalories>
 
                     <ChartContainer>
+                        <LegendContainer>
+                            <LegendItem>
+                                <LegendColorBox color='#FFD700' />
+                                <LegendLabel>탄수화물</LegendLabel>
+                            </LegendItem>
+                            <LegendItem>
+                                <LegendColorBox color='#FF6384' />
+                                <LegendLabel>단백질</LegendLabel>
+                            </LegendItem>
+                            <LegendItem>
+                                <LegendColorBox color='#36A2EB' />
+                                <LegendLabel>지방</LegendLabel>
+                            </LegendItem>
+                        </LegendContainer>
                         <Pie data={chartData} options={chartOptions} />
                     </ChartContainer>
                 </>
@@ -389,6 +433,13 @@ export default function DietDetail() {
                 <ImageUploadModal
                     onClose={() => setShowImageModal(false)}
                     onUpload={handleImageUpload}
+                />
+            )}
+            {editDietData && (
+                <EditDietOverlay
+                    dietData={editDietData}
+                    onClose={() => setEditDietData(null)}
+                    onSave={handleEditSave}
                 />
             )}
         </Container>

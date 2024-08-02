@@ -67,7 +67,7 @@ export default function MonthlyDiet() {
                 <span>캘린더</span>
             </TabContainer>
             <CalendarContainer>
-                {activeTab === "diet" ? <DietCalendar /> : <TrainingCalendar />}
+                <DietCalendar />
             </CalendarContainer>
         </Container>
     );

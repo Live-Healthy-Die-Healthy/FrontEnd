@@ -259,6 +259,20 @@ const ModalContent = styled.div`
 
 const ModalButton = styled(Button)`
     margin: 10px;
+    background-color: ${(props) => props.color};
+`;
+
+const DateContainer = styled.div`
+    display: inline-block;
+    background-color: #49406f;
+    color: #ffffff;
+    border-radius: 20px;
+    width: 100px;
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 `;
 
 export default function MonthlyReportCalendar() {
@@ -422,10 +436,10 @@ export default function MonthlyReportCalendar() {
                 <Title>체성분 변화</Title>
                 <InfoContainer>
                     <InfoBubble>
-                        <div>체중: {weightChangeRate}g</div>
-                        <div>체지방: {bodyFatChangeRate}g</div>
-                        <div>근육량: {muscleMassChangeRate}g</div>
-                        <div>BMI: {bmiChangeRate}g</div>
+                        <div>체중: {weightChangeRate}kg</div>
+                        <div>체지방: {bodyFatChangeRate}%</div>
+                        <div>골격근량: {muscleMassChangeRate}kg</div>
+                        <div>BMI: {bmiChangeRate}kg/m²</div>
                     </InfoBubble>
                 </InfoContainer>
                 <Title>식단 피드백</Title>
@@ -467,6 +481,9 @@ export default function MonthlyReportCalendar() {
                 ) : (
                     <Overlay onClick={closeOverlay}>
                         <OverlayContent onClick={(e) => e.stopPropagation()}>
+                            <DateContainer>
+                                {format(selectedMonth, "yyyy년 M월")}
+                            </DateContainer>
                             {isLoading ? (
                                 <>
                                     <LoadingSpinner />
@@ -541,10 +558,16 @@ export default function MonthlyReportCalendar() {
                 <ConfirmationModal>
                     <ModalContent>
                         <p>레포트를 생성하시겠습니까?</p>
-                        <ModalButton onClick={handleConfirmCreateReport}>
+                        <ModalButton
+                            color='#4799e6'
+                            onClick={handleConfirmCreateReport}
+                        >
                             확인
                         </ModalButton>
-                        <ModalButton onClick={() => setShowConfirmation(false)}>
+                        <ModalButton
+                            color='#f36ca5'
+                            onClick={() => setShowConfirmation(false)}
+                        >
                             취소
                         </ModalButton>
                     </ModalContent>

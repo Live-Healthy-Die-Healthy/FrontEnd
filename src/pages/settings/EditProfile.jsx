@@ -274,12 +274,9 @@ const EditProfile = () => {
                     <InfoTitle>신체 정보</InfoTitle>
                     <InfoItem>
                         <InfoLabel>성별</InfoLabel>
-                        <Input
-                            type='text'
-                            value={userGender}
-                            onChange={(e) => setUserGender(e.target.value)}
-                            placeholder='성별'
-                        />
+                        <InfoValue>
+                            {userGender === "Male" ? "남성" : "여성"}
+                        </InfoValue>
                     </InfoItem>
                     <InfoItem>
                         <InfoLabel>키</InfoLabel>

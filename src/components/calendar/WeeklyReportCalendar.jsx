@@ -245,6 +245,20 @@ const ModalButton = styled(Button)`
     margin: 10px;
 `;
 
+const DateContainer = styled.div`
+    display: inline-block;
+    background-color: #49406f;
+    color: #ffffff;
+    border-radius: 30px;
+    width: 140px;
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 16px;
+`;
+
 export default function WeeklyReportCalendar() {
     const { userId, accessToken } = useContext(UserContext);
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -306,9 +320,9 @@ export default function WeeklyReportCalendar() {
                     weekNumber: index + 1,
                     startDate: weekStart,
                     endDate: weekEnd,
-                    dateRange: `${format(weekStart, "MM/dd")} ~ ${format(
+                    dateRange: `${format(weekStart, "MM.dd")} ~ ${format(
                         weekEnd,
-                        "MM/dd"
+                        "MM.dd"
                     )}`,
                     hasReport: reportDates.includes(
                         format(weekStart, "yyyy-MM-dd")
@@ -497,6 +511,9 @@ export default function WeeklyReportCalendar() {
                 ) : (
                     <Overlay onClick={closeOverlay}>
                         <OverlayContent onClick={(e) => e.stopPropagation()}>
+                            <DateContainer>
+                                {selectedWeek.dateRange}
+                            </DateContainer>
                             {isLoading ? (
                                 <>
                                     <LoadingSpinner />
@@ -572,10 +589,16 @@ export default function WeeklyReportCalendar() {
                                 ? "레포트를 생성하시겠습니까?"
                                 : "이번 주 기록하지 않은 날이 있습니다. 레포트를 받으시겠습니까? 레포트를 받으면 다시 수정할 수 없습니다."}
                         </p>
-                        <ModalButton onClick={handleConfirmCreateReport}>
+                        <ModalButton
+                            color='#4799e6'
+                            onClick={handleConfirmCreateReport}
+                        >
                             확인
                         </ModalButton>
-                        <ModalButton onClick={() => setShowConfirmation(false)}>
+                        <ModalButton
+                            color='#f36ca5'
+                            onClick={() => setShowConfirmation(false)}
+                        >
                             취소
                         </ModalButton>
                     </ModalContent>

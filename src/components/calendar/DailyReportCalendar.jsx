@@ -217,6 +217,7 @@ const ModalContent = styled.div`
 
 const ModalButton = styled(Button)`
     margin: 10px;
+    background-color: ${(props) => props.color};
 `;
 const ReportContainer = styled.div`
     background-color: #ffffff;
@@ -292,8 +293,8 @@ const InfoContainer = styled.div`
 
 const UserImage = styled.img`
     display: flex;
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     margin: 20px 10px;
 `;
@@ -677,10 +678,16 @@ export default function DailyReportCalendar() {
                                 ? "레포트를 생성하시겠습니까?"
                                 : "오늘 기록하지 않은 식단이 있습니다. 레포트를 받으시겠습니까? 레포트를 받으면 다시 수정할 수 없습니다."}
                         </p>
-                        <ModalButton onClick={handleConfirmCreateReport}>
+                        <ModalButton
+                            color='#4799e6'
+                            onClick={handleConfirmCreateReport}
+                        >
                             확인
                         </ModalButton>
-                        <ModalButton onClick={() => setShowConfirmation(false)}>
+                        <ModalButton
+                            color='#f36ca5'
+                            onClick={() => setShowConfirmation(false)}
+                        >
                             취소
                         </ModalButton>
                     </ModalContent>

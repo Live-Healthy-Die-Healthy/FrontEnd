@@ -66,7 +66,7 @@ const AddFriendOverlay = ({ onClose }) => {
         if (friendId === "") {
             alert("친구의 ID를 입력해주세요 !");
             return;
-        } else if (userId === friendId) {
+        } else if (userId == friendId) {
             alert("자신은 친구로 추가할 수 없습니다.");
             setFriendId("");
             return;
