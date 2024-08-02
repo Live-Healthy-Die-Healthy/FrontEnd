@@ -159,7 +159,7 @@ const LegendDot = styled.div`
 
 const DateContainer = styled.div`
     display: inline-block;
-    background-color: #49406F;
+    background-color: #49406f;
     color: #ffffff;
     border-radius: 50%;
     width: 45px;
@@ -195,6 +195,21 @@ const LoadingSpinner = styled.div`
     }
 `;
 
+const ConfirmationModal = styled(Overlay)`
+    z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+`;
+
+const ModalButton = styled(Button)`
+    margin: 10px;
+`;
+
 const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
 
 export default function DailyReportCalendar() {
@@ -203,40 +218,43 @@ export default function DailyReportCalendar() {
     const [records, setRecords] = useState({});
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedDateInfo, setSelectedDateInfo] = useState(null);
-    const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
+    const [isValid, setIsValid] = useState(false);
+    const [isFilled, setIsFilled] = useState(false);
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const navigate = useNavigate();
+
+    const fetchMonthRecords = async () => {
+        try {
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_PORT}/report/dailyReportDate`,
+                {
+                    userId,
+                    month: format(currentDate, "yyyy-MM"),
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+
+            const combinedRecords = {};
+            response.data.date.forEach((record) => {
+                const date = record.split("T")[0];
+                if (!combinedRecords[date]) combinedRecords[date] = {};
+                combinedRecords[date].report = true;
+            });
+
+            setRecords(combinedRecords);
+        } catch (error) {
+            console.error("Error fetching month records:", error);
+        }
+    };
 
     useEffect(() => {
-        const fetchMonthRecords = async () => {
-            try {
-                const response = await axios.post(
-                    `${process.env.REACT_APP_API_PORT}/report/dailyReportDate`,
-                    {
-                        userId,
-                        month: format(currentDate, "yyyy-MM"),
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                        },
-                    }
-                );
-
-                const combinedRecords = {};
-                response.data.date.forEach((record) => {
-                    const date = record.split("T")[0];
-                    if (!combinedRecords[date]) combinedRecords[date] = {};
-                    combinedRecords[date].report = true;
-                });
-
-                setRecords(combinedRecords);
-            } catch (error) {
-                console.error("Error fetching month records:", error);
-            }
-        };
-
         fetchMonthRecords();
-    }, [currentDate, userId, selectedDate]);
+    }, [currentDate, userId, accessToken]);
 
     const handleDateClick = async (date) => {
         if (isBefore(date, new Date()) || isSameDay(date, new Date())) {
@@ -254,8 +272,10 @@ export default function DailyReportCalendar() {
                         },
                     }
                 );
-
+                console.log("response : ", response);
                 setSelectedDateInfo(response.data.dailyReport || null);
+                setIsValid(response.data.isValid);
+                setIsFilled(response.data.isFilled);
             } catch (error) {
                 console.error("Error fetching date info:", error);
                 setSelectedDateInfo(null);
@@ -263,8 +283,14 @@ export default function DailyReportCalendar() {
         }
     };
 
-    const handleCreateReport = async () => {
+    const handleCreateReport = () => {
+        setShowConfirmation(true);
+    };
+
+    const handleConfirmCreateReport = async () => {
+        setShowConfirmation(false);
         setIsLoading(true);
+
         try {
             const response = await axios.post(
                 `${process.env.REACT_APP_API_PORT}/report/newDaily`,
@@ -280,6 +306,8 @@ export default function DailyReportCalendar() {
                 }
             );
 
+            setIsValid(true);
+            setIsFilled(true);
             setSelectedDateInfo(response.data);
         } catch (error) {
             console.error("Error creating report:", error);
@@ -361,7 +389,8 @@ export default function DailyReportCalendar() {
                     {aeroInfo && aeroInfo.length > 0 ? (
                         aeroInfo.map((exercise, index) => (
                             <div key={index}>
-                                {exercise.exerciseName}: {exercise.distance}km, {exercise.exerciseTime}분
+                                {exercise.exerciseName}: {exercise.distance}km,{" "}
+                                {exercise.exerciseTime}분
                             </div>
                         ))
                     ) : (
@@ -373,7 +402,8 @@ export default function DailyReportCalendar() {
                     {anAeroInfo && anAeroInfo.length > 0 ? (
                         anAeroInfo.map((exercise, index) => (
                             <div key={index}>
-                                {exercise.exerciseName}: {exercise.weight}kg, {exercise.repetitions}회
+                                {exercise.exerciseName}: {exercise.weight}kg,{" "}
+                                {exercise.repetitions}회
                             </div>
                         ))
                     ) : (
@@ -381,8 +411,16 @@ export default function DailyReportCalendar() {
                     )}
                 </div>
                 <p>피드백: {exerciseFeedback}</p>
+                <Button color='#3846ff' onClick={closeOverlay}>
+                    확인
+                </Button>
             </RecordSection>
         );
+    };
+
+    const closeOverlay = () => {
+        setSelectedDate(null);
+        fetchMonthRecords();
     };
 
     return (
@@ -390,11 +428,15 @@ export default function DailyReportCalendar() {
             {selectedDate ? (
                 <Overlay onClick={() => setSelectedDate(null)}>
                     <OverlayContent onClick={(e) => e.stopPropagation()}>
-                        <DateContainer>{format(selectedDate, "M/d")}</DateContainer>
+                        <DateContainer>
+                            {format(selectedDate, "M/d")}
+                        </DateContainer>
                         {isLoading ? (
                             <>
                                 <LoadingSpinner />
-                                <LoadingMessage>레포트를 생성 중입니다...</LoadingMessage>
+                                <LoadingMessage>
+                                    레포트를 생성 중입니다...
+                                </LoadingMessage>
                             </>
                         ) : selectedDateInfo ? (
                             <>
@@ -404,8 +446,14 @@ export default function DailyReportCalendar() {
                         ) : (
                             <>
                                 <p>레포트가 존재하지 않습니다.</p>
-                                <Button color='#3846ff' onClick={handleCreateReport}>
+                                <Button
+                                    color='#3846ff'
+                                    onClick={handleCreateReport}
+                                >
                                     레포트 생성하기
+                                </Button>
+                                <Button color='#3846ff' onClick={closeOverlay}>
+                                    닫기
                                 </Button>
                             </>
                         )}
@@ -414,29 +462,40 @@ export default function DailyReportCalendar() {
             ) : (
                 <>
                     <CalendarHeader>
-                        <ArrowButton onClick={() => changeMonth(-1)}>&lt;</ArrowButton>
-                        <MonthYear>{format(currentDate, "yyyy년 M월")}</MonthYear>
+                        <ArrowButton onClick={() => changeMonth(-1)}>
+                            &lt;
+                        </ArrowButton>
+                        <MonthYear>
+                            {format(currentDate, "yyyy년 M월")}
+                        </MonthYear>
                         {!isSameMonth(new Date(), currentDate) && (
                             <ArrowButton onClick={() => changeMonth(1)}>
                                 &gt;
                             </ArrowButton>
                         )}
                     </CalendarHeader>
-                    <LegendContainer>
+                    {/* <LegendContainer>
                         <LegendItem color='#a1d9ff'>
                             <LegendDot color='#3846ff' />
                             <span>레포트</span>
                         </LegendItem>
-                    </LegendContainer>
+                    </LegendContainer> */}
                     <CalendarGrid>
                         {weekDays.map((day) => (
-                            <DayCell key={day} isWeekDay style={{ color: "black" }}>
+                            <DayCell
+                                key={day}
+                                isWeekDay
+                                style={{ color: "black" }}
+                            >
                                 {day}
                             </DayCell>
                         ))}
                         {monthDays.map((day, index) => {
                             const formattedDate = format(day, "yyyy-MM-dd");
-                            const isCurrentMonth = isSameMonth(day, currentDate);
+                            const isCurrentMonth = isSameMonth(
+                                day,
+                                currentDate
+                            );
                             const isDisabled =
                                 isBefore(new Date(), day) && !isToday(day);
                             const dayRecords = records[formattedDate] || {};
@@ -450,25 +509,49 @@ export default function DailyReportCalendar() {
                                     isToday={isToday(day)}
                                     isCurrentMonth={isCurrentMonth}
                                     isDisabled={isDisabled}
-                                    onClick={() => !isDisabled && handleDateClick(day)}
+                                    onClick={() =>
+                                        !isDisabled && handleDateClick(day)
+                                    }
                                     isTopRow={isTopRow}
                                     isLeftColumn={isLeftColumn}
                                     isRightColumn={isRightColumn}
                                 >
                                     <DayNumber
                                         isToday={isToday(day)}
-                                        isSelected={isSameDay(day, selectedDate)}
+                                        isSelected={isSameDay(
+                                            day,
+                                            selectedDate
+                                        )}
                                     >
                                         {format(day, "d")}
                                     </DayNumber>
                                     <RecordDots>
-                                        {dayRecords.report && <Dot color='#3846ff' />}
+                                        {dayRecords.report && (
+                                            <Dot color='#3846ff' />
+                                        )}
                                     </RecordDots>
                                 </DayCell>
                             );
                         })}
                     </CalendarGrid>
                 </>
+            )}
+            {showConfirmation && (
+                <ConfirmationModal>
+                    <ModalContent>
+                        <p>
+                            {isFilled
+                                ? "레포트를 생성하시겠습니까?"
+                                : "오늘 기록하지 않은 식단이 있습니다. 레포트를 받으시겠습니까? 레포트를 받으면 다시 수정할 수 없습니다."}
+                        </p>
+                        <ModalButton onClick={handleConfirmCreateReport}>
+                            확인
+                        </ModalButton>
+                        <ModalButton onClick={() => setShowConfirmation(false)}>
+                            취소
+                        </ModalButton>
+                    </ModalContent>
+                </ConfirmationModal>
             )}
         </Container>
     );

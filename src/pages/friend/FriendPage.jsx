@@ -12,8 +12,7 @@ const Container = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 10vh;
-    margin-bottom: 25vh;
+    padding: 0 20px;
 `;
 
 const ButtonContainer = styled.div`
@@ -56,6 +55,30 @@ const FriendImage = styled.img`
     margin-right: 10px;
 `;
 
+const TabContainer = styled.div`
+    display: flex;
+    align-items: center;
+    margin-top: 40px;
+    width: 100%;
+    font-size: 30px;
+`;
+
+const CloseButton = styled.button`
+    background-color: #a1d9ff;
+    border: none;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin: 0px 10px;
+`;
+
 export default function FriendPage() {
     const navigate = useNavigate();
     const [showAddFriend, setShowAddFriend] = useState(false);
@@ -92,6 +115,10 @@ export default function FriendPage() {
 
     return (
         <Container>
+            <TabContainer>
+                <CloseButton onClick={() => navigate("/home")}>X</CloseButton>
+                <span>친구</span>
+            </TabContainer>
             {!selectedFriend ? (
                 <>
                     <ButtonContainer>

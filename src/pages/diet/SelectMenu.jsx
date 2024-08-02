@@ -9,8 +9,25 @@ const Container = styled.div`
     justify-content: center;
     align-items: center;
     text-align: center;
-    margin-top: 10vh;
+    margin-top: 5vh;
     margin-bottom: 10vh;
+`;
+
+const BackButton = styled.button`
+    background: none;
+    border: none;
+    font-size: 2vw; /* Responsive font size */
+    cursor: pointer;
+    align-self: flex-start;
+    margin: 10px 20px;
+
+    @media (max-width: 768px) {
+        font-size: 4vw;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 5vw;
+    }
 `;
 
 const SearchInput = styled.input`
@@ -21,32 +38,93 @@ const SearchInput = styled.input`
     margin: 20px 0;
     padding: 10px;
     width: 80%;
-    font-size: 16px;
+    font-size: 2vw; /* Responsive font size */
+
+    @media (max-width: 768px) {
+        font-size: 4vw;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 5vw;
+    }
 `;
 
 const MenuButton = styled.button`
-    background: #a3d2ca;
+    background: #ffb784;
+    color: #000000;
     border: none;
     padding: 10px 20px;
     margin: 10px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 2vw; /* Responsive font size */
     border-radius: 5px;
     width: 80%;
+
+    @media (max-width: 768px) {
+        font-size: 4vw;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 5vw;
+    }
 `;
 
 const MenuContainer = styled.div`
     display: flex;
-    align-items: center;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
     margin: 10px 0px;
 `;
 
-const InfoContainer = styled.div`
-    margin-left: 30px;
+const MenuName = styled.div`
+    font-size: 2vw; /* Responsive font size */
+    font-weight: bold;
+    margin-bottom: 5px;
+
+    @media (max-width: 768px) {
+        font-size: 90%;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 5vw;
+    }
 `;
 
-const InfoContainertwo = styled.div`
-    margin-left: auto;
+const InfoContainer = styled.div`
+    margin-bottom: 5px;
+    font-size: 1.5vw;
+
+    @media (max-width: 768px) {
+        font-size: 3vw;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 4vw;
+    }
+`;
+
+const NutrientContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 27%; /* Fixed width */
+    margin-left: 10px;
+`;
+
+const CalorieGIContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 27%; /* Fixed width */
+    margin-left: 10px;
+`;
+
+const ColumnContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: 1; /* Ensure this container takes up the necessary space */
 `;
 
 export default function SelectMenu() {
@@ -94,59 +172,52 @@ export default function SelectMenu() {
     };
 
     return (
-        <>
-            <Container>
-                <h3>메뉴 선택</h3>
-                <button
-                    onClick={() => {
-                        navigate(-1);
-                    }}
+        <Container>
+            <BackButton onClick={() => navigate(-1)}>&lt; 메뉴선택</BackButton>
+            <SearchInput
+                type='text'
+                placeholder='메뉴 이름 검색'
+                value={searchTerm}
+                onChange={handleSearchChange}
+            />
+            {filteredMenus.map((menu) => (
+                <MenuButton
+                    key={menu.menuId}
+                    onClick={() =>
+                        handleMenuClick(
+                            menu.menuId,
+                            menu.menuName,
+                            menu.menuCalorie
+                        )
+                    }
                 >
-                    뒤
-                </button>
-                <SearchInput
-                    type='text'
-                    placeholder='메뉴 이름 검색'
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                />
-                {filteredMenus.map((menu) => (
-                    <MenuButton
-                        key={menu.menuId}
-                        onClick={() =>
-                            handleMenuClick(
-                                menu.menuId,
-                                menu.menuName,
-                                menu.menuCalorie
-                            )
-                        }
-                    >
-                        <MenuContainer>
-                            {menu.menuName}
-                            <InfoContainertwo>
-                                <InfoContainer>
-                                    {Math.round(menu.menuCalorie * 100)} kcal
-                                </InfoContainer>
-                                <InfoContainer>
-                                    탄수화물 {Math.round(menu.menuCarbo * 100)}{" "}
-                                    g
-                                </InfoContainer>
-                                <InfoContainer>
-                                    프로틴 {Math.round(menu.menuProtein * 100)}{" "}
-                                    g
-                                </InfoContainer>
-                                <InfoContainer>
-                                    지방 {Math.round(menu.menuFat * 100)} g
-                                </InfoContainer>
-                                <InfoContainer>
-                                    GI지수 {Math.round(menu.menuGI)}
-                                </InfoContainer>
-                            </InfoContainertwo>
+                    <MenuContainer>
+                        <ColumnContainer>
+                            <MenuName>{menu.menuName}</MenuName>
                             <InfoContainer>100g당</InfoContainer>
-                        </MenuContainer>
-                    </MenuButton>
-                ))}
-            </Container>
-        </>
+                        </ColumnContainer>
+                        <CalorieGIContainer>
+                            <InfoContainer>
+                                {Math.round(menu.menuCalorie * 100)} kcal
+                            </InfoContainer>
+                            <InfoContainer>
+                                GI지수 {Math.round(menu.menuGI)}
+                            </InfoContainer>
+                        </CalorieGIContainer>
+                        <NutrientContainer>
+                            <InfoContainer>
+                                탄수화물 {Math.round(menu.menuCarbo * 100)} g
+                            </InfoContainer>
+                            <InfoContainer>
+                                프로틴 {Math.round(menu.menuProtein * 100)} g
+                            </InfoContainer>
+                            <InfoContainer>
+                                지방 {Math.round(menu.menuFat * 100)} g
+                            </InfoContainer>
+                        </NutrientContainer>
+                    </MenuContainer>
+                </MenuButton>
+            ))}
+        </Container>
     );
 }

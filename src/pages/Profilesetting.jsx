@@ -67,7 +67,7 @@ const HiddenInput = styled.input`
 const ProfileSetting = () => {
     const location = useLocation();
     const { userEmail, userNickname } = location.state;
-    const { userId,accessToken } = useContext(UserContext);
+    const { userId, accessToken } = useContext(UserContext);
     const [userBirth, setUserBirth] = useState("");
     const [userHeight, setUserHeight] = useState("");
     const [userWeight, setUserWeight] = useState("");
@@ -123,13 +123,13 @@ const ProfileSetting = () => {
 
             const response = await axios.post(
                 `${process.env.REACT_APP_API_PORT}/newProfile`,
-                {profileData},
+                { profileData },
                 {
                     headers: {
-                        'Content-Type': 'application/json',
+                        "Content-Type": "application/json",
                         Authorization: `Bearer ${accessToken}`,
                         // 필요한 경우 추가 헤더 설정
-                    }
+                    },
                 }
             );
             alert("프로필이 성공적으로 업데이트되었습니다.");

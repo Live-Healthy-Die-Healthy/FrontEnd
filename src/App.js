@@ -104,7 +104,6 @@ function AppContent() {
     <UserContext.Provider
       value={{ accessToken, setAccessToken, refreshToken, setRefreshToken, loginType, setLoginType, userId, setUserId }}
     >
-      {shouldShowHeaderFooter && <Header />}
       <ContentContainer>
         <Routes>
           <Route path="/" element={<LoginPage />} />

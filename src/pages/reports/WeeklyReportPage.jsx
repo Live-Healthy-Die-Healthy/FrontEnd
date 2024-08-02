@@ -10,6 +10,8 @@ import {
     isBefore,
     startOfToday,
     parseISO,
+    addMonths,
+    subMonths,
 } from "date-fns";
 import { UserContext } from "../../context/LoginContext";
 import axios from "axios";
@@ -22,6 +24,26 @@ const Container = styled.div`
     height: 100vh;
     text-align: center;
     padding-bottom: 50vh;
+`;
+
+const NavigationButtons = styled.div`
+    display: flex;
+    justify-content: space-between;
+    width: 200px;
+    margin-bottom: 20px;
+`;
+
+const Button = styled.button`
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    &:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
+    }
 `;
 
 const ReportList = styled.div`
@@ -40,6 +62,11 @@ const ReportItem = styled.div`
     margin: 10px 0;
     background: #f0f0f0;
     border-radius: 10px;
+    ${({ highlighted }) =>
+        highlighted &&
+        `
+        background: #e6f3ff;
+    `}
 `;
 
 const SelectWrapper = styled.div`
@@ -50,16 +77,6 @@ const SelectWrapper = styled.div`
 const AlertMessage = styled.div`
     color: red;
     margin-bottom: 10px;
-`;
-
-const Button = styled.button`
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-bottom: 20px;
 `;
 
 const CreateReportButton = styled(Button)`
@@ -134,8 +151,8 @@ const DailyCalories = styled.div`
 `;
 
 const WeeklyReportPage = () => {
-    const [selectedYear, setSelectedYear] = useState(null);
-    const [selectedMonth, setSelectedMonth] = useState(null);
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
     const [selectedWeek, setSelectedWeek] = useState(null);
     const [startOfWeek, setStartOfWeek] = useState(null);
     const { userId, accessToken } = useContext(UserContext);
@@ -155,9 +172,7 @@ const WeeklyReportPage = () => {
     }, [weeklyReport]);
 
     useEffect(() => {
-        if (selectedYear && selectedMonth) {
-            updateWeekOptions();
-        }
+        updateWeekOptions();
     }, [selectedYear, selectedMonth, highlightedDates]);
 
     const getYearOptions = () => {
@@ -208,10 +223,7 @@ const WeeklyReportPage = () => {
 
     const updateWeekOptions = () => {
         if (selectedYear && selectedMonth) {
-            const newWeekOptions = getWeekOptions(
-                selectedYear.value,
-                selectedMonth.value
-            );
+            const newWeekOptions = getWeekOptions(selectedYear, selectedMonth);
             setWeekOptions(newWeekOptions);
         }
     };
@@ -226,42 +238,17 @@ const WeeklyReportPage = () => {
         }),
     };
 
-    const handleYearChange = (option) => {
-        setSelectedYear(option);
-        setSelectedMonth(null);
-        setSelectedWeek(null);
-        setAlertMessage("");
-        setHighlightedDates([]);
-        setWeekOptions([]);
+    const handlePreviousMonth = () => {
+        const newDate = subMonths(new Date(selectedYear, selectedMonth), 1);
+        setSelectedYear(newDate.getFullYear());
+        setSelectedMonth(newDate.getMonth());
     };
 
-    const handleMonthChange = async (option) => {
-        setSelectedMonth(option);
-        setSelectedWeek(null);
-        setAlertMessage("");
-        setHighlightedDates([]);
-
-        try {
-            const response = await axios.post(
-                `${process.env.REACT_APP_API_PORT}/report/weeklyReportDate`,
-                {
-                    userId: userId,
-                    month: `${selectedYear.value}-${String(
-                        option.value + 1
-                    ).padStart(2, "0")}`,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
-
-            setHighlightedDates(response.data.date);
-            console.log("Fetched dates:", response.data.date);
-        } catch (error) {
-            console.error("Error fetching report dates:", error);
-            setAlertMessage("날짜 정보를 가져오는데 실패했습니다.");
+    const handleNextMonth = () => {
+        const newDate = addMonths(new Date(selectedYear, selectedMonth), 1);
+        if (isBefore(newDate, new Date())) {
+            setSelectedYear(newDate.getFullYear());
+            setSelectedMonth(newDate.getMonth());
         }
     };
 
@@ -348,7 +335,7 @@ const WeeklyReportPage = () => {
     };
 
     const yearOptions = getYearOptions();
-    const monthOptions = selectedYear ? getMonthOptions() : [];
+    const monthOptions = getMonthOptions();
 
     const formatTime = (minutes) => {
         const hours = Math.floor(minutes / 60);
@@ -367,38 +354,41 @@ const WeeklyReportPage = () => {
             <>
                 <Section>
                     <SectionTitle>주간 식단 레포트</SectionTitle>
-                    {weekDays && weekDays.map((day, index) => (
-                        <DailyCalories key={day}>
-                            <span>{day}요일:</span>
-                            <span>{weeklyReport.weeklyCal[index]} kcal</span>
-                        </DailyCalories>
-                    ))}
+                    {weekDays &&
+                        weekDays.map((day, index) => (
+                            <DailyCalories key={day}>
+                                <span>{day}요일:</span>
+                                <span>
+                                    {weeklyReport.weeklyCal[index]} kcal
+                                </span>
+                            </DailyCalories>
+                        ))}
                     <DailyCalories>
                         <strong>평균 섭취 칼로리:</strong>
                         <strong>
                             {Math.round(weeklyReport.meanCalories)} kcal
                         </strong>
                     </DailyCalories>
-                    
+
                     <DailyCalories>
                         <strong>평균 섭취 탄수화물:</strong>
                         <strong>
                             {Math.round(weeklyReport.meanCarbo)} kcal
-                        </strong></DailyCalories>
-                        
+                        </strong>
+                    </DailyCalories>
+
                     <DailyCalories>
-                        
                         <strong>평균 섭취 단백질:</strong>
                         <strong>
                             {Math.round(weeklyReport.meanProtein)} kcal
-                        </strong></DailyCalories>
-                    
+                        </strong>
+                    </DailyCalories>
+
                     <DailyCalories>
                         <strong>평균 섭취 지방:</strong>
-                        <strong>
-                            {Math.round(weeklyReport.meanFat)} kcal
-                        </strong></DailyCalories>
-                    
+                        <strong>{Math.round(weeklyReport.meanFat)} kcal</strong>
+                    </DailyCalories>
+
                     <p>피드백: {weeklyReport.dietFeedback}</p>
                 </Section>
 
@@ -413,10 +403,7 @@ const WeeklyReportPage = () => {
                         <div>
                             유산소 : {Math.round(weeklyReport.aerobicRatio)}%
                         </div>
-                
-                        <div>
-                            무산소
-                        </div>
+                        <div>무산소</div>
                         <ul>
                             <li>
                                 가슴:{" "}
@@ -457,18 +444,36 @@ const WeeklyReportPage = () => {
         <Container>
             <h3>주간 레포트 리스트 페이지</h3>
             {alertMessage && <AlertMessage>{alertMessage}</AlertMessage>}
+            <NavigationButtons>
+                <Button onClick={handlePreviousMonth}>이전</Button>
+                <div>
+                    {selectedYear}년 {selectedMonth + 1}월
+                </div>
+                <Button
+                    onClick={handleNextMonth}
+                    disabled={isBefore(
+                        new Date(selectedYear, selectedMonth, 1),
+                        new Date()
+                    )}
+                >
+                    다음
+                </Button>
+            </NavigationButtons>
             <SelectWrapper>
                 <Select
-                    value={selectedYear}
-                    onChange={handleYearChange}
+                    value={{ value: selectedYear, label: `${selectedYear}년` }}
+                    onChange={(option) => setSelectedYear(option.value)}
                     options={yearOptions}
                     placeholder='년 선택'
                 />
             </SelectWrapper>
             <SelectWrapper>
                 <Select
-                    value={selectedMonth}
-                    onChange={handleMonthChange}
+                    value={{
+                        value: selectedMonth,
+                        label: `${selectedMonth + 1}월`,
+                    }}
+                    onChange={(option) => setSelectedMonth(option.value)}
                     options={monthOptions}
                     placeholder='월 선택'
                     isDisabled={!selectedYear}

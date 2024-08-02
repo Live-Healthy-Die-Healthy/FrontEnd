@@ -311,7 +311,11 @@ export default function DietDetail() {
         <Container>
             <HeaderContainer>
                 <TitleContainer>
-                    <BackButton onClick={() => navigate(-1)}>{"<"}</BackButton>
+                    <BackButton
+                        onClick={() => navigate(`/dietdaily/${formattedDate}`)}
+                    >
+                        {"<"}
+                    </BackButton>
                     <Title>
                         {formattedDate} {getMealTypeText(dietType)}
                     </Title>

@@ -5,14 +5,13 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/LoginContext";
 import { format } from "date-fns";
 import default_image from "../../image/default-profile.png";
-import { prettyDOM } from "@testing-library/react";
 
 const Container = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    padding: 0 20px;
     text-align: center;
 `;
 
@@ -77,6 +76,30 @@ const EditButton = styled.button`
     border-radius: 5px;
 `;
 
+const TabContainer = styled.div`
+    display: flex;
+    align-items: center;
+    margin-top: 40px;
+    width: 100%;
+    font-size: 30px;
+`;
+
+const CloseButton = styled.button`
+    background-color: #a1d9ff;
+    border: none;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin: 0px 10px;
+`;
+
 const ProfilePage = () => {
     const { userId, accessToken } = useContext(UserContext);
     const [profile, setProfile] = useState(null);
@@ -117,6 +140,10 @@ const ProfilePage = () => {
 
     return (
         <Container>
+            <TabContainer>
+                <CloseButton onClick={() => navigate("/home")}>X</CloseButton>
+                <span>친구</span>
+            </TabContainer>
             {profile ? (
                 <>
                     <ProfileContainer>
@@ -140,21 +167,37 @@ const ProfilePage = () => {
                                 <InfoItem>
                                     몸무게: {profile.userWeight} kg
                                 </InfoItem>
-                            {profile.userBmi ? 
-                            (<InfoItem>BMI: {profile.userBmi} kg/m^2</InfoItem>) : ( <InfoItem>BMI: 정보 없음 </InfoItem>)
-                            }
+                                {profile.userBmi ? (
+                                    <InfoItem>
+                                        BMI: {profile.userBmi} kg/m^2
+                                    </InfoItem>
+                                ) : (
+                                    <InfoItem>BMI: 정보 없음 </InfoItem>
+                                )}
                             </InfoRow>
                             <InfoRow>
-                                
-                            {profile.userBmi ? 
-                            (<InfoItem>골격근량: {profile.userMuscleMass} kg</InfoItem>) : ( <InfoItem>골격근량: 정보 없음 </InfoItem>)
-                            }
-                            {profile.userBodyFatPercentage ? 
-                            (<InfoItem>체지방률: {profile.userBodyFatPercentage} %</InfoItem>) : ( <InfoItem>체지방률: 정보 없음 </InfoItem>)
-                            }
-                            {profile.userBmr ? 
-                            (<InfoItem>기초대사량: {profile.userBmr} kcal</InfoItem>) : ( <InfoItem>기초대사량: 정보 없음 </InfoItem>)
-                            }
+                                {profile.userBmi ? (
+                                    <InfoItem>
+                                        골격근량: {profile.userMuscleMass} kg
+                                    </InfoItem>
+                                ) : (
+                                    <InfoItem>골격근량: 정보 없음 </InfoItem>
+                                )}
+                                {profile.userBodyFatPercentage ? (
+                                    <InfoItem>
+                                        체지방률:{" "}
+                                        {profile.userBodyFatPercentage} %
+                                    </InfoItem>
+                                ) : (
+                                    <InfoItem>체지방률: 정보 없음 </InfoItem>
+                                )}
+                                {profile.userBmr ? (
+                                    <InfoItem>
+                                        기초대사량: {profile.userBmr} kcal
+                                    </InfoItem>
+                                ) : (
+                                    <InfoItem>기초대사량: 정보 없음 </InfoItem>
+                                )}
                             </InfoRow>
                         </InfoContainer>
                     </ProfileContainer>
