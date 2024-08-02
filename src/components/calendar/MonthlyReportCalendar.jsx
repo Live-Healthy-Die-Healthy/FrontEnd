@@ -8,8 +8,7 @@ import {
     eachMonthOfInterval,
     isSameMonth,
     isBefore,
-    addYears,
-    subYears,
+    isAfter,
 } from "date-fns";
 import { UserContext } from "../../context/LoginContext";
 
@@ -64,10 +63,17 @@ const MonthCell = styled.div`
     border: 1px solid #ddd;
     cursor: pointer;
     font-size: 16px;
-    &:hover {
-        background-color: ${(props) =>
-            props.hasReport ? "#FFE082" : "#f0f0f0"};
-    }
+    ${(props) =>
+        props.isDisabled
+            ? `
+        color: #ccc;
+        cursor: not-allowed;
+    `
+            : `
+        &:hover {
+            background-color: ${props.hasReport ? "#FFE082" : "#f0f0f0"};
+        }
+    `}
 `;
 
 const ReportList = styled.div`
@@ -148,6 +154,11 @@ const ItemTitle = styled.div`
     margin-bottom: 10px;
 `;
 
+const FeedbackContainer = styled.div`
+    background-color: #ffe873;
+    padding: 10px;
+`;
+
 export default function MonthlyReportCalendar() {
     const { userId, accessToken } = useContext(UserContext);
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -207,7 +218,6 @@ export default function MonthlyReportCalendar() {
                     },
                 }
             );
-            console.log(" /report/monthly response : ", response);
 
             if (response.data.isValid) {
                 setMonthlyReport(response.data.monthlyReport);
@@ -244,9 +254,10 @@ export default function MonthlyReportCalendar() {
                     timeout: 120000,
                 }
             );
-            console.log(" /report/newMonthly response : ", response);
 
             setMonthlyReport(response.data);
+            // 레포트 생성 후 즉시 reportMonths 업데이트
+            await fetchReportMonths(currentYear);
         } catch (error) {
             console.error("Error creating report:", error);
         } finally {
@@ -254,10 +265,11 @@ export default function MonthlyReportCalendar() {
         }
     };
 
-    const closeOverlay = () => {
+    const closeOverlay = async () => {
         setShowOverlay(false);
         setSelectedMonth(null);
         setMonthlyReport(null);
+        await fetchReportMonths(currentYear);
     };
 
     return (
@@ -265,7 +277,7 @@ export default function MonthlyReportCalendar() {
             <Header>
                 <ArrowButton
                     onClick={() => handleYearChange(false)}
-                    disabled={currentYear < new Date().getFullYear()}
+                    disabled={currentYear <= 2020}
                 >
                     &lt;
                 </ArrowButton>
@@ -281,17 +293,23 @@ export default function MonthlyReportCalendar() {
                 </ArrowButton>
             </Header>
             <MonthGrid>
-                {months.map((month) => (
-                    <MonthCell
-                        key={month.getTime()}
-                        onClick={() => handleMonthClick(month)}
-                        hasReport={reportMonths.includes(
-                            format(month, "yyyy-MM")
-                        )}
-                    >
-                        {format(month, "M")}월
-                    </MonthCell>
-                ))}
+                {months.map((month) => {
+                    const isDisabled = isAfter(month, new Date());
+                    return (
+                        <MonthCell
+                            key={month.getTime()}
+                            onClick={() =>
+                                !isDisabled && handleMonthClick(month)
+                            }
+                            hasReport={reportMonths.includes(
+                                format(month, "yyyy-MM")
+                            )}
+                            isDisabled={isDisabled}
+                        >
+                            {format(month, "M")}월
+                        </MonthCell>
+                    );
+                })}
             </MonthGrid>
             {showOverlay && (
                 <Overlay onClick={closeOverlay}>
@@ -332,15 +350,76 @@ export default function MonthlyReportCalendar() {
                                                     }
                                                     kg
                                                 </div>
-                                                <div></div>
                                             </ReportItem>
                                             <ReportItem>
-                                                식단 피드백:{" "}
-                                                {monthlyReport.dietFeedback}
+                                                <ItemTitle>
+                                                    섭취 영양소
+                                                </ItemTitle>
+                                                <div>
+                                                    평균 일일 탄수화물:{" "}
+                                                    {monthlyReport.meanCarbo}g
+                                                </div>
+                                                <div>
+                                                    평균 일일 단백질:{" "}
+                                                    {monthlyReport.meanProtein}g
+                                                </div>
+                                                <div>
+                                                    평균 일일 지방:{" "}
+                                                    {monthlyReport.meanFat}g
+                                                </div>
+
+                                                <ItemTitle>
+                                                    체성분 변화
+                                                </ItemTitle>
+
+                                                <div>
+                                                    체중:{" "}
+                                                    {
+                                                        monthlyReport.weightChangeRate
+                                                    }
+                                                    g
+                                                </div>
+                                                <div>
+                                                    체지방:{" "}
+                                                    {
+                                                        monthlyReport.bodyFatChangeRate
+                                                    }
+                                                    g
+                                                </div>
+                                                <div>
+                                                    근육량:{" "}
+                                                    {
+                                                        monthlyReport.muscleMassChangeRate
+                                                    }
+                                                    g
+                                                </div>
+                                                <div>
+                                                    BMI:{" "}
+                                                    {
+                                                        monthlyReport.bmiChangeRate
+                                                    }
+                                                    g
+                                                </div>
+
+                                                <FeedbackContainer>
+                                                    식단 피드백:{" "}
+                                                    {monthlyReport.dietFeedback}
+                                                </FeedbackContainer>
                                             </ReportItem>
                                             <ReportItem>
-                                                운동 피드백:{" "}
-                                                {monthlyReport.exerciseFeedback}
+                                                <ItemTitle>운동</ItemTitle>
+                                                <div>
+                                                    총 운동 시간:{" "}
+                                                    {
+                                                        monthlyReport.totalExerciseTime
+                                                    }
+                                                </div>
+                                                <FeedbackContainer>
+                                                    운동 피드백:{" "}
+                                                    {
+                                                        monthlyReport.exerciseFeedback
+                                                    }
+                                                </FeedbackContainer>
                                             </ReportItem>
                                         </>
                                     ) : (

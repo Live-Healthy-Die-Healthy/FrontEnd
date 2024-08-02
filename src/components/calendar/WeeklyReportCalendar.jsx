@@ -12,6 +12,8 @@ import {
     subMonths,
     isSameMonth,
     isBefore,
+    isSameWeek,
+    isAfter,
 } from "date-fns";
 import { UserContext } from "../../context/LoginContext";
 
@@ -214,25 +216,35 @@ export default function WeeklyReportList() {
             { weekStartsOn: 1 }
         );
 
-        const formattedWeeks = weeksInMonth.map((week, index) => {
-            const weekStart = startOfWeek(week, { weekStartsOn: 1 });
-            const weekEnd = endOfWeek(week, { weekStartsOn: 1 });
-            return {
-                weekNumber: index + 1,
-                startDate: weekStart,
-                endDate: weekEnd,
-                dateRange: `${format(weekStart, "MM/dd")} ~ ${format(
-                    weekEnd,
-                    "MM/dd"
-                )}`,
-                hasReport: reportDates.includes(
-                    format(weekStart, "yyyy-MM-dd")
-                ),
-            };
-        });
+        const today = new Date();
+
+        const formattedWeeks = weeksInMonth
+            .filter((week) => {
+                const weekStart = startOfWeek(week, { weekStartsOn: 1 });
+                return isSameMonth(weekStart, currentDate);
+            })
+            .map((week, index) => {
+                const weekStart = startOfWeek(week, { weekStartsOn: 1 });
+                const weekEnd = endOfWeek(week, { weekStartsOn: 1 });
+                return {
+                    weekNumber: index + 1,
+                    startDate: weekStart,
+                    endDate: weekEnd,
+                    dateRange: `${format(weekStart, "MM/dd")} ~ ${format(
+                        weekEnd,
+                        "MM/dd"
+                    )}`,
+                    hasReport: reportDates.includes(
+                        format(weekStart, "yyyy-MM-dd")
+                    ),
+                    isSelectable:
+                        isBefore(weekStart, today) ||
+                        isSameWeek(weekStart, today),
+                };
+            });
 
         setWeeks(formattedWeeks);
-    }, [currentDate, reportDates, selectedWeek]);
+    }, [currentDate, reportDates]);
 
     const changeMonth = (increment) => {
         setCurrentDate((prevDate) =>
@@ -241,12 +253,8 @@ export default function WeeklyReportList() {
     };
 
     const handleWeekClick = async (week) => {
-        if (
-            isBefore(week.startDate, new Date()) ||
-            isSameMonth(week.startDate, new Date())
-        ) {
+        if (week.isSelectable) {
             setSelectedWeek(week);
-            console.log("selectedWeek : ", selectedWeek);
             setIsLoading(true);
             try {
                 const response = await axios.post(
@@ -392,6 +400,13 @@ export default function WeeklyReportList() {
                         key={week.weekNumber}
                         onClick={() => handleWeekClick(week)}
                         hasReport={week.hasReport}
+                        isSelectable={week.isSelectable}
+                        style={{
+                            opacity: week.isSelectable ? 1 : 0.5,
+                            cursor: week.isSelectable
+                                ? "pointer"
+                                : "not-allowed",
+                        }}
                     >
                         <WeekNumber>{week.weekNumber}주차</WeekNumber>
                         <DateRange>{week.dateRange}</DateRange>

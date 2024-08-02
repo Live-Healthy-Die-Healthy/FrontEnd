@@ -13,6 +13,7 @@ const Container = styled.div`
     align-items: center;
     padding: 0 20px;
     text-align: center;
+    margin-bottom: 10vh;
 `;
 
 const ProfileContainer = styled.div`
@@ -142,7 +143,7 @@ const ProfilePage = () => {
         <Container>
             <TabContainer>
                 <CloseButton onClick={() => navigate("/home")}>X</CloseButton>
-                <span>친구</span>
+                <span>마이 페이지</span>
             </TabContainer>
             {profile ? (
                 <>
@@ -153,20 +154,34 @@ const ProfilePage = () => {
                         />
                         <InfoContainer>
                             <InfoRow>
+                                <InfoItem>아이디: {profile.userId}</InfoItem>
+                            </InfoRow>
+                            <InfoRow>
                                 <InfoItem>이메일: {profile.userEmail}</InfoItem>
                             </InfoRow>
                             <InfoRow>
                                 <InfoItem>
                                     닉네임: {profile.userNickname}
                                 </InfoItem>
-                                <InfoItem>생년월일: {date}</InfoItem>
-                                <InfoItem>성별: {profile.userGender}</InfoItem>
                             </InfoRow>
                             <InfoRow>
+                                <InfoItem>생년월일: {date}</InfoItem>
+                            </InfoRow>
+                            <InfoRow>
+                                <InfoItem>성별: {profile.userGender}</InfoItem>
+                            </InfoRow>
+
+                            <InfoRow>
                                 <InfoItem>키: {profile.userHeight} cm</InfoItem>
+                            </InfoRow>
+
+                            <InfoRow>
                                 <InfoItem>
                                     몸무게: {profile.userWeight} kg
                                 </InfoItem>
+                            </InfoRow>
+
+                            <InfoRow>
                                 {profile.userBmi ? (
                                     <InfoItem>
                                         BMI: {profile.userBmi} kg/m^2
@@ -175,6 +190,7 @@ const ProfilePage = () => {
                                     <InfoItem>BMI: 정보 없음 </InfoItem>
                                 )}
                             </InfoRow>
+
                             <InfoRow>
                                 {profile.userBmi ? (
                                     <InfoItem>
@@ -183,6 +199,9 @@ const ProfilePage = () => {
                                 ) : (
                                     <InfoItem>골격근량: 정보 없음 </InfoItem>
                                 )}
+                            </InfoRow>
+
+                            <InfoRow>
                                 {profile.userBodyFatPercentage ? (
                                     <InfoItem>
                                         체지방률:{" "}
@@ -191,6 +210,9 @@ const ProfilePage = () => {
                                 ) : (
                                     <InfoItem>체지방률: 정보 없음 </InfoItem>
                                 )}
+                            </InfoRow>
+
+                            <InfoRow>
                                 {profile.userBmr ? (
                                     <InfoItem>
                                         기초대사량: {profile.userBmr} kcal

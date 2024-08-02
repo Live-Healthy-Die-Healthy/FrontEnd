@@ -19,10 +19,25 @@ import { useNavigate } from "react-router-dom";
 const Container = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     background-color: #ffffff;
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
+    padding: 20px;
+`;
+
+const CalendarContainer = styled.div`
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+`;
+
+const CalendarGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    width: 100%;
+    gap: 0;
+    aspect-ratio: 7/6;
 `;
 
 const CalendarHeader = styled.div`
@@ -44,13 +59,6 @@ const ArrowButton = styled.button`
     color: #ff8000;
     cursor: pointer;
     position: relative;
-`;
-
-const CalendarGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    width: 100%;
-    gap: 0;
 `;
 
 const DayCell = styled.div`
@@ -160,7 +168,7 @@ const LegendDot = styled.div`
 
 const DateContainer = styled.div`
     display: inline-block;
-    background-color: #49406F;
+    background-color: #49406f;
     color: #ffffff;
     border-radius: 50%;
     width: 45px;
@@ -170,7 +178,6 @@ const DateContainer = styled.div`
     align-items: center;
     text-align: center;
 `;
-
 
 const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -283,70 +290,80 @@ export default function DietCalendar() {
 
     return (
         <Container>
-            <CalendarHeader>
-                <ArrowButton onClick={() => changeMonth(-1)}>&lt;</ArrowButton>
-                <MonthYear>{format(currentDate, "yyyy년 M월")}</MonthYear>
-                {!isSameMonth(new Date(), currentDate) && (
-                    <ArrowButton onClick={() => changeMonth(1)}>
-                        &gt;
+            <CalendarContainer>
+                <CalendarHeader>
+                    <ArrowButton onClick={() => changeMonth(-1)}>
+                        &lt;
                     </ArrowButton>
-                )}
-            </CalendarHeader>
-            <LegendContainer>
-                <LegendItem color='#FFCB5B'>
-                    <LegendDot color='#FC6A03' />
-                    <span>식단</span>
-                </LegendItem>
-                <LegendItem color='#CBF9EE'>
-                    <LegendDot color='#5DDEBE' />
-                    <span>운동</span>
-                </LegendItem>
-            </LegendContainer>
-            <CalendarGrid>
-                {weekDays.map((day) => (
-                    <DayCell key={day} isWeekDay style={{ color: "black" }}>
-                        {day}
-                    </DayCell>
-                ))}
-                {monthDays.map((day, index) => {
-                    const formattedDate = format(day, "yyyy-MM-dd");
-                    const isCurrentMonth = isSameMonth(day, currentDate);
-                    const isDisabled =
-                        isBefore(new Date(), day) && !isToday(day);
-                    const dayRecords = records[formattedDate] || {};
-                    const isTopRow = index < 7;
-                    const isLeftColumn = index % 7 === 0;
-                    const isRightColumn = index % 7 === 6;
-
-                    return (
-                        <DayCell
-                            key={day}
-                            isToday={isToday(day)}
-                            isCurrentMonth={isCurrentMonth}
-                            isDisabled={isDisabled}
-                            onClick={() => !isDisabled && handleDateClick(day)}
-                            isTopRow={isTopRow}
-                            isLeftColumn={isLeftColumn}
-                            isRightColumn={isRightColumn}
-                        >
-                            <DayNumber
-                                isToday={isToday(day)}
-                                isSelected={isSameDay(day, selectedDate)}
-                            >
-                                {format(day, "d")}
-                            </DayNumber>
-                            <RecordDots>
-                                {dayRecords.diet && <Dot color='#FC6A03' />}
-                                {dayRecords.exercise && <Dot color='#5DDEBE' />}
-                            </RecordDots>
+                    <MonthYear>{format(currentDate, "yyyy년 M월")}</MonthYear>
+                    {!isSameMonth(new Date(), currentDate) && (
+                        <ArrowButton onClick={() => changeMonth(1)}>
+                            &gt;
+                        </ArrowButton>
+                    )}
+                </CalendarHeader>
+                <LegendContainer>
+                    <LegendItem color='#FFCB5B'>
+                        <LegendDot color='#FC6A03' />
+                        <span>식단</span>
+                    </LegendItem>
+                    <LegendItem color='#CBF9EE'>
+                        <LegendDot color='#5DDEBE' />
+                        <span>운동</span>
+                    </LegendItem>
+                </LegendContainer>
+                <CalendarGrid>
+                    {weekDays.map((day) => (
+                        <DayCell key={day} isWeekDay style={{ color: "black" }}>
+                            {day}
                         </DayCell>
-                    );
-                })}
-            </CalendarGrid>
+                    ))}
+                    {monthDays.map((day, index) => {
+                        const formattedDate = format(day, "yyyy-MM-dd");
+                        const isCurrentMonth = isSameMonth(day, currentDate);
+                        const isDisabled =
+                            isBefore(new Date(), day) && !isToday(day);
+                        const dayRecords = records[formattedDate] || {};
+                        const isTopRow = index < 7;
+                        const isLeftColumn = index % 7 === 0;
+                        const isRightColumn = index % 7 === 6;
+
+                        return (
+                            <DayCell
+                                key={day}
+                                isToday={isToday(day)}
+                                isCurrentMonth={isCurrentMonth}
+                                isDisabled={isDisabled}
+                                onClick={() =>
+                                    !isDisabled && handleDateClick(day)
+                                }
+                                isTopRow={isTopRow}
+                                isLeftColumn={isLeftColumn}
+                                isRightColumn={isRightColumn}
+                            >
+                                <DayNumber
+                                    isToday={isToday(day)}
+                                    isSelected={isSameDay(day, selectedDate)}
+                                >
+                                    {format(day, "d")}
+                                </DayNumber>
+                                <RecordDots>
+                                    {dayRecords.diet && <Dot color='#FC6A03' />}
+                                    {dayRecords.exercise && (
+                                        <Dot color='#5DDEBE' />
+                                    )}
+                                </RecordDots>
+                            </DayCell>
+                        );
+                    })}
+                </CalendarGrid>
+            </CalendarContainer>
             {selectedDate && selectedDateInfo && (
                 <Overlay onClick={() => setSelectedDate(null)}>
                     <OverlayContent onClick={(e) => e.stopPropagation()}>
-                        <DateContainer>{format(selectedDate, "M/d")}</DateContainer>
+                        <DateContainer>
+                            {format(selectedDate, "M/d")}
+                        </DateContainer>
                         <RecordSection color='#FFF3E0'>
                             <h4>식단 기록</h4>
                             {selectedDateInfo.diet.length > 0 ? (

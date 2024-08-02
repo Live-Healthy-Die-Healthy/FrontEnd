@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { UserContext } from "../../context/LoginContext";
 import axios from "axios";
+import { format, startOfToday } from "date-fns";
 
 const Container = styled.div`
     display: flex;
@@ -47,9 +48,10 @@ export default function CompareFriendPage() {
     useEffect(() => {
         const fetchComparisonData = async () => {
             try {
+                const today = format(startOfToday(), "yyyy-MM-dd");
                 const response = await axios.post(
                     `${process.env.REACT_APP_API_PORT}/compareFriend`,
-                    { userId, friend_id: friend.userId },
+                    { userId, friend_id: friend.userId, date: today },
                     { headers: { Authorization: `Bearer ${accessToken}` } }
                 );
                 setComparisonData(response.data);

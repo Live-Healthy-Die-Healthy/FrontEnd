@@ -7,28 +7,14 @@ import { UserContext } from "../../context/LoginContext";
 import axios from "axios";
 import { format, startOfToday } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { MdPersonAddAlt1 } from "react-icons/md";
+import { LiaUserFriendsSolid } from "react-icons/lia";
 
 const Container = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 0 20px;
-`;
-
-const ButtonContainer = styled.div`
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-`;
-
-const Button = styled.button`
-    background: rgb(196, 196, 196);
-    height: 13vh;
-    border: none;
-    font-size: 25px;
-    cursor: pointer;
-    padding: 0 20px;
-    margin: 10px;
 `;
 
 const FriendList = styled.ul`
@@ -58,6 +44,7 @@ const FriendImage = styled.img`
 const TabContainer = styled.div`
     display: flex;
     align-items: center;
+    justify-content: space-between;
     margin-top: 40px;
     width: 100%;
     font-size: 30px;
@@ -79,6 +66,28 @@ const CloseButton = styled.button`
     margin: 0px 10px;
 `;
 
+const IconContainer = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const IconButton = styled.button`
+    background: none;
+    border: none;
+    font-size: 25px;
+    cursor: pointer;
+    padding: 0 10px;
+    margin: 0 5px;
+    color: rgb(196, 196, 196);
+    display: flex;
+    align-items: center;
+`;
+
+const Header = styled.div`
+    display: flex;
+    justify-content: space-between;
+`;
+
 export default function FriendPage() {
     const navigate = useNavigate();
     const [showAddFriend, setShowAddFriend] = useState(false);
@@ -98,6 +107,7 @@ export default function FriendPage() {
                     }
                 );
                 setFriends(response.data);
+                console.log("response.data : ", response.data);
             } catch (error) {
                 console.error("친구 목록 가져오기 실패:", error);
             }
@@ -116,22 +126,25 @@ export default function FriendPage() {
     return (
         <Container>
             <TabContainer>
-                <CloseButton onClick={() => navigate("/home")}>X</CloseButton>
-                <span>친구</span>
+                <Header>
+                    <CloseButton onClick={() => navigate("/home")}>
+                        X
+                    </CloseButton>
+                    <span>친구목록</span>
+                </Header>
+
+                <IconContainer>
+                    <IconButton onClick={() => setShowAddFriend(true)}>
+                        <MdPersonAddAlt1 />
+                    </IconButton>
+                    <IconButton onClick={() => setShowFriendRequests(true)}>
+                        <LiaUserFriendsSolid />
+                    </IconButton>
+                </IconContainer>
             </TabContainer>
             {!selectedFriend ? (
                 <>
-                    <ButtonContainer>
-                        <Button onClick={() => setShowAddFriend(true)}>
-                            친구 추가하기
-                        </Button>
-                        <Button onClick={() => setShowFriendRequests(true)}>
-                            친구 요청 보기
-                        </Button>
-                    </ButtonContainer>
-
                     <FriendList>
-                        <h1>친구목록</h1>
                         {friends.length > 0 ? (
                             friends.map((friend) => (
                                 <FriendItem
