@@ -71,7 +71,7 @@ const MealBox = styled.div`
     width: 90%;
     height: 100px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     margin-bottom: 20px;
     background: ${(props) => (props.hasMeals ? "#FFCB5B" : "white")};
@@ -91,16 +91,14 @@ const MealBox = styled.div`
 const PlusButton = styled.div`
     width: 50px;
     height: 50px;
-    background-color: #ff8000;
+    background-color: #ffcb5b;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #ffcb5b;
+    color: #ff8000;
     font-size: 50px;
     position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
 `;
 
 const MealDetails = styled.div`

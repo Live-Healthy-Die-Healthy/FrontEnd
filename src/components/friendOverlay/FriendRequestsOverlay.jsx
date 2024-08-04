@@ -56,9 +56,35 @@ const ButtonGroup = styled.div`
 `;
 
 const Button = styled.button`
-    padding: 5px 10px;
+    padding: 8px 16px;
     margin-left: 5px;
     cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-size: 18px;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background-color: #0056b3;
+    }
+
+    &:first-child {
+        background-color: #28a745;
+
+        &:hover {
+            background-color: #218838;
+        }
+    }
+
+    &:last-child {
+        background-color: #dc3545;
+
+        &:hover {
+            background-color: #c82333;
+        }
+    }
 `;
 
 const FriendRequestsOverlay = ({ onClose }) => {

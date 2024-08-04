@@ -23,7 +23,7 @@ const TabContainer = styled.div`
     margin-top: 40px;
     width: 100%;
     max-width: 1000px;
-    font-size: 30px;
+    font-size: 40px;
 `;
 
 const CloseButton = styled.button`

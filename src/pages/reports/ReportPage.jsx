@@ -8,29 +8,26 @@ import MonthlyReportCalendar from "../../components/calendar/MonthlyReportCalend
 const Container = styled.div`
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    text-align: center;
     padding: 0 20px;
 `;
 
 const ButtonContainer = styled.div`
     display: flex;
-    justify-content: center;
 `;
 
 const Button = styled.button`
     background: rgb(196, 196, 196);
     height: 5vh;
     border: none;
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 24px;
+    font-weight: 400;
     cursor: pointer;
     padding: 0 20px;
     margin: 10px;
+    min-width: 100px;
     background-color: ${(props) => (props.isActive ? "#FF8000" : "#c4c4c4")};
     border-radius: 20px;
-    width: 30%;
     color: white;
 
     &:hover {
@@ -43,7 +40,7 @@ const TabContainer = styled.div`
     align-items: center;
     margin-top: 40px;
     width: 100%;
-    font-size: 30px;
+    font-size: 40px;
     max-width: 1000px;
 `;
 

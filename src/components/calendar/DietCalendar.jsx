@@ -49,13 +49,13 @@ const CalendarHeader = styled.div`
 
 const MonthYear = styled.h2`
     color: #ff8000;
-    font-size: 24px;
+    font-size: 30px;
 `;
 
 const ArrowButton = styled.button`
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 40px;
     color: #ff8000;
     cursor: pointer;
     position: relative;
@@ -72,7 +72,7 @@ const DayCell = styled.div`
     border-bottom: ${(props) =>
         props.isWeekDay ? "none" : "1px solid #FFCB5B"};
     border-top: ${(props) => (props.isTopRow ? "2px solid #FFCB5B" : "none")};
-    font-size: 16px;
+    font-size: 20px;
     cursor: ${(props) => (props.isDisabled ? "default" : "pointer")};
     opacity: ${(props) => (props.isDisabled ? 0.5 : 1)};
     padding-top: 5px;
@@ -113,6 +113,7 @@ const Overlay = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+    font-size: 20px;
 `;
 
 const OverlayContent = styled.div`
@@ -125,6 +126,7 @@ const OverlayContent = styled.div`
 `;
 
 const Button = styled.button`
+    font-size: 20px;
     margin-top: 10px;
     margin: 0px 10px;
     padding: 10px 20px;
@@ -133,7 +135,6 @@ const Button = styled.button`
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-weight: bold;
 `;
 
 const RecordSection = styled.div`
@@ -152,6 +153,7 @@ const LegendContainer = styled.div`
 const LegendItem = styled.div`
     display: flex;
     align-items: center;
+    font-size: 23px;
     margin-right: 20px;
     border-radius: 30px;
     padding: 5px;

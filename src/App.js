@@ -47,9 +47,6 @@ const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -74,7 +71,7 @@ function AppContent() {
   const [accessToken, setAccessToken] = useState(localStorage.getItem('accessToken'));
   const [refreshToken, setRefreshToken] = useState(localStorage.getItem('refreshToken'));
   const [loginType, setLoginType] = useState(localStorage.getItem('loginType'));
-  const [userId, setUserId] = useState(localStorage.getItem('userId'));
+  const [userId, setUserId] = useState("1234");
 
   const location = useLocation();
   const navigate = useNavigate();

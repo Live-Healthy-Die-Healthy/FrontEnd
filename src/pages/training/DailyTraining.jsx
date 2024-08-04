@@ -18,8 +18,15 @@ const Container = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 10vh;
-    margin-bottom: 10vh;
+    background-color: #f5f5f5;
+    height: 100vh;
+`;
+
+const BackHeader = styled.div`
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 10px 20px;
 `;
 
 const Header = styled.div`
@@ -27,7 +34,8 @@ const Header = styled.div`
     align-items: center;
     justify-content: center;
     width: 100%;
-    max-width: 800px;
+    padding: 10px 20px;
+    margin-bottom: 50px;
 `;
 
 const ArrowButton = styled.button`
@@ -56,87 +64,57 @@ const DateText = styled.div`
 const ExerciseContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: 90%;
-    max-width: 800px;
+    width: 80%;
+    padding: 0 20px;
     margin-top: 20px;
 `;
 
 const ExerciseItem = styled.div`
-    border: 1px solid #e0e0e0;
+    background-color: #ffeeae;
     border-radius: 10px;
-    margin-bottom: 20px;
-    padding: 10px;
-    background-color: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
-
-const ExerciseHeader = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    padding: 15px;
 `;
 
 const ExerciseName = styled.h3`
-    margin: 0px 20px;
+    margin: 0 0 10px 0;
     font-size: 18px;
 `;
 
 const ExerciseImage = styled.img`
-    width: 50px;
-    height: 50px;
+    width: 70px;
+    height: 70px;
+    border-radius: 25px;
 `;
 
-const SetContainer = styled.div`
-    display: flex;
-    justify-content: space-around;
-    border-top: 1px solid #e0e0e0;
-    padding-top: 10px;
-    margin-top: 10px;
+const SetItem = styled.span`
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 5px;
 `;
 
-const SetItem = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+const ArrowIcon = styled.span`
+    font-size: 20px;
 `;
 
-const SetNumber = styled.span`
-    font-weight: bold;
-`;
-
-const SetDetail = styled.span`
-    margin: 2px 0;
-`;
-
-const ButtonContainer = styled.div`
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-`;
-
-const Button = styled.button`
-    background: #a3d2ca;
+const AddButton = styled.button`
+    background-color: #ffa500;
     border: none;
-    padding: 5px 10px;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 30px;
+    color: white;
     cursor: pointer;
-    &:not(:last-child) {
-        margin-right: 10px;
-    }
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 `;
 
 const Title = styled.div`
-    font-size: 30px;
-    margin: 10px 10px;
-`;
-
-const TitleContainer = styled.div`
-    font-size: 30px;
-    margin: 10px 10px;
-    display: flex;
-    align-self: flex-start;
-    width: 100%;
-    justify-content: space-between;
+    font-size: 24px;
+    font-weight: bold;
 `;
 
 const BackButton = styled.button`
@@ -145,25 +123,66 @@ const BackButton = styled.button`
     font-size: 24px;
     color: #333;
     cursor: pointer;
-    padding: 5px;
 `;
 
-const AddButton = styled.button`
-    background-color: #a3d2ca;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 24px;
-    cursor: pointer;
-    margin-left: 20px;
-`;
-
-const ButtonCon = styled.div`
+const TrainingBox = styled.div`
+    width: 80%;
+    height: 100px;
     display: flex;
-    justify-content: flex-end;
-    flex-grow: 1;
-    margin-right: 60px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    background: white;
+    border: 2px dashed #ff8000;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background 0.3s;
+    position: relative;
+    padding: 0 20px;
+
+    &:hover {
+        background: #fff3e0;
+    }
+`;
+
+const NoTraining = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    font-size: 18px;
+    color: grey;
+`;
+const ExerciseContent = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+`;
+
+const SetInfo = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+`;
+
+const Vertical = styled.span`
+    width: 33%;
+    text-align: center;
+    display: inline-block;
+`;
+
+const PlusButton = styled.div`
+    width: 50px;
+    height: 50px;
+    background-color: #ffcb5b;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ff8000;
+    font-size: 50px;
 `;
 
 export default function DailyTraining() {
@@ -199,6 +218,8 @@ export default function DailyTraining() {
                     }
                 );
 
+                console.log(response);
+
                 const data = response.data.map((record) => ({
                     exerciseLogId: record.exerciseLogId,
                     exerciseName: record.exerciseName,
@@ -225,36 +246,6 @@ export default function DailyTraining() {
 
     const addExercise = () => {
         navigate("/selecttraining", { state: { date } });
-    };
-
-    const deleteExercise = async (id) => {
-        const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
-        if (!confirmDelete) return;
-
-        try {
-            const response = await axios.delete(
-                `${process.env.REACT_APP_API_PORT}/exerciseLog`,
-                {
-                    data: { exerciseLogId: id },
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
-
-            if (response.status === 200) {
-                setExercises(
-                    exercises.filter(
-                        (exercise) => exercise.exerciseLogId !== id
-                    )
-                );
-            } else {
-                alert("운동 기록 삭제에 실패했습니다.");
-            }
-        } catch (error) {
-            console.error("Error deleting exercise:", error);
-            alert("운동 기록 삭제 중 오류가 발생했습니다.");
-        }
     };
 
     const editExercise = (exerciseLogId, exerciseName) => {
@@ -309,80 +300,50 @@ export default function DailyTraining() {
 
     return (
         <Container>
-            <TitleContainer>
+            <BackHeader>
                 <BackButton onClick={() => navigate(`/dietmonth`)}>
                     {"<"}
                 </BackButton>
                 <Title>운동 기록</Title>
-                <ButtonCon>
-                    <AddButton onClick={addExercise}>+</AddButton>
-                </ButtonCon>
-            </TitleContainer>
+            </BackHeader>
             <Header>
                 {!isSameDay(pageDate, today) && (
                     <ArrowButton
                         direction='left'
                         onClick={() => handleDateChange(false)}
-                    ></ArrowButton>
+                    />
                 )}
                 <DateText>{format(pageDate, "yyyy.MM.dd")}</DateText>
                 {isSameDay(pageDate, today) ? (
-                    <ArrowButton style={{ visibility: "hidden" }}></ArrowButton>
+                    <ArrowButton style={{ visibility: "hidden" }} />
                 ) : (
                     !isSameDay(addDays(pageDate, 1), today) && (
                         <ArrowButton
                             direction='right'
                             onClick={() => handleDateChange(true)}
-                        ></ArrowButton>
+                        />
                     )
                 )}
             </Header>
+            <TrainingBox>
+                <PlusButton
+                    onClick={() =>
+                        navigate("/selecttraining", { state: { date } })
+                    }
+                >
+                    +
+                </PlusButton>
+            </TrainingBox>
             <ExerciseContainer>
                 {exercises.length === 0 ? (
-                    <ExerciseItem>
-                        <h2>운동 기록이 없습니다.</h2>
-                    </ExerciseItem>
+                    <NoTraining>운동 기록이 없습니다.</NoTraining>
                 ) : (
                     exercises.map((exercise) => (
-                        <ExerciseItem key={exercise.exerciseLogId}>
-                            <ExerciseHeader>
-                                <ExerciseName>
-                                    {exercise.exerciseName}
-                                </ExerciseName>
-                                <ExerciseImage
-                                    src={`data:image/jpeg;base64,${exercise.exerciseImage}`}
-                                    alt={exercise.exerciseName}
-                                />
-                            </ExerciseHeader>
+                        <>
+                            <ExerciseName>{exercise.exerciseName}</ExerciseName>
                             {exercise.exerciseType === "AerobicExercise" ? (
-                                <SetContainer>
-                                    <span>거리 : {exercise.distance}km</span>
-                                    <span>
-                                        시간 : {exercise.exerciseTime}분
-                                    </span>
-                                </SetContainer>
-                            ) : (
-                                <SetContainer>
-                                    {Array.from({ length: exercise.set }).map(
-                                        (_, index) => (
-                                            <SetItem key={index}>
-                                                <SetNumber>
-                                                    {index + 1}세트
-                                                </SetNumber>
-                                                <SetDetail>
-                                                    {exercise.weight[index]}kg
-                                                </SetDetail>
-                                                <SetDetail>
-                                                    {exercise.repetition[index]}
-                                                    회
-                                                </SetDetail>
-                                            </SetItem>
-                                        )
-                                    )}
-                                </SetContainer>
-                            )}
-                            <ButtonContainer>
-                                <Button
+                                <ExerciseItem
+                                    key={exercise.exerciseLogId}
                                     onClick={() =>
                                         editExercise(
                                             exercise.exerciseLogId,
@@ -390,20 +351,66 @@ export default function DailyTraining() {
                                         )
                                     }
                                 >
-                                    수정
-                                </Button>
-                                <Button
+                                    <ExerciseContent>
+                                        <ExerciseImage
+                                            src={`data:image/jpeg;base64,${exercise.exerciseImage}`}
+                                            alt={exercise.exerciseName}
+                                        />
+                                        <SetItem>
+                                            {exercise.distance}km
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            {exercise.exerciseTime}분
+                                        </SetItem>
+                                        <ArrowIcon>{">"}</ArrowIcon>
+                                    </ExerciseContent>
+                                </ExerciseItem>
+                            ) : (
+                                <ExerciseItem
+                                    key={exercise.exerciseLogId}
                                     onClick={() =>
-                                        deleteExercise(exercise.exerciseLogId)
+                                        editExercise(
+                                            exercise.exerciseLogId,
+                                            exercise.exerciseName
+                                        )
                                     }
                                 >
-                                    삭제
-                                </Button>
-                            </ButtonContainer>
-                        </ExerciseItem>
+                                    <ExerciseContent>
+                                        <ExerciseImage
+                                            src={`data:image/jpeg;base64,${exercise.exerciseImage}`}
+                                            alt={exercise.exerciseName}
+                                        />
+                                        <SetInfo>
+                                            {Array.from({
+                                                length: exercise.set,
+                                            }).map((_, index) => (
+                                                <SetItem key={index}>
+                                                    <Vertical>
+                                                        {index + 1}세트
+                                                    </Vertical>
+                                                    <Vertical>
+                                                        {exercise.weight[index]}
+                                                        kg
+                                                    </Vertical>
+                                                    <Vertical>
+                                                        {
+                                                            exercise.repetition[
+                                                                index
+                                                            ]
+                                                        }
+                                                        회
+                                                    </Vertical>
+                                                </SetItem>
+                                            ))}
+                                        </SetInfo>
+                                        <ArrowIcon>{">"}</ArrowIcon>
+                                    </ExerciseContent>
+                                </ExerciseItem>
+                            )}
+                        </>
                     ))
                 )}
             </ExerciseContainer>
+            <AddButton onClick={addExercise}>+</AddButton>
             {editExerciseData && (
                 <EditTrainingOverlay
                     exerciseLogId={editExerciseData.exerciseLogId}

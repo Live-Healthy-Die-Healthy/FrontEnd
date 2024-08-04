@@ -46,7 +46,7 @@ const FilterContainer = styled.div`
     overflow-x: scroll;
     white-space: nowrap;
     width: 100%;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
     padding: 10px 0;
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
@@ -128,15 +128,6 @@ const StarButton = styled.button`
     margin-left: auto;
 `;
 
-const ExerciseList = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-height: 50vh;
-    overflow-y: auto;
-`;
-
 const FilterButton = styled.button`
     background: #ffffff;
     border: 2px solid #a3d2ca;
@@ -147,6 +138,12 @@ const FilterButton = styled.button`
     font-size: 16px;
     flex-shrink: 0;
     scroll-snap-align: start;
+    &.active {
+        background-color: #cbf1df;
+    }
+    &:hover {
+        background: #cbf1df;
+    }
 `;
 
 export default function SelectTraining() {
@@ -331,33 +328,60 @@ export default function SelectTraining() {
                 onMouseUp={stopDragging}
                 onMouseMove={onDragging}
             >
-                <FilterButton onClick={() => handleFilterClick("all")}>
+                <FilterButton
+                    onClick={() => handleFilterClick("all")}
+                    className={selectedPart === "all" ? "active" : ""}
+                >
                     전체
                 </FilterButton>
-                <FilterButton onClick={() => handleFilterClick("chest")}>
+                <FilterButton
+                    onClick={() => handleFilterClick("chest")}
+                    className={selectedPart === "chest" ? "active" : ""}
+                >
                     가슴
                 </FilterButton>
-                <FilterButton onClick={() => handleFilterClick("back")}>
+                <FilterButton
+                    onClick={() => handleFilterClick("back")}
+                    className={selectedPart === "back" ? "active" : ""}
+                >
                     등
                 </FilterButton>
-                <FilterButton onClick={() => handleFilterClick("arm")}>
+                <FilterButton
+                    onClick={() => handleFilterClick("arm")}
+                    className={selectedPart === "arm" ? "active" : ""}
+                >
                     팔
                 </FilterButton>
-                <FilterButton onClick={() => handleFilterClick("leg")}>
+                <FilterButton
+                    onClick={() => handleFilterClick("leg")}
+                    className={selectedPart === "leg" ? "active" : ""}
+                >
                     하체
                 </FilterButton>
-                <FilterButton onClick={() => handleFilterClick("shoulder")}>
+                <FilterButton
+                    onClick={() => handleFilterClick("shoulder")}
+                    className={selectedPart === "shoulder" ? "active" : ""}
+                >
                     어깨
                 </FilterButton>
-                <FilterButton onClick={() => handleFilterClick("core")}>
+                <FilterButton
+                    onClick={() => handleFilterClick("core")}
+                    className={selectedPart === "core" ? "active" : ""}
+                >
                     코어
                 </FilterButton>
                 <FilterButton
                     onClick={() => handleFilterClick("AerobicExercise")}
+                    className={
+                        selectedPart === "AerobicExercise" ? "active" : ""
+                    }
                 >
                     유산소
                 </FilterButton>
-                <FilterButton onClick={() => handleFilterClick("scrap")}>
+                <FilterButton
+                    onClick={() => handleFilterClick("scrap")}
+                    className={selectedPart === "scrap" ? "active" : ""}
+                >
                     즐겨찾기 보기
                 </FilterButton>
             </FilterContainer>

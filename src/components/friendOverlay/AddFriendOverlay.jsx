@@ -20,7 +20,7 @@ const OverlayContent = styled.div`
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 300px;
+    width: 200px;
 `;
 
 const Title = styled.h2`
@@ -48,7 +48,7 @@ const Button = styled.button`
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 20px;
     transition: background-color 0.3s;
 
     &:hover {

@@ -45,6 +45,7 @@ const SlideUpContainer = styled.div`
     bottom: 0;
     left: 0;
     right: 0;
+    font-size: 20px;
 `;
 
 const MenuButton = styled.button`
@@ -54,7 +55,7 @@ const MenuButton = styled.button`
     background-color: #f0f0f0;
     border: none;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: 20px;
     cursor: pointer;
 `;
 
@@ -94,12 +95,12 @@ const Header = styled.div`
 `;
 
 const DDayInfo = styled.div`
-    font-size: 24px;
+    font-size: 28px;
     color: #fc6a03;
 `;
 
 const DateInfo = styled.div`
-    font-size: 16px;
+    font-size: 20px;
     color: #fc6a03;
     margin-top: 5px;
 `;
@@ -109,10 +110,12 @@ const CalorieContainer = styled.div`
     flex-direction: column;
     align-items: flex-start;
     margin-top: 10px;
+    font-size: 18px;
 `;
 
 const MessageContainer = styled.div`
     position: absolute;
+    font-size: 20px;
     bottom: 150px;
     left: 50%;
     transform: translateX(-50%);
@@ -125,7 +128,7 @@ const MessageContainer = styled.div`
 `;
 
 const CalorieGraph = styled(animated.div)`
-    width: 400px; // 최대 너비 설정
+    width: 400px;
     height: 30px;
     background-color: #49406f;
     border-radius: 15px;

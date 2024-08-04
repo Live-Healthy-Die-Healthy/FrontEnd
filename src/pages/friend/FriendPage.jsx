@@ -48,7 +48,7 @@ const TabContainer = styled.div`
     margin-top: 40px;
     width: 100%;
     max-width: 1000px;
-    font-size: 30px;
+    font-size: 40px;
 `;
 
 const CloseButton = styled.button`
@@ -94,14 +94,23 @@ const Header = styled.div`
     justify-content: space-between;
 `;
 
-const FriendContainer = styled.div`
-    border: 1px solid lightgrey;
+const NoFriendContainer = styled.div`
+    border: 1px dashed lightgrey;
     border-radius: 40px;
-    height: 600px;
+    height: 700px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+`;
+
+const FriendContainer = styled.div`
+    border: 1px solid lightgrey;
+    border-radius: 40px;
+    height: 700px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 `;
 
 const NoFriend = styled.div`
@@ -109,11 +118,11 @@ const NoFriend = styled.div`
     align-items: center;
     justify-content: center;
     height: 100%;
-    font-size: 18px;
     color: grey;
 `;
 
 const TwoContainer = styled.div`
+    font-size: 24px;
     width: 100%;
     max-width: 800px;
 `;
@@ -173,8 +182,8 @@ export default function FriendPage() {
                             <LiaUserFriendsSolid />
                         </IconButton>
                     </IconContainer>
-                    <FriendContainer>
-                        {friends.length > 0 ? (
+                    {friends.length > 0 ? (
+                        <FriendContainer>
                             <FriendList>
                                 {friends.map((friend) => (
                                     <FriendItem
@@ -191,22 +200,24 @@ export default function FriendPage() {
                                     </FriendItem>
                                 ))}
                             </FriendList>
-                        ) : (
-                            <NoFriend>
+                        </FriendContainer>
+                    ) : (
+                        <NoFriend>
+                            <NoFriendContainer>
                                 친구들과 아이디를 공유해 친구를 추가해보세요 !
-                            </NoFriend>
-                        )}
-                        {showAddFriend && (
-                            <AddFriendOverlay
-                                onClose={() => setShowAddFriend(false)}
-                            />
-                        )}
-                        {showFriendRequests && (
-                            <FriendRequestsOverlay
-                                onClose={() => setShowFriendRequests(false)}
-                            />
-                        )}
-                    </FriendContainer>
+                            </NoFriendContainer>
+                        </NoFriend>
+                    )}
+                    {showAddFriend && (
+                        <AddFriendOverlay
+                            onClose={() => setShowAddFriend(false)}
+                        />
+                    )}
+                    {showFriendRequests && (
+                        <FriendRequestsOverlay
+                            onClose={() => setShowFriendRequests(false)}
+                        />
+                    )}
                 </TwoContainer>
             ) : (
                 <FriendComparisonComponent

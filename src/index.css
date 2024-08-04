@@ -1,0 +1,17 @@
+
+@font-face {
+    font-family: "GowunDodum-Regular";
+    font-weight: normal;
+    src: url("./fonts/온글잎_언즈체.ttf") format("truetype");
+  }
+  
+  body {
+    font-family: "GowunDodum-Regular";
+  }
+
+  button{
+    font-family: "GowunDodum-Regular";
+  }
+  input{
+    font-family: "GowunDodum-Regular";
+  }

@@ -18,7 +18,7 @@ const Container = styled.div`
 `;
 
 const MenuName = styled.span`
-    font-size: 13px;
+    font-size: 20px;
 `;
 
 const NavItem = styled(NavLink)`
@@ -27,6 +27,7 @@ const NavItem = styled(NavLink)`
     text-decoration: none;
     color: #30012f;
     padding: 5px 10px;
+    margin: 0px 10px;
     border-radius: 20px;
     transition: all 0.3s ease;
     width: 25%;

@@ -15,7 +15,7 @@ import { UserContext } from "../../context/LoginContext";
 const ArrowButton = styled.button`
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 35px;
     color: #ff8000;
     cursor: pointer;
     &:disabled {
@@ -40,7 +40,7 @@ const MonthCell = styled.div`
     background-color: ${(props) => (props.hasReport ? "#FFECB3" : "white")};
     border: 1px solid #ddd;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 20px;
     ${(props) =>
         props.isDisabled
             ? `
@@ -55,6 +55,7 @@ const MonthCell = styled.div`
 `;
 
 const Container = styled.div`
+    font-size: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -75,7 +76,7 @@ const Header = styled.div`
 
 const YearDisplay = styled.h2`
     color: #ff8000;
-    font-size: 24px;
+    font-size: 30px;
     margin: 0;
 `;
 
@@ -120,7 +121,8 @@ const ReportHeader = styled.div`
 const BackButton = styled.button`
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 30px;
+    font-weight: bold;
     cursor: pointer;
 `;
 
@@ -183,6 +185,7 @@ const UserImage = styled.img`
 `;
 
 const Title = styled.div`
+    font-size: 30px;
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
@@ -218,7 +221,7 @@ const Button = styled.button`
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-weight: bold;
+    font-size: 20px;
 `;
 
 const LoadingMessage = styled.div`

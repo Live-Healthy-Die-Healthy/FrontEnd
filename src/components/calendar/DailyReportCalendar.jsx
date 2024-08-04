@@ -23,13 +23,16 @@ const Container = styled.div`
     background-color: #ffffff;
     width: 100%;
     min-height: 100vh;
-    padding: 20px;
+    padding-bottom: 30px;
 `;
 
 const CalendarContainer = styled.div`
     max-width: 1000px;
     width: 100%;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 `;
 
 const CalendarGrid = styled.div`
@@ -43,22 +46,23 @@ const CalendarGrid = styled.div`
 const CalendarHeader = styled.div`
     display: flex;
     align-items: center;
+    justify-content: space-between;
     width: 100%;
-    margin-right: auto;
+    max-width: 400px;
 `;
 
 const MonthYear = styled.h2`
     color: #ff8000;
-    font-size: 24px;
+    font-size: 30px;
 `;
 
 const ArrowButton = styled.button`
     background: none;
     border: none;
-    font-size: 24px;
-    color: #ff8000;
-    cursor: pointer;
-    position: relative;
+    font-size: 35px;
+    color: ${(props) => (props.disabled ? "#ccc" : "#ff8000")};
+    cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+    opacity: ${(props) => (props.disabled ? 0.5 : 1)};
 `;
 
 const DayCell = styled.div`
@@ -72,7 +76,7 @@ const DayCell = styled.div`
     border-bottom: ${(props) =>
         props.isWeekDay ? "none" : "1px solid #FFCB5B"};
     border-top: ${(props) => (props.isTopRow ? "2px solid #FFCB5B" : "none")};
-    font-size: 16px;
+    font-size: 20px;
     cursor: ${(props) => (props.isDisabled ? "default" : "pointer")};
     opacity: ${(props) => (props.isDisabled ? 0.5 : 1)};
     padding-top: 5px;
@@ -118,6 +122,7 @@ const Overlay = styled.div`
 const OverlayContent = styled.div`
     background-color: #ffeeae;
     padding: 20px;
+    font-size: 20px;
     border-radius: 10px;
     max-width: 80%;
     max-height: 80%;
@@ -126,6 +131,7 @@ const OverlayContent = styled.div`
 
 const Button = styled.button`
     margin-top: 10px;
+    font-size: 20px;
     margin: 0px 10px;
     padding: 10px 20px;
     background-color: ${(props) => props.color};
@@ -133,20 +139,13 @@ const Button = styled.button`
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-weight: bold;
-`;
-
-const RecordSection = styled.div`
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    font-weight: 400;
 `;
 
 const LegendContainer = styled.div`
     display: flex;
     justify-content: flex-start;
     margin-bottom: 10px;
+    align-self: flex-start;
 `;
 
 const LegendItem = styled.div`
@@ -156,6 +155,7 @@ const LegendItem = styled.div`
     border-radius: 30px;
     padding: 5px;
     background-color: ${(props) => props.color};
+    flex-wrap: nowrap; /* 한 줄로 강제 */
 `;
 
 const LegendDot = styled.div`
@@ -164,6 +164,10 @@ const LegendDot = styled.div`
     border-radius: 50%;
     background-color: ${(props) => props.color};
     margin-right: 5px;
+`;
+
+const LegendText = styled.span`
+    white-space: nowrap; /* 텍스트를 한 줄로 표시 */
 `;
 
 const DateContainer = styled.div`
@@ -181,7 +185,7 @@ const DateContainer = styled.div`
 
 const LoadingMessage = styled.div`
     margin-top: 20px;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
 `;
 
@@ -213,6 +217,7 @@ const ModalContent = styled.div`
     padding: 20px;
     border-radius: 10px;
     text-align: center;
+    font-size: 20px;
 `;
 
 const ModalButton = styled(Button)`
@@ -221,11 +226,12 @@ const ModalButton = styled(Button)`
 `;
 const ReportContainer = styled.div`
     background-color: #ffffff;
+    font-size: 22px;
     padding: 20px;
     border-radius: 10px;
     width: 100%;
     max-width: 600px;
-    margin: 0 auto;
+    margin: 20px auto;
 `;
 
 const ReportHeader = styled.div`
@@ -237,7 +243,8 @@ const ReportHeader = styled.div`
 const BackButton = styled.button`
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 30px;
+    font-weight: bold;
     cursor: pointer;
 `;
 
@@ -300,6 +307,7 @@ const UserImage = styled.img`
 `;
 
 const Title = styled.div`
+    font-size: 30px;
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
@@ -421,6 +429,9 @@ export default function DailyReportCalendar() {
                 prevDate.getMonth() + increment,
                 1
             );
+            if (increment > 0 && newDate > new Date()) {
+                return prevDate; // 미래의 달로 이동하려고 하면 현재 달을 유지
+            }
             return newDate;
         });
     };
@@ -602,18 +613,20 @@ export default function DailyReportCalendar() {
                         <MonthYear>
                             {format(currentDate, "yyyy년 M월")}
                         </MonthYear>
-                        {!isSameMonth(new Date(), currentDate) && (
-                            <ArrowButton onClick={() => changeMonth(1)}>
-                                &gt;
-                            </ArrowButton>
-                        )}
+                        <ArrowButton
+                            onClick={() => changeMonth(1)}
+                            disabled={isSameMonth(new Date(), currentDate)}
+                        >
+                            &gt;
+                        </ArrowButton>
                     </CalendarHeader>
-                    {/* <LegendContainer>
+                    <LegendContainer>
                         <LegendItem color='#a1d9ff'>
-                            <LegendDot color='#3846ff' />
-                            <span>레포트</span>
+                            <span>레포트가 있는날은&nbsp;&nbsp;</span>
+                            <LegendDot color='#535bcf' />
+                            <span>으로 표시돼요 !</span>
                         </LegendItem>
-                    </LegendContainer> */}
+                    </LegendContainer>
                     <CalendarGrid>
                         {weekDays.map((day) => (
                             <DayCell
@@ -661,7 +674,7 @@ export default function DailyReportCalendar() {
                                     </DayNumber>
                                     <RecordDots>
                                         {dayRecords.report && (
-                                            <Dot color='#15b18a' />
+                                            <Dot color='#535bcf' />
                                         )}
                                     </RecordDots>
                                 </DayCell>

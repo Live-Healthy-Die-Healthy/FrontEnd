@@ -33,6 +33,7 @@ const FormContainer = styled.div`
 `;
 
 const Input = styled.input`
+    font-size: 20px;
     width: 30%;
     padding: 10px;
     margin: 10px 0;
@@ -47,7 +48,7 @@ const Button = styled.button`
     padding: 10px 20px;
     margin-bottom: 15px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 24px;
     border-radius: 20px;
     color: white;
 `;
@@ -108,7 +109,7 @@ const InfoSection = styled.div`
 const InfoTitle = styled.h3`
     margin: 0 0 10px 0;
     color: #49406f;
-    font-size: 16px;
+    font-size: 24px;
     text-align: left;
 `;
 
@@ -117,7 +118,7 @@ const InfoItem = styled.div`
     justify-content: space-between;
     align-items: center;
     margin-bottom: 5px;
-    font-size: 14px;
+    font-size: 20px;
     color: #333;
 `;
 
@@ -134,7 +135,7 @@ const TabContainer = styled.div`
     align-items: center;
     margin-top: 40px;
     width: 100%;
-    font-size: 30px;
+    font-size: 40px;
     max-width: 1000px;
 `;
 
@@ -142,7 +143,7 @@ const CloseButton = styled.button`
     border: none;
     background-color: #ffffff;
     color: #fc6a03;
-    font-size: 24px;
+    font-size: 40px;
     font-weight: bold;
     width: 40px;
     height: 40px;

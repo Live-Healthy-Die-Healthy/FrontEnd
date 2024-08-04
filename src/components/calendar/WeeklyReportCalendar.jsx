@@ -24,16 +24,17 @@ const Container = styled.div`
     background-color: #ffffff;
     width: 100%;
     min-height: 100vh;
-    padding: 20px;
+    font-size: 20px;
 `;
 
 const Header = styled.h2`
     color: #ff8000;
-    font-size: 24px;
+    font-size: 30px;
 `;
 
 const WeekList = styled.ul`
     list-style-type: none;
+    font-size: 20px;
     padding: 0;
     width: 100%;
     max-width: 400px;
@@ -63,7 +64,7 @@ const WeekNumber = styled.h3`
 const DateRange = styled.p`
     margin: 0;
     color: #666;
-    font-size: 14px;
+    font-size: 18px;
 `;
 
 const MonthNavigation = styled.div`
@@ -71,13 +72,13 @@ const MonthNavigation = styled.div`
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    max-width: 600px;
+    max-width: 400px;
 `;
 
 const NavButton = styled.button`
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 35px;
     color: #ff8000;
     cursor: pointer;
     &:disabled {
@@ -87,6 +88,7 @@ const NavButton = styled.button`
 `;
 
 const ReportContainer = styled.div`
+    font-size: 22px;
     background-color: #ffffff;
     padding: 20px;
     border-radius: 10px;
@@ -104,7 +106,8 @@ const ReportHeader = styled.div`
 const BackButton = styled.button`
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 30px;
+    font-weight: bold;
     cursor: pointer;
 `;
 
@@ -167,6 +170,7 @@ const UserImage = styled.img`
 `;
 
 const Title = styled.div`
+    font-size: 30px;
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
@@ -194,6 +198,7 @@ const OverlayContent = styled.div`
 `;
 
 const Button = styled.button`
+    font-size: 20px;
     margin-top: 10px;
     margin: 0px 10px;
     padding: 10px 20px;
@@ -202,12 +207,11 @@ const Button = styled.button`
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-weight: bold;
 `;
 
 const LoadingMessage = styled.div`
     margin-top: 20px;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
 `;
 
@@ -256,7 +260,7 @@ const DateContainer = styled.div`
     justify-content: center;
     align-items: center;
     text-align: center;
-    font-size: 16px;
+    font-size: 18px;
 `;
 
 export default function WeeklyReportCalendar() {

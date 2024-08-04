@@ -6,40 +6,41 @@ import { UserContext } from "../../context/LoginContext";
 import { format } from "date-fns";
 import ImageUploadModal from "../../components/ImageUploadModal";
 import EditDietOverlay from "../../components/RecordOverlay/EditDietOverlay";
-import { Pie } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip } from "chart.js";
+import { Bar } from "react-chartjs-2";
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+} from "chart.js";
 
-ChartJS.register(ArcElement, Tooltip);
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
+);
 
 const Container = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     background-color: #f5f5f5;
-    text-align: center;
-    padding-top: 10vh;
-    padding-bottom: 8vh;
+    min-height: 100vh;
+    padding: 20px;
 `;
 
-const HeaderContainer = styled.div`
+const BackHeader = styled.div`
     display: flex;
-    justify-content: space-between;
     align-items: center;
     width: 100%;
+    padding: 10px 20px;
     margin-bottom: 20px;
-`;
-
-const TitleContainer = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 15px;
-`;
-
-const Title = styled.h1`
-    font-size: 24px;
-    color: #333;
-    margin: 0;
 `;
 
 const BackButton = styled.button`
@@ -48,101 +49,58 @@ const BackButton = styled.button`
     font-size: 24px;
     color: #333;
     cursor: pointer;
-    padding: 5px;
 `;
 
-const AddButton = styled.button`
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
-
-    &:hover {
-        background-color: #45a049;
-    }
-`;
-
-const RecordContainer = styled.div`
-    width: 80%;
-    max-width: 600px;
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-`;
-
-const DietItem = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    border-bottom: 1px solid #eee;
-    &:last-child {
-        border-bottom: none;
-    }
-`;
-
-const DietText = styled.div`
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-`;
-
-const MenuName = styled.span`
-    font-size: 18px;
-    font-weight: bold;
+const TitleA = styled.h1`
+    font-size: 24px;
     color: #333;
-`;
-
-const Quantity = styled.span`
-    font-size: 14px;
-    color: #666;
-`;
-
-const Calories = styled.span`
-    font-size: 16px;
-    color: #ff6b6b;
-    font-weight: bold;
-`;
-
-const ButtonContainer = styled.div`
-    display: flex;
-    gap: 10px;
-`;
-
-const ActionButton = styled.button`
-    background-color: #3498db;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-
-    &:hover {
-        background-color: #2980b9;
-    }
-`;
-
-const RemoveButton = styled(ActionButton)`
-    background-color: #e74c3c;
-
-    &:hover {
-        background-color: #c0392b;
-    }
+    margin-left: 20px;
 `;
 
 const ChartContainer = styled.div`
-    width: 300px;
-    height: 150px;
-    margin: 20px auto;
+    width: 100%;
+    max-width: 600px;
+    margin: 20px 0;
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+`;
+
+const NutrientBar = styled.div`
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+`;
+
+const NutrientLabel = styled.span`
+    width: 80px;
+    font-size: 14px;
+    color: #333;
+`;
+
+const BarContainer = styled.div`
+    flex-grow: 1;
+    background-color: #e0e0e0;
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+`;
+
+const FilledBar = styled.div`
+    height: 100%;
+    background-color: ${(props) => props.color};
+    width: ${(props) => props.width}%;
+`;
+
+const StandardLine = styled.div`
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #000;
+    left: ${(props) => props.position}%;
 `;
 
 const TotalCalories = styled.div`
@@ -152,44 +110,84 @@ const TotalCalories = styled.div`
     margin: 20px 0;
 `;
 
-const NoRecordMessage = styled.h3`
+const DietList = styled.div`
+    width: 100%;
+    max-width: 600px;
+`;
+
+const DietItem = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+`;
+
+const DietInfo = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
+const DietName = styled.span`
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+`;
+
+const DietCalories = styled.span`
+    font-size: 14px;
     color: #666;
-    text-align: center;
+`;
+
+const ArrowIcon = styled.span`
+    font-size: 20px;
+    color: #666;
+    cursor: pointer;
+`;
+
+const AddButton = styled.button`
+    background-color: #ffa500;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 30px;
+    color: white;
+    cursor: pointer;
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 `;
 
 const PhotoButton = styled(AddButton)`
     background-color: #ffcb5b;
-    margin-top: 15px;
-    color: black;
-
-    &:hover {
-        background-color: #beab32;
-    }
+    bottom: 150px;
 `;
 
-const LegendContainer = styled.div`
+const NoDiet = styled.div`
+    border: 1px solid lightgrey;
+    border-radius: 40px;
+    height: 600px;
     display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    gap: 20px;
-    margin: 10px 0px;
+    width: 100%;
+    max-width: 600px;
+    background-color: white;
 `;
 
-const LegendItem = styled.div`
+const NoFriend = styled.div`
     display: flex;
     align-items: center;
-    gap: 5px;
-`;
-
-const LegendColorBox = styled.div`
-    width: 15px;
-    height: 15px;
-    background-color: ${(props) => props.color};
-    border-radius: 3px;
-`;
-
-const LegendLabel = styled.span`
-    font-size: 14px;
-    color: #333;
+    justify-content: center;
+    height: 100%;
+    font-size: 18px;
+    color: grey;
 `;
 
 export default function DietDetail() {
@@ -246,12 +244,14 @@ export default function DietDetail() {
                     nutritionInfo.fat,
                 ],
                 backgroundColor: ["#FFD700", "#FF6384", "#36A2EB"],
-                hoverBackgroundColor: ["#FFD700", "#FF6384", "#36A2EB"],
+                borderRadius: 10,
+                borderSkipped: false,
             },
         ],
     };
 
     const chartOptions = {
+        responsive: true,
         plugins: {
             legend: {
                 display: false,
@@ -260,15 +260,17 @@ export default function DietDetail() {
                 callbacks: {
                     label: function (context) {
                         const label = context.label || "";
-                        const value = context.parsed || 0;
+                        const value = context.raw || 0;
                         return `${label}: ${value.toFixed(2)}g`;
                     },
                 },
             },
         },
-        maintainAspectRatio: false,
-        rotation: -90,
-        circumference: 180,
+        scales: {
+            y: {
+                beginAtZero: true,
+            },
+        },
     };
 
     useEffect(() => {
@@ -290,30 +292,8 @@ export default function DietDetail() {
         }
     };
 
-    const handleEditClick = (dietData) => {
-        setEditDietData(dietData);
-    };
-
-    const handleDeleteClick = async (dietDetailLogId) => {
-        const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
-        if (!confirmDelete) return;
-        try {
-            await axios.delete(
-                `${process.env.REACT_APP_API_PORT}/dietDetail/${dietDetailLogId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
-            setDietData(
-                dietData.filter(
-                    (item) => item.dietDetailLogId !== dietDetailLogId
-                )
-            );
-        } catch (error) {
-            console.error("Error deleting diet data:", error);
-        }
+    const handleItemClick = (item) => {
+        setEditDietData(item);
     };
 
     const handleAddClick = () => {
@@ -337,98 +317,102 @@ export default function DietDetail() {
 
     const hasRecords = dietData.length > 0;
 
+    const standardIntake = 50; // 임시 적정 섭취량 (g)
+
+    const renderNutrientBar = (nutrient, value, color) => {
+        const percentage = (value / standardIntake) * 100;
+        return (
+            <NutrientBar>
+                <NutrientLabel>{nutrient}</NutrientLabel>
+                <BarContainer>
+                    <FilledBar
+                        color={color}
+                        width={Math.min(percentage, 100)}
+                    />
+                    <StandardLine position={100} />
+                </BarContainer>
+            </NutrientBar>
+        );
+    };
+
     return (
         <Container>
-            <HeaderContainer>
-                <TitleContainer>
-                    <BackButton
-                        onClick={() => navigate(`/dietdaily/${formattedDate}`)}
-                    >
-                        {"<"}
-                    </BackButton>
-                    <Title>
-                        {formattedDate} {getMealTypeText(dietType)}
-                    </Title>
-                </TitleContainer>
-                <AddButton onClick={handleAddClick}>메뉴 추가하기</AddButton>
-            </HeaderContainer>
+            <BackHeader>
+                <BackButton
+                    onClick={() => navigate(`/dietdaily/${formattedDate}`)}
+                >
+                    {"<"}
+                </BackButton>
+                <TitleA>
+                    {formattedDate} {getMealTypeText(dietType)}
+                </TitleA>
+            </BackHeader>
 
-            {hasRecords && (
+            {hasRecords ? (
                 <>
                     <TotalCalories>
                         총 칼로리: {nutritionInfo.calories.toFixed(2)} kcal
                     </TotalCalories>
 
                     <ChartContainer>
-                        <LegendContainer>
-                            <LegendItem>
-                                <LegendColorBox color='#FFD700' />
-                                <LegendLabel>탄수화물</LegendLabel>
-                            </LegendItem>
-                            <LegendItem>
-                                <LegendColorBox color='#FF6384' />
-                                <LegendLabel>단백질</LegendLabel>
-                            </LegendItem>
-                            <LegendItem>
-                                <LegendColorBox color='#36A2EB' />
-                                <LegendLabel>지방</LegendLabel>
-                            </LegendItem>
-                        </LegendContainer>
-                        <Pie data={chartData} options={chartOptions} />
-                    </ChartContainer>
-                </>
-            )}
-
-            {dietData.dietImage && (
-                <img
-                    src={`data:image/jpeg;base64,${dietData.dietImage}`}
-                    alt='식단 사진'
-                    style={{
-                        maxWidth: "100%",
-                        borderRadius: "10px",
-                        marginBottom: "20px",
-                    }}
-                />
-            )}
-
-            <RecordContainer>
-                {hasRecords ? (
-                    dietData.map((item) => (
-                        <DietItem key={item.dietLogDetailId}>
-                            <DietText>
-                                <MenuName>{item.menuName}</MenuName>
-                                <Quantity>{item.quantity}g</Quantity>
-                            </DietText>
-                            <Calories>{item.calories} kcal</Calories>
-                            <ButtonContainer>
-                                <ActionButton
-                                    onClick={() => handleEditClick(item)}
-                                >
-                                    수정
-                                </ActionButton>
-                                <RemoveButton
-                                    onClick={() =>
-                                        handleDeleteClick(item.dietDetailLogId)
-                                    }
-                                >
-                                    삭제
-                                </RemoveButton>
-                            </ButtonContainer>
-                        </DietItem>
-                    ))
-                ) : (
-                    <>
-                        <NoRecordMessage>
-                            기록된 식단이 없습니다
-                        </NoRecordMessage>
-                        {!dietData.dietImage && (
-                            <PhotoButton onClick={handlePhotoAdd}>
-                                사진으로 식단 추가하기
-                            </PhotoButton>
+                        {renderNutrientBar(
+                            "탄수화물",
+                            nutritionInfo.carbo,
+                            "#FFD700"
                         )}
-                    </>
-                )}
-            </RecordContainer>
+                        {renderNutrientBar(
+                            "단백질",
+                            nutritionInfo.protein,
+                            "#FF6384"
+                        )}
+                        {renderNutrientBar(
+                            "지방",
+                            nutritionInfo.fat,
+                            "#36A2EB"
+                        )}
+                    </ChartContainer>
+
+                    {dietData.dietImage && (
+                        <img
+                            src={`data:image/jpeg;base64,${dietData.dietImage}`}
+                            alt='식단 사진'
+                            style={{
+                                maxWidth: "100%",
+                                borderRadius: "10px",
+                                marginBottom: "20px",
+                            }}
+                        />
+                    )}
+
+                    <DietList>
+                        {dietData.map((item) => (
+                            <DietItem key={item.dietDetailLogId}>
+                                <DietInfo>
+                                    <DietName>{item.menuName}</DietName>
+                                    <DietCalories>
+                                        {item.calories} kcal
+                                    </DietCalories>
+                                </DietInfo>
+                                <ArrowIcon
+                                    onClick={() => handleItemClick(item)}
+                                >
+                                    {">"}
+                                </ArrowIcon>
+                            </DietItem>
+                        ))}
+                    </DietList>
+                </>
+            ) : (
+                <NoDiet>
+                    <NoFriend>기록된 식단이 없습니다</NoFriend>
+                </NoDiet>
+            )}
+
+            <AddButton onClick={handleAddClick}>+</AddButton>
+            {!dietData.dietImage && (
+                <PhotoButton onClick={handlePhotoAdd}>📷</PhotoButton>
+            )}
+
             {showImageModal && (
                 <ImageUploadModal
                     onClose={() => setShowImageModal(false)}

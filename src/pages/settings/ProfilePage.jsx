@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/LoginContext";
 import { format } from "date-fns";
 import default_image from "../../image/default-profile.png";
+import { HiOutlineLogout } from "react-icons/hi";
 
 const Container = styled.div`
     display: flex;
@@ -47,7 +48,7 @@ const InfoSection = styled.div`
 const InfoTitle = styled.h3`
     margin: 0 0 10px 0;
     color: #49406f;
-    font-size: 16px;
+    font-size: 28px;
     text-align: left;
 `;
 
@@ -55,7 +56,7 @@ const InfoItem = styled.div`
     display: flex;
     justify-content: space-between;
     margin-bottom: 5px;
-    font-size: 14px;
+    font-size: 20px;
     color: #333;
 `;
 
@@ -74,7 +75,7 @@ const EditButton = styled.button`
     padding: 8px 20px;
     margin-top: 20px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 24px;
     border-radius: 20px;
 `;
 
@@ -83,7 +84,7 @@ const TabContainer = styled.div`
     align-items: center;
     margin-top: 40px;
     width: 100%;
-    font-size: 30px;
+    font-size: 40px;
     max-width: 1000px;
 `;
 
@@ -104,13 +105,15 @@ const CloseButton = styled.button`
 `;
 
 const LogoutButton = styled.button`
+    display: flex;
+    align-items: center;
     margin-top: 20px;
-    background-color: #5ddebe;
+    background-color: #ffffff;
     color: #49406f;
     border: none;
     padding: 6px 9px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 24px;
     border-radius: 20px;
 `;
 
@@ -345,6 +348,7 @@ const ProfilePage = () => {
                         프로필 수정하기
                     </EditButton>
                     <LogoutButton onClick={handleLogoutClick}>
+                        <HiOutlineLogout color='#ff6363' />
                         로그아웃
                     </LogoutButton>
                 </>
