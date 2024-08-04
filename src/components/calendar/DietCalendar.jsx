@@ -23,7 +23,7 @@ const Container = styled.div`
     background-color: #ffffff;
     width: 100%;
     min-height: 100vh;
-    padding: 20px;
+    padding-bottom: 40px;
 `;
 
 const CalendarContainer = styled.div`

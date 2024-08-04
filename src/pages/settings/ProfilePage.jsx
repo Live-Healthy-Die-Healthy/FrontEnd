@@ -165,18 +165,28 @@ const ProfilePage = () => {
     const [date, setDate] = useState(null);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-    const { userId, accessToken, setAccessToken, setRefreshToken, setUserId } =
-        useContext(UserContext);
+    const {
+        userId,
+        accessToken,
+        setAccessToken,
+        setRefreshToken,
+        setUserId,
+        setLoginType,
+    } = useContext(UserContext);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
     const handleLogoutClick = () => {
         setShowLogoutConfirm(true);
     };
     const handleLogoutConfirm = () => {
-        localStorage.removeItem("accessToken");
         setAccessToken(null);
         setRefreshToken(null);
-        setUserId(null);
+        setLoginType("");
+        setUserId("");
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("loginType");
+        localStorage.removeItem("userId");
         navigate("/");
     };
 
@@ -185,7 +195,13 @@ const ProfilePage = () => {
             try {
                 const response = await axios.post(
                     `${process.env.REACT_APP_API_PORT}/profile`,
-                    { userId }
+                    { userId },
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }
                 );
                 setProfile(response.data);
                 const formattedDate = format(

@@ -228,7 +228,7 @@ const EditProfile = () => {
             navigate("/profile");
         } catch (error) {
             console.error("Error updating profile:", error);
-            alert("사용할 수 없는 이미지입니다.");
+            alert("프로필 업데이트에 오류가 생겼습니다.");
         }
     };
 

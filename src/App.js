@@ -73,8 +73,8 @@ const AppContainer = styled.div`
 function AppContent() {
   const [accessToken, setAccessToken] = useState(localStorage.getItem('accessToken'));
   const [refreshToken, setRefreshToken] = useState(localStorage.getItem('refreshToken'));
-  const [loginType, setLoginType] = useState("");
-  const [userId, setUserId] = useState("1234");
+  const [loginType, setLoginType] = useState(localStorage.getItem('loginType'));
+  const [userId, setUserId] = useState(localStorage.getItem('userId'));
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -86,7 +86,13 @@ function AppContent() {
         if (error.response && error.response.status === 401) {
           alert("로그인이 만료되었습니다. 다시 로그인 해주세요.");
           setAccessToken(null);
-          localStorage.removeItem('accessToken');
+  setRefreshToken(null);
+  setLoginType("");
+  setUserId("");
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('loginType');
+  localStorage.removeItem('userId');
           navigate('/'); // 로그인 페이지로 리다이렉트
         }
         return Promise.reject(error);
@@ -98,11 +104,39 @@ function AppContent() {
     };
   }, [navigate]);
 
+  useEffect(() => {
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem('loginType', loginType);
+    localStorage.setItem('userId', userId);
+  }, [accessToken, refreshToken, loginType, userId]);
+
   const shouldShowHeaderFooter = !["/", "/auth/callback/kakao", "/profilesetting"].includes(location.pathname);
 
   return (
     <UserContext.Provider
-      value={{ accessToken, setAccessToken, refreshToken, setRefreshToken, loginType, setLoginType, userId, setUserId }}
+      value={{ 
+        accessToken, 
+        setAccessToken: (token) => {
+          setAccessToken(token);
+          localStorage.setItem('accessToken', token);
+        },
+        refreshToken, 
+        setRefreshToken: (token) => {
+          setRefreshToken(token);
+          localStorage.setItem('refreshToken', token);
+        },
+        loginType, 
+        setLoginType: (type) => {
+          setLoginType(type);
+          localStorage.setItem('loginType', type);
+        },
+        userId, 
+        setUserId: (id) => {
+          setUserId(id);
+          localStorage.setItem('userId', id);
+        }
+      }}
     >
       <ContentContainer>
         <Routes>
@@ -112,7 +146,7 @@ function AppContent() {
           <Route
             path="*"
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
                 <Routes>
                   <Route path="/home" element={<HomePage />} />
                   <Route path="/profilesetting" element={<ProfileSetting />} />
@@ -143,7 +177,7 @@ function AppContent() {
                   <Route path="/friends" element={<FriendPage />} />
                   <Route path="/comparefriend/:formattedDate" element={<CompareFriendPage />} />
                 </Routes>
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
         </Routes>

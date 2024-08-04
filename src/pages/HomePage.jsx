@@ -82,13 +82,13 @@ const PCon = styled.p`
 const Header = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center; // 중앙 정렬을 위해 변경
     position: absolute;
     top: 20px;
-    left: 20px;
-    text-align: left;
+    left: 0;
+    right: 0; // 전체 너비를 사용하기 위해 추가
+    text-align: center; // 텍스트 중앙 정렬
     margin-top: 8vh;
-    margin-left: 20px;
     transition: filter 0.3s ease-in-out;
     filter: ${(props) => (props.isBlurred ? "blur(5px)" : "none")};
 `;
@@ -125,7 +125,7 @@ const MessageContainer = styled.div`
 `;
 
 const CalorieGraph = styled(animated.div)`
-    width: 400px;
+    width: 400px; // 최대 너비 설정
     height: 30px;
     background-color: #49406f;
     border-radius: 15px;
@@ -152,6 +152,8 @@ const CalorieText = styled.div`
 
 const DateContainer = styled.div`
     display: flex;
+    justify-content: center; // 중앙 정렬
+    width: 100%; // 전체 너비 사용
 `;
 
 export default function HomePage() {

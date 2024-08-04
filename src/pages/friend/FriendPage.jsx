@@ -69,13 +69,18 @@ const CloseButton = styled.button`
 
 const IconContainer = styled.div`
     display: flex;
-    align-items: center;
+    justify-content: flex-end;
+    align-items: flex-end;
+    margin-left: auto;
+
+    width: 100%;
+    max-width: 800px;
 `;
 
 const IconButton = styled.button`
     background: none;
     border: none;
-    font-size: 25px;
+    font-size: 50px;
     cursor: pointer;
     padding: 0 10px;
     margin: 0 5px;
@@ -87,6 +92,30 @@ const IconButton = styled.button`
 const Header = styled.div`
     display: flex;
     justify-content: space-between;
+`;
+
+const FriendContainer = styled.div`
+    border: 1px solid lightgrey;
+    border-radius: 40px;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+`;
+
+const NoFriend = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 18px;
+    color: grey;
+`;
+
+const TwoContainer = styled.div`
+    width: 100%;
+    max-width: 800px;
 `;
 
 export default function FriendPage() {
@@ -133,50 +162,52 @@ export default function FriendPage() {
                     </CloseButton>
                     <span>친구목록</span>
                 </Header>
-
-                <IconContainer>
-                    <IconButton onClick={() => setShowAddFriend(true)}>
-                        <MdPersonAddAlt1 />
-                    </IconButton>
-                    <IconButton onClick={() => setShowFriendRequests(true)}>
-                        <LiaUserFriendsSolid />
-                    </IconButton>
-                </IconContainer>
             </TabContainer>
             {!selectedFriend ? (
-                <>
-                    <FriendList>
+                <TwoContainer>
+                    <IconContainer>
+                        <IconButton onClick={() => setShowAddFriend(true)}>
+                            <MdPersonAddAlt1 />
+                        </IconButton>
+                        <IconButton onClick={() => setShowFriendRequests(true)}>
+                            <LiaUserFriendsSolid />
+                        </IconButton>
+                    </IconContainer>
+                    <FriendContainer>
                         {friends.length > 0 ? (
-                            friends.map((friend) => (
-                                <FriendItem
-                                    key={friend.userId}
-                                    onClick={() => friendClickHandler(friend)}
-                                >
-                                    <FriendImage
-                                        src={`data:image/jpeg;base64,${friend.userImage}`}
-                                        alt={friend.username}
-                                    />
-                                    <div>{friend.username}</div>
-                                </FriendItem>
-                            ))
+                            <FriendList>
+                                {friends.map((friend) => (
+                                    <FriendItem
+                                        key={friend.userId}
+                                        onClick={() =>
+                                            friendClickHandler(friend)
+                                        }
+                                    >
+                                        <FriendImage
+                                            src={`data:image/jpeg;base64,${friend.userImage}`}
+                                            alt={friend.username}
+                                        />
+                                        <div>{friend.username}</div>
+                                    </FriendItem>
+                                ))}
+                            </FriendList>
                         ) : (
-                            <h2>
+                            <NoFriend>
                                 친구들과 아이디를 공유해 친구를 추가해보세요 !
-                            </h2>
+                            </NoFriend>
                         )}
-                    </FriendList>
-
-                    {showAddFriend && (
-                        <AddFriendOverlay
-                            onClose={() => setShowAddFriend(false)}
-                        />
-                    )}
-                    {showFriendRequests && (
-                        <FriendRequestsOverlay
-                            onClose={() => setShowFriendRequests(false)}
-                        />
-                    )}
-                </>
+                        {showAddFriend && (
+                            <AddFriendOverlay
+                                onClose={() => setShowAddFriend(false)}
+                            />
+                        )}
+                        {showFriendRequests && (
+                            <FriendRequestsOverlay
+                                onClose={() => setShowFriendRequests(false)}
+                            />
+                        )}
+                    </FriendContainer>
+                </TwoContainer>
             ) : (
                 <FriendComparisonComponent
                     friend={selectedFriend}

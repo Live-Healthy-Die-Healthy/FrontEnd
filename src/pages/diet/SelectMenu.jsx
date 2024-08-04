@@ -68,7 +68,7 @@ const MenuContainer = styled.div`
     width: 80%;
     margin: 10px 0px;
     background: #ffeeae;
-    padding: 10px 0;
+    padding: 10px 10px;
     border-radius: 10px;
 `;
 
