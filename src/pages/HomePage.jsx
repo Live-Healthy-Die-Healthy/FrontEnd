@@ -40,7 +40,7 @@ const SlideUpContainer = styled.div`
     border-top-right-radius: 50% 20%;
     padding-bottom: 30px;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-    height: ${(props) => (props.isOpen ? "40vh" : "10vh")};
+    height: ${(props) => (props.isOpen ? "40vh" : "12vh")};
     position: fixed;
     bottom: 0;
     left: 0;
@@ -116,7 +116,7 @@ const CalorieContainer = styled.div`
 const MessageContainer = styled.div`
     position: absolute;
     font-size: 20px;
-    bottom: 150px;
+    bottom: 190px;
     left: 50%;
     transform: translateX(-50%);
     background-color: rgba(255, 255, 255, 0.8);

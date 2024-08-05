@@ -35,6 +35,7 @@ const Container = styled.div`
     align-items: center;
     background-color: #ffffff;
     min-height: 100vh;
+    padding-bottom: 10vh;
 `;
 
 const BackHeader = styled.div`

@@ -41,9 +41,20 @@ const fillAnimation = (width) => keyframes`
 const FilledBar = styled.div`
     height: 100%;
     background-color: #fc6a03;
-    width: ${(props) => props.width}%;
+    width: ${(props) => Math.min(props.width, 100)}%;
     border-radius: 10px;
-    animation: ${fillAnimation} 1s ease-out forwards;
+    animation: ${(props) => fillAnimation(Math.min(props.width, 100))} 1s ease-out forwards;
+    position: relative;
+`;
+
+const ExcessIndicator = styled.div`
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fc6a03;
+    font-weight: bold;
+    font-size: 14px;
 `;
 
 const OptimalLine = styled.div`
@@ -86,7 +97,6 @@ const ValueLabel = styled.span`
 
 const NutrientChart = ({ nutritionInfo, recommendedCal }) => {
     const [animate, setAnimate] = useState(false);
-    console.log("recommendedCal :" , recommendedCal);
 
     useEffect(() => {
         setAnimate(true);
@@ -95,19 +105,25 @@ const NutrientChart = ({ nutritionInfo, recommendedCal }) => {
     const renderNutrientBar = (nutrient, value, optimal, optimalIntake) => {
         const percentage = (value / optimal) * 100;
         const optimalPosition = (optimalIntake / optimal) * 100;
+        const isExceeding = percentage > 100;
+
         return (
             <NutrientBar key={nutrient}>
                 <NutrientLabel>
                     {nutrient} {Math.round(value)}g
                 </NutrientLabel>
                 <BarContainer>
-                    {animate && <FilledBar width={percentage} />}
+                    {animate && (
+                        <FilledBar width={percentage}>
+                            {isExceeding && <ExcessIndicator>+{Math.round(percentage - 100)}%</ExcessIndicator>}
+                        </FilledBar>
+                    )}
                     <OptimalLine position={optimalPosition} />
                     <OptimalLabel position={optimalPosition}>
                         맞춤 섭취량
                     </OptimalLabel>
                     <OptimalValue position={optimalPosition}>
-                        {optimalIntake}g
+                        {Math.round(optimalIntake)}g
                     </OptimalValue>
                     <ValueLabel>{Math.round(value)}g</ValueLabel>
                 </BarContainer>
@@ -116,9 +132,9 @@ const NutrientChart = ({ nutritionInfo, recommendedCal }) => {
     };
 
     const optimalIntakes = {
-        carbo: recommendedCal*0.5/4/3,
-        protein: recommendedCal*0.3/4/3,
-        fat: recommendedCal*0.2/9/3,
+        carbo: Math.round(recommendedCal*0.5/4/3),
+        protein: Math.round(recommendedCal*0.3/4/3),
+        fat: Math.round(recommendedCal*0.2/9/3),
     };
     console.log("optimal : ",optimalIntakes);
 
