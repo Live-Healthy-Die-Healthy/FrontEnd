@@ -35,7 +35,6 @@ const Container = styled.div`
     align-items: center;
     background-color: #ffffff;
     min-height: 100vh;
-    padding: 20px;
 `;
 
 const BackHeader = styled.div`
@@ -158,6 +157,7 @@ export default function DietDetail() {
     const [dietData, setDietData] = useState([]);
     const [showImageModal, setShowImageModal] = useState(false);
     const [editDietData, setEditDietData] = useState(null);
+    const [recommendedCal, setRecommendedCal] = useState();
 
     const fetchDietData = async () => {
         try {
@@ -173,8 +173,8 @@ export default function DietDetail() {
                     },
                 }
             );
-            setDietData(response.data);
-            console.log(dietData);
+            setDietData(response.data.dietDetails);
+            setRecommendedCal(response.data.recommendedCal);
         } catch (error) {
             console.error("Error fetching diet data:", error);
         }
@@ -258,7 +258,7 @@ export default function DietDetail() {
                         총 칼로리: {nutritionInfo.calories.toFixed(2)} kcal
                     </TotalCalories>
 
-                    <NutrientChart nutritionInfo={nutritionInfo} />
+                    <NutrientChart nutritionInfo={nutritionInfo} recommendedCal = {(recommendedCal)} />
 
                     {dietData.dietImage && (
                         <img

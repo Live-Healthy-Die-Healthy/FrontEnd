@@ -2,9 +2,12 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
+import { IoMdHelpCircleOutline } from "react-icons/io";
+import blacknoodle from "../../image/짜장면.jpg"
 
 const Container = styled.div`
     max-width: 480px;
+    font-size : 20px;
     margin: 0 auto;
     padding: 20px;
     background-color: #ffcb5b;
@@ -161,6 +164,70 @@ const Description = styled.div`
     margin-bottom: 5px;
 `;
 
+const HelpButton = styled.button`
+  background: none;
+  border: none;
+  color: #30012f;
+  font-size: 20px;
+  cursor: pointer;
+  margin-left: 10px;
+`;
+
+const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const OverlayContent = styled.div`
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+`;
+
+const ExampleImage = styled.img`
+  max-width: 200px;
+  margin-bottom: 10px;
+`;
+
+const FallbackImage = styled.div`
+  width: 100%;
+  height: 200px;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #666;
+  font-size: 14px;
+`;
+
+const DescriptionWithHelp = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+`;
+
 const ConfirmDietPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -169,14 +236,20 @@ const ConfirmDietPage = () => {
     const [dietDetailLogIds, setDietDetailLogIds] = useState(
         location.state?.dietDetailLogIds || []
     );
+    const [exampleImages, setExampleImages] = useState(location.state?.exampleImages || {});
     const { formattedDate, dietType } = useParams();
     const [totalCalories, setTotalCalories] = useState(0);
 
+    const [showOverlay, setShowOverlay] = useState(false);
+    const toggleOverlay = () => {
+      setShowOverlay(!showOverlay);
+    };
+
     useEffect(() => {
-        if (location.state?.dietInfo) {
+        if (location.state?.data?.dietInfo) {
             const updatedDietInfo = {
-                ...location.state.dietInfo,
-                음식상세: location.state.dietInfo.음식상세.map((item) => ({
+                ...location.state.data.dietInfo,
+                음식상세: location.state.data.dietInfo.음식상세.map((item) => ({
                     ...item,
                     칼로리비율: item.칼로리 / item.예상양,
                     탄수화물비율: item.영양정보.탄수화물 / item.예상양,
@@ -260,6 +333,14 @@ const ConfirmDietPage = () => {
     if (!dietInfo.음식상세) {
         return <div>Loading...</div>;
     }
+    const isValidBase64 = (str) => {
+        console.log(str);
+        try {
+          return btoa(atob(str)) == str;
+        } catch (err) {
+          return false;
+        }
+      }
 
     return (
         <>
@@ -285,7 +366,10 @@ const ConfirmDietPage = () => {
                         <span>{dietInfo.영양소비율.지방}%</span>
                     </NutritionItem>
                 </NutritionRatio>
-                <Description>음식상세</Description>
+                <DescriptionWithHelp>
+          <Description>음식상세</Description>
+          <HelpButton onClick={toggleOverlay}><IoMdHelpCircleOutline /></HelpButton>
+        </DescriptionWithHelp>
                 <FoodList>
                     {dietInfo.음식상세.map((item, index) => (
                         <FoodItem key={index}>
@@ -347,6 +431,29 @@ const ConfirmDietPage = () => {
 
                 <Button onClick={handleConfirm}>확인</Button>
             </Container>
+
+            {showOverlay && (
+  <Overlay onClick={toggleOverlay}>
+    <OverlayContent onClick={(e) => e.stopPropagation()}>
+      <CloseButton onClick={toggleOverlay}>X</CloseButton>
+      {Object.entries(exampleImages).map(([foodName, imageData], index) => (
+        <div key={index}>
+          <h2>{foodName}</h2>
+          {isValidBase64(imageData.split(',')[1]) ? (
+            <ExampleImage src={ imageData } alt={`Example of ${foodName}`} onError={(e) => {
+              e.target.onerror = null;
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }} />
+          ) : (
+            <FallbackImage>이미지를 표시할 수 없습니다.</FallbackImage>
+          )}
+            <FallbackImage>이미지를 표시할 수 없습니다.</FallbackImage>
+        </div>
+      ))}
+    </OverlayContent>
+  </Overlay>
+)}
         </>
     );
 };

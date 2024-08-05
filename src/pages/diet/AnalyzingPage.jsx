@@ -45,12 +45,13 @@ const AnalyzingPage = () => {
             );
             if (response.data.status === "completed") {
                 setIsAnalyzing(false);
-
+                console.log("response : ", response);
                 navigate(`/confirmDiet/${formattedDate}/${dietType}`, {
                     state: {
                         dietInfo: response.data.dietInfo,
                         dietImage,
                         dietDetailLogIds: response.data.dietDetailLogIds,
+                        exampleImages: response.data.exampleImages,
                         analysisId,
                     },
                 });

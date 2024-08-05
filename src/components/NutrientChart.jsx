@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled, { keyframes, css } from "styled-components";
 
 const ChartContainer = styled.div`
-    width: 100%;
+    width: 80%;
     max-width: 600px;
     margin: 20px 0;
     background-color: #e5f3ec;
@@ -84,8 +84,9 @@ const ValueLabel = styled.span`
     color: #333;
 `;
 
-const NutrientChart = ({ nutritionInfo }) => {
+const NutrientChart = ({ nutritionInfo, recommendedCal }) => {
     const [animate, setAnimate] = useState(false);
+    console.log("recommendedCal :" , recommendedCal);
 
     useEffect(() => {
         setAnimate(true);
@@ -115,29 +116,30 @@ const NutrientChart = ({ nutritionInfo }) => {
     };
 
     const optimalIntakes = {
-        carbo: 60,
-        protein: 50,
-        fat: 30,
+        carbo: recommendedCal*0.5/4/3,
+        protein: recommendedCal*0.3/4/3,
+        fat: recommendedCal*0.2/9/3,
     };
+    console.log("optimal : ",optimalIntakes);
 
     return (
         <ChartContainer>
             {renderNutrientBar(
                 "탄수화물",
                 nutritionInfo.carbo,
-                150,
+                optimalIntakes.carbo*1.6,
                 optimalIntakes.carbo
             )}
             {renderNutrientBar(
                 "단백질",
                 nutritionInfo.protein,
-                150,
+                optimalIntakes.protein*1.6,
                 optimalIntakes.protein
             )}
             {renderNutrientBar(
                 "지방",
                 nutritionInfo.fat,
-                150,
+                optimalIntakes.fat*1.6,
                 optimalIntakes.fat
             )}
         </ChartContainer>

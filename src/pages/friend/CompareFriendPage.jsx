@@ -215,7 +215,7 @@ export default function CompareFriendPage() {
                 </UserInfoContainer>
             </ComparisonContainer>
             <ShareButton onClick={handleShareClick}>
-                Instagram으로 자랑하기
+                사진으로 저장하기
             </ShareButton>
         </Container>
     );
