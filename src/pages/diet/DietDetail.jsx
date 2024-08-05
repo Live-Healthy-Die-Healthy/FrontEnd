@@ -6,7 +6,9 @@ import { UserContext } from "../../context/LoginContext";
 import { format } from "date-fns";
 import ImageUploadModal from "../../components/ImageUploadModal";
 import EditDietOverlay from "../../components/RecordOverlay/EditDietOverlay";
-import { Bar } from "react-chartjs-2";
+import annotationPlugin from "chartjs-plugin-annotation";
+import NutrientChart from "../../components/NutrientChart";
+
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -16,6 +18,7 @@ import {
     Tooltip,
     Legend,
 } from "chart.js";
+ChartJS.register(annotationPlugin);
 
 ChartJS.register(
     CategoryScale,
@@ -30,7 +33,7 @@ const Container = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: #f5f5f5;
+    background-color: #ffffff;
     min-height: 100vh;
     padding: 20px;
 `;
@@ -38,16 +41,17 @@ const Container = styled.div`
 const BackHeader = styled.div`
     display: flex;
     align-items: center;
-    width: 100%;
-    padding: 10px 20px;
+    width: 80%;
+    padding: 50px 20px;
     margin-bottom: 20px;
 `;
 
 const BackButton = styled.button`
     background: none;
     border: none;
-    font-size: 24px;
-    color: #333;
+    font-size: 40px;
+    font-weight: bold;
+    color: #fc6a03;
     cursor: pointer;
 `;
 
@@ -55,52 +59,6 @@ const TitleA = styled.h1`
     font-size: 24px;
     color: #333;
     margin-left: 20px;
-`;
-
-const ChartContainer = styled.div`
-    width: 100%;
-    max-width: 600px;
-    margin: 20px 0;
-    background-color: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-`;
-
-const NutrientBar = styled.div`
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-`;
-
-const NutrientLabel = styled.span`
-    width: 80px;
-    font-size: 14px;
-    color: #333;
-`;
-
-const BarContainer = styled.div`
-    flex-grow: 1;
-    background-color: #e0e0e0;
-    height: 20px;
-    border-radius: 10px;
-    overflow: hidden;
-    position: relative;
-`;
-
-const FilledBar = styled.div`
-    height: 100%;
-    background-color: ${(props) => props.color};
-    width: ${(props) => props.width}%;
-`;
-
-const StandardLine = styled.div`
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background-color: #000;
-    left: ${(props) => props.position}%;
 `;
 
 const TotalCalories = styled.div`
@@ -119,7 +77,7 @@ const DietItem = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: white;
+    background-color: #ffeeae;
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 10px;
@@ -132,19 +90,19 @@ const DietInfo = styled.div`
 `;
 
 const DietName = styled.span`
-    font-size: 18px;
+    font-size: 22px;
     font-weight: bold;
     color: #333;
 `;
 
 const DietCalories = styled.span`
-    font-size: 14px;
+    font-size: 16px;
     color: #666;
 `;
 
 const ArrowIcon = styled.span`
-    font-size: 20px;
-    color: #666;
+    font-size: 35px;
+    color: #ffcb5b;
     cursor: pointer;
 `;
 
@@ -216,6 +174,7 @@ export default function DietDetail() {
                 }
             );
             setDietData(response.data);
+            console.log(dietData);
         } catch (error) {
             console.error("Error fetching diet data:", error);
         }
@@ -234,44 +193,7 @@ export default function DietDetail() {
         );
     }, [dietData]);
 
-    const chartData = {
-        labels: ["탄수화물", "단백질", "지방"],
-        datasets: [
-            {
-                data: [
-                    nutritionInfo.carbo,
-                    nutritionInfo.protein,
-                    nutritionInfo.fat,
-                ],
-                backgroundColor: ["#FFD700", "#FF6384", "#36A2EB"],
-                borderRadius: 10,
-                borderSkipped: false,
-            },
-        ],
-    };
-
-    const chartOptions = {
-        responsive: true,
-        plugins: {
-            legend: {
-                display: false,
-            },
-            tooltip: {
-                callbacks: {
-                    label: function (context) {
-                        const label = context.label || "";
-                        const value = context.raw || 0;
-                        return `${label}: ${value.toFixed(2)}g`;
-                    },
-                },
-            },
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-            },
-        },
-    };
+    const standardIntake = 50; // 임시 적정 섭취량 (g)
 
     useEffect(() => {
         fetchDietData();
@@ -317,24 +239,6 @@ export default function DietDetail() {
 
     const hasRecords = dietData.length > 0;
 
-    const standardIntake = 50; // 임시 적정 섭취량 (g)
-
-    const renderNutrientBar = (nutrient, value, color) => {
-        const percentage = (value / standardIntake) * 100;
-        return (
-            <NutrientBar>
-                <NutrientLabel>{nutrient}</NutrientLabel>
-                <BarContainer>
-                    <FilledBar
-                        color={color}
-                        width={Math.min(percentage, 100)}
-                    />
-                    <StandardLine position={100} />
-                </BarContainer>
-            </NutrientBar>
-        );
-    };
-
     return (
         <Container>
             <BackHeader>
@@ -354,23 +258,7 @@ export default function DietDetail() {
                         총 칼로리: {nutritionInfo.calories.toFixed(2)} kcal
                     </TotalCalories>
 
-                    <ChartContainer>
-                        {renderNutrientBar(
-                            "탄수화물",
-                            nutritionInfo.carbo,
-                            "#FFD700"
-                        )}
-                        {renderNutrientBar(
-                            "단백질",
-                            nutritionInfo.protein,
-                            "#FF6384"
-                        )}
-                        {renderNutrientBar(
-                            "지방",
-                            nutritionInfo.fat,
-                            "#36A2EB"
-                        )}
-                    </ChartContainer>
+                    <NutrientChart nutritionInfo={nutritionInfo} />
 
                     {dietData.dietImage && (
                         <img
@@ -390,9 +278,10 @@ export default function DietDetail() {
                                 <DietInfo>
                                     <DietName>{item.menuName}</DietName>
                                     <DietCalories>
-                                        {item.calories} kcal
+                                        {item.quantity} g
                                     </DietCalories>
                                 </DietInfo>
+                                {item.calories} kcal
                                 <ArrowIcon
                                     onClick={() => handleItemClick(item)}
                                 >

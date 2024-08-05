@@ -135,40 +135,16 @@ const InfoContainer = styled.div`
     }
 `;
 
-const NutrientContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 27%;
-    margin-left: 10px;
-`;
-
-const ColumnContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    flex: 1; /* Ensure this container takes up the necessary space */
-`;
-
 const Header = styled.div`
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
-    width: 100%;
+    width: 80%;
     padding-left: 20px; /* Optional: Add some padding to the left */
 `;
 
 const MenuSelect = styled.div`
     font-size: 4vw;
-`;
-
-const ButtonContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 27%;
-    margin-left: 10px;
 `;
 
 export default function SelectMenu() {

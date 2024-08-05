@@ -5,6 +5,7 @@ import axios from "axios";
 import { UserContext } from "../../context/LoginContext";
 
 const OverlayContainer = styled.div`
+    font-size: 20px;
     position: fixed;
     top: 0;
     left: 0;
@@ -40,6 +41,7 @@ const Input = styled.input`
     &::placeholder {
         color: #7ebc9e;
     }
+    font-size: 20px;
 `;
 
 const Button = styled.button`
@@ -49,12 +51,8 @@ const Button = styled.button`
     padding: 10px 20px;
     margin: 10px 5px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 18px;
     border-radius: 5px;
-    &:first-of-type {
-        background: #ff8000;
-        color: white;
-    }
 `;
 
 const SetContainer = styled.div`
@@ -135,6 +133,11 @@ const AeroContainer = styled.div`
     width: 80%;
     margin: 10px;
     padding: 0px 10px;
+`;
+
+const DeleteButton = styled(Button)`
+    background: #98e3bf;
+    color: #b53a14;
 `;
 
 const EditTrainingOverlay = ({
@@ -297,6 +300,31 @@ const EditTrainingOverlay = ({
         }
     };
 
+    const deleteExercise = async (id) => {
+        const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
+        if (!confirmDelete) return;
+
+        try {
+            const response = await axios.delete(
+                `${process.env.REACT_APP_API_PORT}/exerciseLog`,
+                {
+                    data: { exerciseLogId: id },
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+            if (response.status === 200) {
+                alert("운동 기록이 삭제되었습니다.");
+                onSave();
+                onClose();
+            }
+        } catch (error) {
+            console.error("Error deleting exercise:", error);
+            alert("운동 기록 삭제 중 오류가 발생했습니다.");
+        }
+    };
+
     return (
         <OverlayContainer onClick={onClose}>
             <OverlayContent onClick={(e) => e.stopPropagation()}>
@@ -380,6 +408,9 @@ const EditTrainingOverlay = ({
                     </Container>
                 )}
                 <Button onClick={handleSave}>저장하기</Button>
+                <DeleteButton onClick={() => deleteExercise(exerciseLogId)}>
+                    삭제하기
+                </DeleteButton>
             </OverlayContent>
         </OverlayContainer>
     );

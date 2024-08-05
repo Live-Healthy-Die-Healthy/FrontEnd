@@ -25,8 +25,8 @@ const Container = styled.div`
 const BackHeader = styled.div`
     display: flex;
     align-items: center;
-    width: 100%;
-    padding: 10px 20px;
+    width: 80%;
+    padding: 50px 20px;
 `;
 
 const Header = styled.div`
@@ -41,7 +41,7 @@ const Header = styled.div`
 const ArrowButton = styled.button`
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 30px;
     color: #5ddebe;
     cursor: pointer;
     &::before {
@@ -57,7 +57,7 @@ const DateText = styled.div`
     color: #b53a14;
     padding: 5px 10px;
     border-radius: 10px;
-    font-size: 18px;
+    font-size: 22px;
     font-weight: bold;
 `;
 
@@ -78,7 +78,7 @@ const ExerciseItem = styled.div`
 
 const ExerciseName = styled.h3`
     margin: 0 0 10px 0;
-    font-size: 18px;
+    font-size: 22px;
 `;
 
 const ExerciseImage = styled.img`
@@ -88,7 +88,7 @@ const ExerciseImage = styled.img`
 `;
 
 const SetItem = styled.span`
-    font-size: 16px;
+    font-size: 20px;
     color: #666;
     margin-bottom: 5px;
 `;
@@ -113,16 +113,17 @@ const AddButton = styled.button`
 `;
 
 const Title = styled.div`
-    font-size: 24px;
+    font-size: 40px;
     font-weight: bold;
 `;
 
 const BackButton = styled.button`
     background: none;
     border: none;
-    font-size: 24px;
-    color: #333;
+    font-size: 40px;
+    color: #fc6a03;
     cursor: pointer;
+    font-weight: bold;
 `;
 
 const TrainingBox = styled.div`

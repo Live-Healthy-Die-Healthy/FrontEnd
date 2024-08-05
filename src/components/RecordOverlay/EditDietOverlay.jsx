@@ -44,10 +44,6 @@ const Button = styled.button`
     cursor: pointer;
     font-size: 16px;
     border-radius: 5px;
-
-    &:hover {
-        background-color: #e67300;
-    }
 `;
 
 const CloseButton = styled.button`
@@ -65,6 +61,15 @@ const CloseButton = styled.button`
     justify-content: center;
     align-items: center;
     font-size: 20px;
+`;
+
+const DietName = styled.div`
+    font-size: 30px;
+`;
+
+const DeleteButton = styled(Button)`
+    background: #98e3bf;
+    color: #b53a14;
 `;
 
 const EditDietOverlay = ({ dietData, onClose, onSave }) => {
@@ -93,17 +98,42 @@ const EditDietOverlay = ({ dietData, onClose, onSave }) => {
         }
     };
 
+    const handleDeleteClick = async (dietDetailLogId) => {
+        const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
+        if (!confirmDelete) return;
+        try {
+            await axios.delete(
+                `${process.env.REACT_APP_API_PORT}/dietDetail/${dietDetailLogId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+            alert("삭제되었습니다.");
+            onSave();
+            onClose();
+        } catch (error) {
+            console.error("Error deleting diet data:", error);
+        }
+    };
+
     return (
         <Overlay onClick={onClose}>
             <FormContainer onClick={(e) => e.stopPropagation()}>
                 <CloseButton onClick={onClose}>&times;</CloseButton>
-                <h4>{dietData.menuName}</h4>
+                <DietName>{dietData.menuName}</DietName>
                 <Input
                     type='number'
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value)}
                 />
-                <Button onClick={handleSave}>저장</Button>
+                g<Button onClick={handleSave}>저장하기</Button>
+                <DeleteButton
+                    onClick={() => handleDeleteClick(dietData.dietDetailLogId)}
+                >
+                    삭제하기
+                </DeleteButton>
             </FormContainer>
         </Overlay>
     );

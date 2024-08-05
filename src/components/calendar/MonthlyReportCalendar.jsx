@@ -16,6 +16,7 @@ const ArrowButton = styled.button`
     background: none;
     border: none;
     font-size: 35px;
+    font-weight: bold;
     color: #ff8000;
     cursor: pointer;
     &:disabled {

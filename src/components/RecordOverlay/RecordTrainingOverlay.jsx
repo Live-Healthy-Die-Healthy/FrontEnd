@@ -5,6 +5,7 @@ import axios from "axios";
 import { UserContext } from "../../context/LoginContext";
 
 const OverlayContainer = styled.div`
+    font-size: 20px;
     position: fixed;
     top: 0;
     left: 0;
@@ -40,6 +41,7 @@ const Input = styled.input`
     &::placeholder {
         color: #7ebc9e;
     }
+    font-size: 20px;
 `;
 
 const Button = styled.button`
@@ -49,7 +51,7 @@ const Button = styled.button`
     padding: 10px 20px;
     margin: 10px 5px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 20px;
     border-radius: 5px;
     &:first-of-type {
         background: #ff8000;

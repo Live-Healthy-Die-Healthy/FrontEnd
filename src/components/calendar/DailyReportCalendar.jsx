@@ -58,6 +58,7 @@ const MonthYear = styled.h2`
 
 const ArrowButton = styled.button`
     background: none;
+    font-weight: bold;
     border: none;
     font-size: 35px;
     color: ${(props) => (props.disabled ? "#ccc" : "#ff8000")};

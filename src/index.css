@@ -12,6 +12,11 @@
   button{
     font-family: "GowunDodum-Regular";
   }
+  
   input{
     font-family: "GowunDodum-Regular";
+  }
+
+  react-datepicker{
+    font-family: "GowunDodum-Regular"
   }

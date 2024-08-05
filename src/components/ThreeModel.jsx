@@ -10,12 +10,6 @@ const Container = styled.div`
     flex-direction: column;
 `;
 
-const AnimationButton = styled.button`
-    margin: 10px;
-    padding: 5px 10px;
-    font-size: 16px;
-`;
-
 function Model({ animationName }) {
     const [model, setModel] = useState();
     const [mixer, setMixer] = useState();
@@ -57,7 +51,7 @@ function Camera() {
     const { camera } = useThree();
 
     useEffect(() => {
-        camera.position.set(0, 1, 5); // 카메라 위치를 멀리 설정
+        camera.position.set(-1, 2, 5); // 카메라 위치를 멀리 설정
     }, [camera]);
 
     return null;

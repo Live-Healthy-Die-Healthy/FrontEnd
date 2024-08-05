@@ -40,22 +40,21 @@ const SlideUpContainer = styled.div`
     border-top-right-radius: 50% 20%;
     padding-bottom: 30px;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-    height: ${(props) => (props.isOpen ? "30vh" : "10vh")};
+    height: ${(props) => (props.isOpen ? "40vh" : "10vh")};
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    font-size: 20px;
 `;
 
 const MenuButton = styled.button`
-    width: 80%;
+    width: 50%;
     padding: 15px;
     margin-top: 20px;
     background-color: #f0f0f0;
     border: none;
     border-radius: 10px;
-    font-size: 20px;
+    font-size: 30px;
     cursor: pointer;
 `;
 
@@ -78,6 +77,7 @@ const AddButton = styled.button`
 
 const PCon = styled.p`
     color: #30012f;
+    font-size: 30px;
 `;
 
 const Header = styled.div`
@@ -128,7 +128,7 @@ const MessageContainer = styled.div`
 `;
 
 const CalorieGraph = styled(animated.div)`
-    width: 400px;
+    width: 300px;
     height: 30px;
     background-color: #49406f;
     border-radius: 15px;

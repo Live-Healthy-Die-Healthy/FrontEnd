@@ -17,7 +17,8 @@ const Container = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 10vh;
+    justify-content: center;
+    margin-top: 8vh;
     margin-bottom: 10vh;
 `;
 
@@ -48,22 +49,25 @@ const DateText = styled.div`
     color: #b53a14;
     padding: 5px 10px;
     border-radius: 10px;
-    font-size: 18px;
+    font-size: 22px;
     font-weight: bold;
 `;
 
 const MealContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: 90%;
+    align-items: center;
+    width: 80%;
 `;
 
 const MealText = styled.h4`
-    margin: 10px 5px;
+    margin: 10px 10px;
     background-color: #ffeeae;
     border-radius: 20px;
     padding: 5px 20px;
-    display: inline-block;
+    font-size: 30px;
+    display: flex;
+    align-self: flex-start;
     width: fit-content;
 `;
 
@@ -120,7 +124,7 @@ const MenuColumn = styled.div`
 `;
 
 const MealDetailItem = styled.span`
-    font-size: 14px;
+    font-size: 20px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -129,26 +133,26 @@ const MealDetailItem = styled.span`
 `;
 
 const CaloriesInfo = styled.span`
-    font-size: 14px;
+    font-size: 22px;
     font-weight: bold;
 `;
 
 const Title = styled.div``;
 
 const TitleContainer = styled.div`
-    font-size: 30px;
-    margin: 10px 10px;
+    width: 80%;
+    font-size: 40px;
     display: flex;
-    align-self: flex-start;
+    padding: 50px 20px;
 `;
 
 const BackButton = styled.button`
     background: none;
     border: none;
-    font-size: 24px;
-    color: #333;
+    font-size: 40px;
+    color: #fc6a03;
     cursor: pointer;
-    padding: 5px;
+    font-weight: bold;
 `;
 
 export default function DailyDiet() {

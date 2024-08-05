@@ -80,6 +80,7 @@ const NavButton = styled.button`
     border: none;
     font-size: 35px;
     color: #ff8000;
+    font-weight: bold;
     cursor: pointer;
     &:disabled {
         color: #ccc;

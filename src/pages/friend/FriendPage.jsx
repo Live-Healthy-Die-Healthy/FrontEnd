@@ -97,7 +97,8 @@ const Header = styled.div`
 const NoFriendContainer = styled.div`
     border: 1px dashed lightgrey;
     border-radius: 40px;
-    height: 700px;
+    height: 600px;
+    width: 80%;
     display: flex;
     flex-direction: column;
     align-items: center;

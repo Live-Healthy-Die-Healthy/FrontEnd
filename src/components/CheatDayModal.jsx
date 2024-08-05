@@ -22,7 +22,7 @@ const CheatDayModalContainer = styled(animated.div)`
 
 const ModalTitle = styled.h2`
     margin-bottom: 20px;
-    font-size: 18px;
+    font-size: 22px;
 `;
 
 const ConfirmButton = styled.button`

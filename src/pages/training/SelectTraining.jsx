@@ -67,7 +67,7 @@ const Header = styled.div`
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
-    width: 100%;
+    width: 80%;
     padding-left: 20px; /* Optional: Add some padding to the left */
 `;
 
@@ -106,12 +106,21 @@ const ExerciseButton = styled.button`
 `;
 
 const ExerciseImage = styled.img`
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     margin-right: 10px;
 `;
 
 const ExerciseContainer = styled.div`
+    font-size: 2vw;
+
+    @media (max-width: 768px) {
+        font-size: 3vw;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 4vw;
+    }
     display: flex;
     align-items: center;
 `;
@@ -124,7 +133,7 @@ const StarButton = styled.button`
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 20px;
+    font-size: 30px;
     margin-left: auto;
 `;
 
@@ -135,7 +144,7 @@ const FilterButton = styled.button`
     padding: 5px 10px;
     margin: 0 10px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 22px;
     flex-shrink: 0;
     scroll-snap-align: start;
     &.active {
