@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/FrontEnd/static/css/main.1170657c.css",
-    "main.js": "/FrontEnd/static/js/main.6dfdf574.js",
+    "main.js": "/FrontEnd/static/js/main.151e5324.js",
     "static/js/488.c7d872e7.chunk.js": "/FrontEnd/static/js/488.c7d872e7.chunk.js",
     "static/media/온글잎_언즈체.ttf": "/FrontEnd/static/media/온글잎_언즈체.ba6c9b6a63ce94c73447.ttf",
     "static/media/profile1.png": "/FrontEnd/static/media/profile1.8b3a66b20cdfa8e2b21a.png",
@@ -10,13 +10,14 @@
     "static/media/profile4.png": "/FrontEnd/static/media/profile4.dcbe61d65f12d2de0515.png",
     "static/media/profile2.png": "/FrontEnd/static/media/profile2.0788447f81f6beec8209.png",
     "static/media/LOGO.png": "/FrontEnd/static/media/LOGO.869ec7c12fe0ac4def0c.png",
+    "static/media/짜장면.jpg": "/FrontEnd/static/media/짜장면.decb1f80aecbad26106a.jpg",
     "index.html": "/FrontEnd/index.html",
     "main.1170657c.css.map": "/FrontEnd/static/css/main.1170657c.css.map",
-    "main.6dfdf574.js.map": "/FrontEnd/static/js/main.6dfdf574.js.map",
+    "main.151e5324.js.map": "/FrontEnd/static/js/main.151e5324.js.map",
     "488.c7d872e7.chunk.js.map": "/FrontEnd/static/js/488.c7d872e7.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.1170657c.css",
-    "static/js/main.6dfdf574.js"
+    "static/js/main.151e5324.js"
   ]
 }
