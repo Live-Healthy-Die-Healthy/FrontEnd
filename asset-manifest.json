@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/FrontEnd/static/css/main.1170657c.css",
-    "main.js": "/FrontEnd/static/js/main.f50d9fa4.js",
+    "main.js": "/FrontEnd/static/js/main.5c85a112.js",
     "static/js/488.c7d872e7.chunk.js": "/FrontEnd/static/js/488.c7d872e7.chunk.js",
     "static/media/온글잎_언즈체.ttf": "/FrontEnd/static/media/온글잎_언즈체.ba6c9b6a63ce94c73447.ttf",
     "static/media/profile1.png": "/FrontEnd/static/media/profile1.8b3a66b20cdfa8e2b21a.png",
@@ -13,11 +13,11 @@
     "static/media/짜장면.jpg": "/FrontEnd/static/media/짜장면.decb1f80aecbad26106a.jpg",
     "index.html": "/FrontEnd/index.html",
     "main.1170657c.css.map": "/FrontEnd/static/css/main.1170657c.css.map",
-    "main.f50d9fa4.js.map": "/FrontEnd/static/js/main.f50d9fa4.js.map",
+    "main.5c85a112.js.map": "/FrontEnd/static/js/main.5c85a112.js.map",
     "488.c7d872e7.chunk.js.map": "/FrontEnd/static/js/488.c7d872e7.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.1170657c.css",
-    "static/js/main.f50d9fa4.js"
+    "static/js/main.5c85a112.js"
   ]
 }
