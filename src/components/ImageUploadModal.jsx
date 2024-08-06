@@ -48,6 +48,46 @@ const ImageUploadModal = ({ onClose }) => {
     const { userId } = useContext(UserContext);
     const { formattedDate, dietType } = useParams();
 
+    const compressImage = (file, maxSizeKB) => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    let quality = 0.7;
+                    let iterations = 0;
+
+                    const compress = () => {
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        canvas.toBlob((blob) => {
+                            if (blob.size > maxSizeKB * 1024 && iterations < 10) {
+                                iterations++;
+                                width *= 0.9;
+                                height *= 0.9;
+                                quality -= 0.1;
+                                compress();
+                            } else {
+                                resolve(blob);
+                            }
+                        }, file.type, quality);
+                    };
+
+                    compress();
+                };
+            };
+        });
+    };
+
+
     const handleFileChange = async (event) => {
         const file = event.target.files[0];
         let processedFile = file;
@@ -82,8 +122,16 @@ const ImageUploadModal = ({ onClose }) => {
 
     const handleUpload = async () => {
         if (selectedFile) {
+            let fileToUpload = selectedFile;
+            if (selectedFile.size > 700 * 1024) {
+                const compressedBlob = await compressImage(selectedFile, 700);
+                fileToUpload = new File([compressedBlob], selectedFile.name, {
+                    type: compressedBlob.type,
+                });
+            }
+
             const reader = new FileReader();
-            reader.readAsDataURL(selectedFile);
+            reader.readAsDataURL(fileToUpload);
             reader.onloadend = async () => {
                 const base64Image = reader.result;
                 try {
@@ -103,11 +151,10 @@ const ImageUploadModal = ({ onClose }) => {
                         },
                     });
                 } catch (error) {
-                    if (error.response.status === 413) {
-                        console.error("Error uploading image:", error);
-                        alert("payload error");
+                    console.error("Error uploading image:", error);
+                    if (error.response && error.response.status === 413) {
+                        alert("이미지 크기가 너무 큽니다. 다시 시도해주세요.");
                     } else {
-                        console.error("Error uploading image:", error);
                         alert("이미지 업로드에 실패했습니다.");
                     }
                 }

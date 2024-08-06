@@ -68,13 +68,21 @@ const AppContainer = styled.div`
 `;
 
 function AppContent() {
-  const [accessToken, setAccessToken] = useState(localStorage.getItem('accessToken'));
-  const [refreshToken, setRefreshToken] = useState(localStorage.getItem('refreshToken'));
-  const [loginType, setLoginType] = useState(localStorage.getItem('loginType'));
-  const [userId, setUserId] = useState("1234");
+  const [accessToken, setAccessToken] = useState(null);
+  const [refreshToken, setRefreshToken] = useState(null);
+  const [loginType, setLoginType] = useState("");
+  const [userId, setUserId] = useState("");
 
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setAccessToken(localStorage.getItem('accessToken'));
+    setRefreshToken(localStorage.getItem('refreshToken'));
+    setLoginType(localStorage.getItem('loginType'));
+    setUserId(localStorage.getItem('userId'));
+  }, []);
+
 
   useEffect(() => {
     const interceptor = axios.interceptors.response.use(
@@ -82,15 +90,16 @@ function AppContent() {
       error => {
         if (error.response && error.response.status === 401) {
           alert("로그인이 만료되었습니다. 다시 로그인 해주세요.");
+          // 토큰 삭제 시 로컬 스토리지와 상태를 동시에 업데이트
           setAccessToken(null);
-  setRefreshToken(null);
-  setLoginType("");
-  setUserId("");
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
-  localStorage.removeItem('loginType');
-  localStorage.removeItem('userId');
-          navigate('/'); // 로그인 페이지로 리다이렉트
+          setRefreshToken(null);
+          setLoginType("");
+          setUserId("");
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('loginType');
+          localStorage.removeItem('userId');
+          navigate('/');
         }
         return Promise.reject(error);
       }
@@ -116,22 +125,22 @@ function AppContent() {
         accessToken, 
         setAccessToken: (token) => {
           setAccessToken(token);
-          localStorage.setItem('accessToken', token);
+          token ? localStorage.setItem('accessToken', token) : localStorage.removeItem('accessToken');
         },
         refreshToken, 
         setRefreshToken: (token) => {
           setRefreshToken(token);
-          localStorage.setItem('refreshToken', token);
+          token ? localStorage.setItem('refreshToken', token) : localStorage.removeItem('refreshToken');
         },
         loginType, 
         setLoginType: (type) => {
           setLoginType(type);
-          localStorage.setItem('loginType', type);
+          type ? localStorage.setItem('loginType', type) : localStorage.removeItem('loginType');
         },
         userId, 
         setUserId: (id) => {
           setUserId(id);
-          localStorage.setItem('userId', id);
+          id ? localStorage.setItem('userId', id) : localStorage.removeItem('userId');
         }
       }}
     >
@@ -140,43 +149,34 @@ function AppContent() {
           <Route path="/" element={<LoginPage />} />
           <Route path="/auth/callback/kakao" element={<Kakao />} />
           
-          <Route
-            path="*"
-            element={
-              <ProtectedRoute>
-                <Routes>
-                  <Route path="/home" element={<HomePage />} />
-                  <Route path="/profilesetting" element={<ProfileSetting />} />
-                  <Route path="/traindaily/:date" element={<DailyTraining />} />
-                  <Route path="/selecttraining" element={<SelectTraining />} />
-                  <Route path="/recordtraining" element={<RecordTraining />} />
-                  <Route path="/edittraining" element={<EditTrain />} />
+          <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+          <Route path="/profilesetting" element={<ProtectedRoute><ProfileSetting /></ProtectedRoute>} />
+          <Route path="/traindaily/:date" element={<ProtectedRoute><DailyTraining /></ProtectedRoute>} />
+          <Route path="/selecttraining" element={<ProtectedRoute><SelectTraining /></ProtectedRoute>} />
+          <Route path="/recordtraining" element={<ProtectedRoute><RecordTraining /></ProtectedRoute>} />
+          <Route path="/edittraining" element={<ProtectedRoute><EditTrain /></ProtectedRoute>} />
 
-                  <Route path="/dietmonth" element={<MonthlyDiet />} />
-                  <Route path="/dietdaily/:date" element={<DailyDiet />} />
-                  <Route path="/dietdetail/:formattedDate/:dietType" element={<DietDetail />} />
-                  <Route path="/editdiet/:formattedDate/:dietType/:dietLogDetailId" element={<EditDiet />} />
-                  <Route path="/selectmenu/:formattedDate/:dietType" element={<SelectMenu />} />
-                  <Route path="/recorddiet/:dietType" element={<RecordDiet />} />
-                  <Route path="/analyzing/:formattedDate/:dietType" element={<AnalyzingPage />} />
-                  <Route path="/confirmDiet/:formattedDate/:dietType" element={<ConfirmDietPage />} />
+          <Route path="/dietmonth" element={<ProtectedRoute><MonthlyDiet /></ProtectedRoute>} />
+          <Route path="/dietdaily/:date" element={<ProtectedRoute><DailyDiet /></ProtectedRoute>} />
+          <Route path="/dietdetail/:formattedDate/:dietType" element={<ProtectedRoute><DietDetail /></ProtectedRoute>} />
+          <Route path="/editdiet/:formattedDate/:dietType/:dietLogDetailId" element={<ProtectedRoute><EditDiet /></ProtectedRoute>} />
+          <Route path="/selectmenu/:formattedDate/:dietType" element={<ProtectedRoute><SelectMenu /></ProtectedRoute>} />
+          <Route path="/recorddiet/:dietType" element={<ProtectedRoute><RecordDiet /></ProtectedRoute>} />
+          <Route path="/analyzing/:formattedDate/:dietType" element={<ProtectedRoute><AnalyzingPage /></ProtectedRoute>} />
+          <Route path="/confirmDiet/:formattedDate/:dietType" element={<ProtectedRoute><ConfirmDietPage /></ProtectedRoute>} />
 
-                  <Route path="/report" element={<ReportPage />} />
-                  <Route path="/dailyreport" element={<DailyReportPage />} />
-                  <Route path="/weeklyreport" element={<WeeklyReportPage />} />
-                  <Route path="/monthlyreport" element={<MonthlyReportPage />} />
-                  <Route path="/yearlyreport" element={<YearlyReportPage />} />
+          <Route path="/report" element={<ProtectedRoute><ReportPage /></ProtectedRoute>} />
+          <Route path="/dailyreport" element={<ProtectedRoute><DailyReportPage /></ProtectedRoute>} />
+          <Route path="/weeklyreport" element={<ProtectedRoute><WeeklyReportPage /></ProtectedRoute>} />
+          <Route path="/monthlyreport" element={<ProtectedRoute><MonthlyReportPage /></ProtectedRoute>} />
+          <Route path="/yearlyreport" element={<ProtectedRoute><YearlyReportPage /></ProtectedRoute>} />
 
-                  <Route path="/settings" element={<SettingPage />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/editprofile" element={<EditProfile />} />
-                  
-                  <Route path="/friends" element={<FriendPage />} />
-                  <Route path="/comparefriend/:formattedDate" element={<CompareFriendPage />} />
-                </Routes>
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/settings" element={<ProtectedRoute><SettingPage /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/editprofile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+          
+          <Route path="/friends" element={<ProtectedRoute><FriendPage /></ProtectedRoute>} />
+          <Route path="/comparefriend/:formattedDate" element={<ProtectedRoute><CompareFriendPage /></ProtectedRoute>} />
         </Routes>
       </ContentContainer>
       {shouldShowHeaderFooter && <Footer />}
@@ -186,12 +186,13 @@ function AppContent() {
 
 function App() {
   return (
-    <><GlobalStyle />
-    <AppContainer>
-    <BrowserRouter basename={process.env.PUBLIC_URL}>
-      <AppContent />
-    </BrowserRouter>
-    </AppContainer>
+    <>
+      <GlobalStyle />
+      <AppContainer>
+        <BrowserRouter basename={process.env.PUBLIC_URL}>
+          <AppContent />
+        </BrowserRouter>
+      </AppContainer>
     </>
   );
 }
