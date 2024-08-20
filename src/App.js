@@ -71,7 +71,7 @@ function AppContent() {
   const [accessToken, setAccessToken] = useState(null);
   const [refreshToken, setRefreshToken] = useState(null);
   const [loginType, setLoginType] = useState("");
-  const [userId, setUserId] = useState("");
+  const [userId, setUserId] = useState("1234");
 
   const location = useLocation();
   const navigate = useNavigate();
