@@ -41,6 +41,7 @@ import CompareFriendPage from './pages/friend/CompareFriendPage';
 import styled from 'styled-components';
 import ProtectedRoute from './pages/route/ProtectedRoute';
 
+import { CalorieProvider } from './context/CalorieContext';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -186,14 +187,14 @@ function AppContent() {
 
 function App() {
   return (
-    <>
+    <CalorieProvider>
       <GlobalStyle />
       <AppContainer>
         <BrowserRouter basename={process.env.PUBLIC_URL}>
           <AppContent />
         </BrowserRouter>
       </AppContainer>
-    </>
+    </CalorieProvider>
   );
 }
 

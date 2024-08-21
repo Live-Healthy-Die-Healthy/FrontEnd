@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import {
@@ -11,6 +11,7 @@ import {
     parseISO,
 } from "date-fns";
 import axios from "axios";
+import { useCalorie } from "../../context/CalorieContext";
 import { UserContext } from "../../context/LoginContext";
 
 const Container = styled.div`
@@ -155,11 +156,29 @@ const BackButton = styled.button`
     font-weight: bold;
 `;
 
+const DeleteButton = styled.button`
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 export default function DailyDiet() {
     const navigate = useNavigate();
     const { date } = useParams();
     const formattedDate = format(parseISO(date), "yyyy-MM-dd");
     const { userId, accessToken } = useContext(UserContext);
+    const { totalCalories, setTotalCalories } = useCalorie();
     const [meals, setMeals] = useState({
         breakfast: [],
         lunch: [],
@@ -172,55 +191,73 @@ export default function DailyDiet() {
 
     useEffect(() => {
         if (isAfter(pageDate, today)) {
-            // 오늘 이후의 날짜인 경우 오늘 날짜로 리다이렉트
             navigate(`/dietdaily/${format(today, "yyyy-MM-dd")}`);
         }
     }, [formattedDate, navigate, pageDate, today]);
 
-    useEffect(() => {
-        const fetchMeals = async () => {
-            try {
-                const response = await axios.post(
-                    `${process.env.REACT_APP_API_PORT}/dailyDiet`,
-                    {
-                        date: formattedDate,
-                        userId: userId,
+    const fetchMeals = useCallback(async () => {
+        try {
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_PORT}/dailyDiet`,
+                {
+                    date: formattedDate,
+                    userId: userId,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
                     },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                        },
-                    }
-                );
+                }
+            );
 
-                const fetchedMeals = response.data;
-                const processedMeals = {
-                    breakfast: fetchedMeals.filter(
-                        (item) => item.dietType === "breakfast"
-                    ),
-                    lunch: fetchedMeals.filter(
-                        (item) => item.dietType === "lunch"
-                    ),
-                    dinner: fetchedMeals.filter(
-                        (item) => item.dietType === "dinner"
-                    ),
-                    snack: fetchedMeals.filter(
-                        (item) => item.dietType === "snack"
-                    ),
-                };
+            const fetchedMeals = response.data;
+            const processedMeals = {
+                breakfast: fetchedMeals.filter((item) => item.dietType === "breakfast"),
+                lunch: fetchedMeals.filter((item) => item.dietType === "lunch"),
+                dinner: fetchedMeals.filter((item) => item.dietType === "dinner"),
+                snack: fetchedMeals.filter((item) => item.dietType === "snack"),
+            };
 
-                setMeals(processedMeals);
-            } catch (error) {
-                console.error("Error fetching meals:", error);
-            }
-        };
+            setMeals(processedMeals);
 
+            // 총 칼로리 계산 및 업데이트
+            const totalCal = fetchedMeals.reduce((total, meal) => total + meal.calories, 0);
+            setTotalCalories(totalCal);
+        } catch (error) {
+            console.error("Error fetching meals:", error);
+        }
+    }, [formattedDate, userId, accessToken, setTotalCalories]);
+
+    useEffect(() => {
         fetchMeals();
-    }, [formattedDate, userId, accessToken]);
+    }, [fetchMeals]);
+
+    const handleDeleteMeal = async (dietType, mealId) => {
+        try {
+            await axios.delete(`${process.env.REACT_APP_API_PORT}/deleteMeal`, {
+                data: { userId, mealId },
+                headers: { Authorization: `Bearer ${accessToken}` },
+            });
+
+            // 로컬 상태 업데이트
+            setMeals(prevMeals => ({
+                ...prevMeals,
+                [dietType]: prevMeals[dietType].filter(meal => meal.id !== mealId)
+            }));
+
+            // 총 칼로리 업데이트
+            const deletedMeal = meals[dietType].find(meal => meal.id === mealId);
+            if (deletedMeal) {
+                setTotalCalories(prev => prev - deletedMeal.calories);
+            }
+        } catch (error) {
+            console.error("Error deleting meal:", error);
+        }
+    };
 
     const handleMealClick = (dietType) => {
         navigate(`/dietdetail/${formattedDate}/${dietType}`, {
-            state: { date, userId, activeTab: "diet" }, // activeTab 상태를 전달
+            state: { date, userId, activeTab: "diet" },
         });
     };
 
@@ -228,7 +265,6 @@ export default function DailyDiet() {
         const newDate = increment ? addDays(pageDate, 1) : subDays(pageDate, 1);
 
         if (isAfter(newDate, today)) {
-            // 오늘 이후의 날짜로는 이동하지 않음
             return;
         }
 
@@ -255,23 +291,14 @@ export default function DailyDiet() {
                             <MenuNames>
                                 {mealItems[0].menuNames &&
                                 Array.isArray(mealItems[0].menuNames) ? (
-                                    Array(
-                                        Math.ceil(
-                                            mealItems[0].menuNames.length / 3
-                                        )
-                                    )
+                                    Array(Math.ceil(mealItems[0].menuNames.length / 3))
                                         .fill()
                                         .map((_, columnIndex) => (
                                             <MenuColumn key={columnIndex}>
                                                 {mealItems[0].menuNames
-                                                    .slice(
-                                                        columnIndex * 3,
-                                                        columnIndex * 3 + 3
-                                                    )
+                                                    .slice(columnIndex * 3, columnIndex * 3 + 3)
                                                     .map((menu, index) => (
-                                                        <MealDetailItem
-                                                            key={index}
-                                                        >
+                                                        <MealDetailItem key={index}>
                                                             {menu}
                                                         </MealDetailItem>
                                                     ))}
@@ -279,12 +306,17 @@ export default function DailyDiet() {
                                         ))
                                 ) : (
                                     <MealDetailItem>
-                                        {mealItems[0].menuNames ||
-                                            "메뉴 정보 없음"}
+                                        {mealItems[0].menuNames || "메뉴 정보 없음"}
                                     </MealDetailItem>
                                 )}
                             </MenuNames>
                             <CaloriesInfo>{`총 칼로리: ${totalCalories} kcal`}</CaloriesInfo>
+                            <DeleteButton onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteMeal(dietType, mealItems[0].id);
+                            }}>
+                                X
+                            </DeleteButton>
                         </MealDetails>
                     ) : (
                         <PlusButton>+</PlusButton>
