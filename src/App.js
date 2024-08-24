@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, BrowserRouter } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { createGlobalStyle } from 'styled-components';
 
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/login/LoginPage';
-
 import Footer from './components/Footer';
-import Header from './components/Header';
 import DailyTraining from './pages/training/DailyTraining';
 import RecordTraining from './pages/training/RecordTraining';
 import SelectTraining from './pages/training/SelectTraining';
@@ -42,30 +40,36 @@ import styled from 'styled-components';
 import ProtectedRoute from './pages/route/ProtectedRoute';
 
 import { CalorieProvider } from './context/CalorieContext';
+import TimerPage from './pages/timer/TimerPage'; // TimerPage 추가
 
 const GlobalStyle = createGlobalStyle`
-  body {
+  * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    box-sizing: border-box; 
+  }
+
+  body {
+    font-family: 'Arial', sans-serif;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    background-color: #FFEEAE;
   }
 `;
 
 const ContentContainer = styled.div`
-  /* padding-top: 30px; 
-  padding-bottom: 30px;  */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 `;
 
 const AppContainer = styled.div`
-  max-width: 100%;  // 변경
-  width: 100%;  // 추가
+  max-width: 100%;
+  width: 100%;
   margin: 0 auto;
-  overflow-y: auto;
-  background-color: #fff;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  min-height: 100vh;  // 추가
+  overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 `;
 
 function AppContent() {
@@ -78,12 +82,12 @@ function AppContent() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Fetch token and user info from localStorage on load
     setAccessToken(localStorage.getItem('accessToken'));
     setRefreshToken(localStorage.getItem('refreshToken'));
     setLoginType(localStorage.getItem('loginType'));
     setUserId(localStorage.getItem('userId'));
   }, []);
-
 
   useEffect(() => {
     const interceptor = axios.interceptors.response.use(
@@ -91,7 +95,6 @@ function AppContent() {
       error => {
         if (error.response && error.response.status === 401) {
           alert("로그인이 만료되었습니다. 다시 로그인 해주세요.");
-          // 토큰 삭제 시 로컬 스토리지와 상태를 동시에 업데이트
           setAccessToken(null);
           setRefreshToken(null);
           setLoginType("");
@@ -112,51 +115,49 @@ function AppContent() {
   }, [navigate]);
 
   useEffect(() => {
+    // Update localStorage when tokens or user data changes
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('loginType', loginType);
     localStorage.setItem('userId', userId);
   }, [accessToken, refreshToken, loginType, userId]);
 
-  const shouldShowHeaderFooter = !["/", "/auth/callback/kakao", "/profilesetting"].includes(location.pathname);
-
   return (
     <UserContext.Provider
-      value={{ 
-        accessToken, 
+      value={{
+        accessToken,
         setAccessToken: (token) => {
           setAccessToken(token);
           token ? localStorage.setItem('accessToken', token) : localStorage.removeItem('accessToken');
         },
-        refreshToken, 
+        refreshToken,
         setRefreshToken: (token) => {
           setRefreshToken(token);
           token ? localStorage.setItem('refreshToken', token) : localStorage.removeItem('refreshToken');
         },
-        loginType, 
+        loginType,
         setLoginType: (type) => {
           setLoginType(type);
           type ? localStorage.setItem('loginType', type) : localStorage.removeItem('loginType');
         },
-        userId, 
+        userId,
         setUserId: (id) => {
           setUserId(id);
           id ? localStorage.setItem('userId', id) : localStorage.removeItem('userId');
-        }
+        },
       }}
     >
       <ContentContainer>
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/auth/callback/kakao" element={<Kakao />} />
-          
+          <Route path="/timer" element={<TimerPage />} /> {/* TimerPage 라우트 추가 */}
           <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
           <Route path="/profilesetting" element={<ProtectedRoute><ProfileSetting /></ProtectedRoute>} />
           <Route path="/traindaily/:date" element={<ProtectedRoute><DailyTraining /></ProtectedRoute>} />
           <Route path="/selecttraining" element={<ProtectedRoute><SelectTraining /></ProtectedRoute>} />
           <Route path="/recordtraining" element={<ProtectedRoute><RecordTraining /></ProtectedRoute>} />
           <Route path="/edittraining" element={<ProtectedRoute><EditTrain /></ProtectedRoute>} />
-
           <Route path="/dietmonth" element={<ProtectedRoute><MonthlyDiet /></ProtectedRoute>} />
           <Route path="/dietdaily/:date" element={<ProtectedRoute><DailyDiet /></ProtectedRoute>} />
           <Route path="/dietdetail/:formattedDate/:dietType" element={<ProtectedRoute><DietDetail /></ProtectedRoute>} />
@@ -165,22 +166,19 @@ function AppContent() {
           <Route path="/recorddiet/:dietType" element={<ProtectedRoute><RecordDiet /></ProtectedRoute>} />
           <Route path="/analyzing/:formattedDate/:dietType" element={<ProtectedRoute><AnalyzingPage /></ProtectedRoute>} />
           <Route path="/confirmDiet/:formattedDate/:dietType" element={<ProtectedRoute><ConfirmDietPage /></ProtectedRoute>} />
-
           <Route path="/report" element={<ProtectedRoute><ReportPage /></ProtectedRoute>} />
           <Route path="/dailyreport" element={<ProtectedRoute><DailyReportPage /></ProtectedRoute>} />
           <Route path="/weeklyreport" element={<ProtectedRoute><WeeklyReportPage /></ProtectedRoute>} />
           <Route path="/monthlyreport" element={<ProtectedRoute><MonthlyReportPage /></ProtectedRoute>} />
           <Route path="/yearlyreport" element={<ProtectedRoute><YearlyReportPage /></ProtectedRoute>} />
-
           <Route path="/settings" element={<ProtectedRoute><SettingPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/editprofile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
-          
           <Route path="/friends" element={<ProtectedRoute><FriendPage /></ProtectedRoute>} />
           <Route path="/comparefriend/:formattedDate" element={<ProtectedRoute><CompareFriendPage /></ProtectedRoute>} />
         </Routes>
       </ContentContainer>
-      {shouldShowHeaderFooter && <Footer />}
+      <Footer /> {/* Footer 항상 렌더링 */}
     </UserContext.Provider>
   );
 }
@@ -190,9 +188,9 @@ function App() {
     <CalorieProvider>
       <GlobalStyle />
       <AppContainer>
-        <BrowserRouter basename={process.env.PUBLIC_URL}>
+        <Router basename={process.env.PUBLIC_URL}>
           <AppContent />
-        </BrowserRouter>
+        </Router>
       </AppContainer>
     </CalorieProvider>
   );

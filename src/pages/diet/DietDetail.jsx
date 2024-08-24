@@ -9,6 +9,8 @@ import EditDietOverlay from "../../components/RecordOverlay/EditDietOverlay";
 import annotationPlugin from "chartjs-plugin-annotation";
 import NutrientChart from "../../components/NutrientChart";
 
+import { CalorieContext } from '../../context/CalorieContext';
+
 import {
     Chart as ChartJS,
     CategoryScale,
