@@ -3,6 +3,30 @@ import "./login.css";
 import styled, { keyframes } from "styled-components";
 import kakaoLoginLogo from "../../image/kakao_login.png";
 import LOGO from "../../image/LOGO.png";
+import { useNavigate } from "react-router-dom";
+
+// 버튼 스타일링 추가
+const ExploreButton = styled.button`
+    background-color: #ffe396;
+    color: #fa803d;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: #ffd966;
+        transform: scale(1.05);
+    }
+
+    &:focus {
+        outline: none;
+    }
+`;
 
 const Button = styled.button`
     display: inline-block;
@@ -48,6 +72,7 @@ const LogoImage = styled.img`
 
 export default function LoginPage() {
     const [showLoginButton, setShowLoginButton] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -65,6 +90,10 @@ export default function LoginPage() {
 
     return (
         <Container className={showLoginButton ? "show-login-button" : ""}>
+            {/* "로그인없이 살펴보기" 버튼에 스타일과 navigate 함수 적용 */}
+            <ExploreButton onClick={() => navigate("/home")}>
+                로그인없이 살펴보기
+            </ExploreButton>
             <LogoImage src={LOGO} alt='카카오 로그인' />
             <h1>치팅데이</h1>
             <Button
