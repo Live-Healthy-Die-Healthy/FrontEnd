@@ -87,7 +87,7 @@ export default function LoginPage() {
             "_self"
         );
     };
-
+//
     return (
         <Container className={showLoginButton ? "show-login-button" : ""}>
             {/* "로그인없이 살펴보기" 버튼에 스타일과 navigate 함수 적용 */}
